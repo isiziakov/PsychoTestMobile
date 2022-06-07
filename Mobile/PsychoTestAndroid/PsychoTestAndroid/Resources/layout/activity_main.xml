@@ -7,4 +7,38 @@
     android:layout_height="match_parent"
     android:minWidth="25px"
     android:minHeight="25px">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/main_enter_code"
+            android:textSize="24sp" />
+        <EditText
+            android:id="@+id/main_code"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+        <TextView
+            android:id="@+id/main_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/main_code_error"
+            android:textSize="20sp"
+            android:textColor="@android:color/holo_red_dark"
+            android:visibility="gone"/>
+        <Button
+            android:id="@+id/main_enter_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/enter"
+            android:autoSizeTextType="uniform"
+            android:onClick="enterClick"/>
+    </LinearLayout>
 </RelativeLayout>
