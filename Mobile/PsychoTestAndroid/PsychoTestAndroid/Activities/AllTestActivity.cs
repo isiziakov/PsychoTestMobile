@@ -4,6 +4,8 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using Newtonsoft.Json;
+using PsychoTestAndroid.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,12 +16,19 @@ namespace PsychoTestAndroid
     [Activity(Label = "AllTestActivity")]
     public class AllTestActivity : Activity
     {
+        List<Test> tests;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
 
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.activity_allTests);
+
+            tests = JsonConvert.DeserializeObject<List<Test>>(Intent.GetStringExtra("Tests"));
+            if (tests == null)
+            {
+                tests = new List<Test>();
+            }
 
             InitializeComponents();
         }

@@ -5,6 +5,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using AndroidX.AppCompat.App;
+using Newtonsoft.Json;
 using PsychoTestAndroid.Web;
 using System;
 
@@ -49,7 +50,9 @@ namespace PsychoTestAndroid
                 var tests = WebApi.getTestsForCode(code.Text);
                 if (tests != null && tests.Count > 0)
                 {
-                    StartActivity(typeof(AllTestActivity));
+                    Intent intent = new Intent(this, typeof(AllTestActivity));
+                    intent.PutExtra("Tests", JsonConvert.SerializeObject(tests));
+                    this.StartActivity(intent);
                 }
                 else
                 {
