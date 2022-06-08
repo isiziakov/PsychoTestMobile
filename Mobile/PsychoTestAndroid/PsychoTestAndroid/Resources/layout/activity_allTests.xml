@@ -6,13 +6,9 @@
     android:orientation="vertical">
     <include
         layout="@layout/header_back"/>
-    <RelativeLayout
-        android:layout_margin="4dp"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <androidx.recyclerview.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
+            android:layout_margin="4dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/testsRecylcerView" />
-    </RelativeLayout>
 </LinearLayout>

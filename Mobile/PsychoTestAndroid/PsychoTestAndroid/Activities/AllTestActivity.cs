@@ -53,7 +53,9 @@ namespace PsychoTestAndroid
 
         private void MAdapter_ItemClick(object sender, int e)
         {
-            var item = tests[e];
+            Intent intent = new Intent(this, typeof(TestActivity));
+            intent.PutExtra("Test", JsonConvert.SerializeObject(tests[e]));
+            this.StartActivity(intent);
         }
     }
 }
