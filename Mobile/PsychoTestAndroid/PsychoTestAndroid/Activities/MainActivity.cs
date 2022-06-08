@@ -21,10 +21,10 @@ namespace PsychoTestAndroid
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.activity_main);
-            InitialComponent();
+            InitializeComponents();
         }
 
-        void InitialComponent()
+        void InitializeComponents()
         {
             error = FindViewById<TextView>(Resource.Id.main_error);
             code = FindViewById<EditText>(Resource.Id.main_code);

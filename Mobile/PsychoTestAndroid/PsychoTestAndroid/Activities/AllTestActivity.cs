@@ -18,7 +18,20 @@ namespace PsychoTestAndroid
         {
             base.OnCreate(savedInstanceState);
 
-            // Create your application here
+            Xamarin.Essentials.Platform.Init(this, savedInstanceState);
+            SetContentView(Resource.Layout.activity_allTests);
+
+            InitializeComponents();
+        }
+
+        private void InitializeComponents()
+        {
+            ImageButton backHeaderButton = FindViewById<ImageButton>(Resource.Id.headerBack_backButton);
+            backHeaderButton.SetMinimumHeight((int)(Resources.DisplayMetrics.HeightPixels * 0.06));
+            backHeaderButton.Click += (sender, e) =>
+            {
+                this.Finish();
+            };
         }
     }
 }
