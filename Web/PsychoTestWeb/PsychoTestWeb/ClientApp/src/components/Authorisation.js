@@ -32,7 +32,7 @@ export class Authorisation extends Component {
     }
 
     async getTokenAsync() {
-        var response = await fetch("/token", {
+        var response = await fetch("/authentication", {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json;'
@@ -42,7 +42,7 @@ export class Authorisation extends Component {
         var data = await response.json();
         if (response.ok === true) {
             // сохраняем в хранилище sessionStorage токен доступа
-            sessionStorage.setItem('tokenKey', data.access_token);
+            sessionStorage.setItem('tokenKey', data.accessToken);
             console.log(data);
             window.location.reload();
         }
@@ -51,14 +51,14 @@ export class Authorisation extends Component {
         }
     }
 
- 
+
     render() {
         return (
             <div>
                 <div className="loginBody" >
                     <form onSubmit={this.onSubmit} className="form shadow-lg bg-white">
                         <h2>Вход</h2>
-                        <br/>
+                        <br />
                         <div className="row mt-2">
                             <label className="control-label col-6">Email:</label>
                             <input type="text"

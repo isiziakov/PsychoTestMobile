@@ -21,7 +21,7 @@ namespace PsychoTestWeb.Controllers
             new User { Login="qwerty@gmail.com", Password="12345", Role = "user" }
         };
 
-        [HttpPost("/token")]
+        [HttpPost("/authentication")]
         public IActionResult Token([FromBody] User user)
         {
             var identity = GetIdentity(user.Login, user.Password);
@@ -43,7 +43,7 @@ namespace PsychoTestWeb.Controllers
 
             var response = new
             {
-                access_token = encodedJwt,
+                accessToken = encodedJwt,
                 username = identity.Name
             };
 
