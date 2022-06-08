@@ -24,7 +24,7 @@ namespace PsychoTestAndroid.Web
             }
             else
             {
-                tests.Add(new Test("Тест1", "Не начат"));
+                tests.Add(new Test("Тест1", ""));
                 tests.Add(new Test("Тест2", "В процессе"));
                 tests.Add(new Test("Тест3", "Пройден"));
             }

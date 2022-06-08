@@ -35,15 +35,8 @@ namespace PsychoTestAndroid
                 enterButton.Click += enterClick;
             }
         }
-        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
-        {
-            Xamarin.Essentials.Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
 
-            base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-
-        
-        public void enterClick(object sender, EventArgs e)
+        private void enterClick(object sender, EventArgs e)
         {
             if (code != null)
             {
@@ -62,6 +55,13 @@ namespace PsychoTestAndroid
                     }
                 }
             }
+        }
+
+        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
+        {
+            Xamarin.Essentials.Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+
+            base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 }

@@ -14,17 +14,17 @@ namespace PsychoTestAndroid.Model
     public class Test
     {
         public string Name;
-        public string Status;
+        public string Title;
         
         public Test()
         {
 
         }
 
-        public Test(string name, string status)
+        public Test(string name, string title)
         {
             Name = name;
-            Status = status;
+            Title = title;
         }
     }
 }

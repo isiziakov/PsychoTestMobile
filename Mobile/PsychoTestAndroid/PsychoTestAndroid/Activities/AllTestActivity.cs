@@ -4,6 +4,7 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using AndroidX.RecyclerView.Widget;
 using Newtonsoft.Json;
 using PsychoTestAndroid.Model;
 using System;
@@ -17,6 +18,7 @@ namespace PsychoTestAndroid
     public class AllTestActivity : Activity
     {
         List<Test> tests;
+        RecyclerView recycleView;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -41,6 +43,17 @@ namespace PsychoTestAndroid
             {
                 this.Finish();
             };
+            recycleView = FindViewById<RecyclerView>(Resource.Id.testsRecylcerView);
+            var mLayoutManager = new LinearLayoutManager(this);
+            recycleView.SetLayoutManager(mLayoutManager);
+            var adapter = new AllTestsAdapter(tests);
+            adapter.ItemClick += MAdapter_ItemClick;
+            recycleView.SetAdapter(adapter);
+        }
+
+        private void MAdapter_ItemClick(object sender, int e)
+        {
+            var item = tests[e];
         }
     }
 }
