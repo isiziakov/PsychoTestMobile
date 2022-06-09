@@ -15,6 +15,7 @@ namespace PsychoTestAndroid.Model
     {
         public string Name;
         public string Title;
+        public string Instruction;
         
         public Test()
         {
@@ -25,6 +26,13 @@ namespace PsychoTestAndroid.Model
         {
             Name = name;
             Title = title;
+        }
+
+        public Test(string name, string title, string instruction)
+        {
+            Name = name;
+            Title = title;
+            Instruction = instruction;
         }
     }
 }
