@@ -22,7 +22,7 @@ namespace PsychoTestAndroid
             base.OnCreate(savedInstanceState);
 
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
-            SetContentView(Resource.Layout.activity_allTests);
+            SetContentView(Resource.Layout.instruction);
 
             test = JsonConvert.DeserializeObject<Test>(Intent.GetStringExtra("Test"));
             if (test == null)
