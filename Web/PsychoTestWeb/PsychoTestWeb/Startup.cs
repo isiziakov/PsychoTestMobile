@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using PsychoTestWeb.Authorisation;
+using PsychoTestWeb.Models;
 
 
 namespace PsychoTestWeb
@@ -55,6 +56,7 @@ namespace PsychoTestWeb
             {
                 configuration.RootPath = "ClientApp/build";
             });
+            services.AddTransient<Service>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

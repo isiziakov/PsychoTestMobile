@@ -9,22 +9,32 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using PsychoTestWeb.Models;
 using PsychoTestWeb.Authorisation;
+using MongoDB.Bson;
+using MongoDB.Driver;
 
 namespace PsychoTestWeb.Controllers
 {
     public class AccountController : Controller
     {
         // тестовые данные вместо использования базы данных
-        private List<User> people = new List<User>
+        //private List<User> people = new List<User>
+        //{
+        //    new User {login="admin@gmail.com", password="12345", role = "admin" },
+        //    new User { login="qwerty@gmail.com", password="12345", role = "user" }
+        //};
+
+        private readonly Service db;
+        List<User> people;
+        public AccountController(Service context)
         {
-            new User {Login="admin@gmail.com", Password="12345", Role = "admin" },
-            new User { Login="qwerty@gmail.com", Password="12345", Role = "user" }
-        };
+            db = context;
+            people = db.GetUsers().ToList();
+        }
 
         [HttpPost("/authentication")]
         public IActionResult Token([FromBody] User user)
         {
-            var identity = GetIdentity(user.Login, user.Password);
+            var identity = GetIdentity(user.login, user.password);
             if (identity == null)
             {
                 return BadRequest(new { errorText = "Invalid username or password." });
@@ -52,13 +62,13 @@ namespace PsychoTestWeb.Controllers
 
         private ClaimsIdentity GetIdentity(string username, string password)
         {
-            User person = people.FirstOrDefault(x => x.Login == username && x.Password == password);
+            User person = people.FirstOrDefault(x => x.login == username && x.password == password);
             if (person != null)
             {
                 var claims = new List<Claim>
                 {
-                    new Claim(ClaimsIdentity.DefaultNameClaimType, person.Login),
-                    new Claim(ClaimsIdentity.DefaultRoleClaimType, person.Role)
+                    new Claim(ClaimsIdentity.DefaultNameClaimType, person.login),
+                    new Claim(ClaimsIdentity.DefaultRoleClaimType, person.role)
                 };
                 ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
                 return claimsIdentity;
