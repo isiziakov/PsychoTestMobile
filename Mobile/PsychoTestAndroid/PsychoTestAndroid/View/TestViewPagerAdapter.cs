@@ -39,7 +39,6 @@ namespace PsychoTestAndroid
             View view = LayoutInflater.From(container.Context).Inflate(test.Questions[position].GetLayout(), container, false);
             var viewPager = container.JavaCast<ViewPager>();
             viewPager.AddView(test.Questions[position].Show(view));
-            test.Questions[position].UpdateResult();
             return view;
         }
 
