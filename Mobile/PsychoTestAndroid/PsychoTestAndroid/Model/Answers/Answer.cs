@@ -6,6 +6,7 @@ using Android.Views;
 using Android.Widget;
 using AndroidX.AppCompat.App;
 using Newtonsoft.Json.Linq;
+using PsychoTestAndroid.Model.Questions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,30 +14,22 @@ using System.Text;
 
 namespace PsychoTestAndroid.Model.Answers
 {
-    public class Answer
+    public abstract class Answer
     {
-        public int answerId;
+        protected Question owner;
+        public string Id;
 
-        public Answer()
+        public Answer(Question owner)
         {
-           
+           this.owner = owner;
         }
 
         public Answer(JObject data)
         {
-            answerId = Int32.Parse(data.SelectToken("answer_id").ToString());
+            Id = data.SelectToken("answer_id").ToString();
         }
 
-        public LinearLayout Show(AppCompatActivity activity)
-        {
-            LinearLayout layout = new LinearLayout(activity);
-            //layout.wid = 
-            return new LinearLayout(activity);
-        }
-
-        public string GetResult()
-        {
-            return "";
-        }
+        public abstract LinearLayout Show(LinearLayout layout);
+        public abstract void UpdateResult(string result);
     }
 }

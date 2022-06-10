@@ -7,19 +7,17 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="33"
-        android:background="@android:color/holo_red_dark">
+        android:layout_weight="33">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/question_view"/>
     </ScrollView>
-    <ScrollView
-       android:id="@+id/answersview"
+    <androidx.recyclerview.widget.RecyclerView
+       android:id="@+id/answers_view"
        android:layout_width="match_parent"
        android:layout_height="match_parent"
-       android:layout_weight="66"
-       android:background="@android:color/holo_green_dark">
-    </ScrollView>
+       android:layout_weight="66">
+    </androidx.recyclerview.widget.RecyclerView>
 </LinearLayout>
 

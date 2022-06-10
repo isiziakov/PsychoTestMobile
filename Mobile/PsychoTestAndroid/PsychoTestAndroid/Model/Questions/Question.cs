@@ -4,6 +4,7 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using AndroidX.RecyclerView.Widget;
 using Newtonsoft.Json.Linq;
 using PsychoTestAndroid.Model.Answers;
 using System;
@@ -14,7 +15,8 @@ using System.Text;
 namespace PsychoTestAndroid.Model.Questions
 {
     public abstract class Question
-    { 
+    {
+        public string result;
         public string Type;
         public string Id;
         public string AnswersType;
@@ -22,7 +24,12 @@ namespace PsychoTestAndroid.Model.Questions
 
         public Question()
         {
-
+            Answers.Add(new AnswerSingleTest(this, "111"));
+            Answers[0].Id = "0";
+            Answers.Add(new AnswerSingleTest(this, "111"));
+            Answers[1].Id = "1";
+            Answers.Add(new AnswerSingleTest(this, "111"));
+            Answers[2].Id = "2";
         }
 
         public Question(JObject data)
@@ -37,7 +44,28 @@ namespace PsychoTestAndroid.Model.Questions
             }
         }
 
-        public abstract View Show(View layout);
+        public virtual View Show(View layout)
+        {
+            RecyclerView recycler = layout.FindViewById<RecyclerView>(Resource.Id.answers_view);
+            var mLayoutManager = new LinearLayoutManager(layout.Context);
+            recycler.SetLayoutManager(mLayoutManager);
+            var adapter = new AnswersAdapter(this);
+            recycler.SetAdapter(adapter);
+            return layout;
+        }
         public abstract int GetLayout();
+        public void SetResult(string result)
+        {
+            this.result = result;
+            UpdateResult();
+        }
+
+        public void UpdateResult()
+        {
+            foreach (Answer answer in Answers)
+            {
+                answer.UpdateResult(result);
+            }
+        }
     }
 }
