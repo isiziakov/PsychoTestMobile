@@ -4,8 +4,10 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using AndroidX.ViewPager.Widget;
 using Newtonsoft.Json;
 using PsychoTestAndroid.Model;
+using PsychoTestAndroid.Model.Questions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,7 +54,12 @@ namespace PsychoTestAndroid
             Button startButton = FindViewById<Button>(Resource.Id.start_test);
             startButton.Click += (sender, args) =>
             {
-
+                SetContentView(Resource.Layout.test_viewPager);
+                ViewPager viewPager = FindViewById<ViewPager>(Resource.Id.testViewPager);
+                test.Questions.Add(new QuestionText("111"));
+                test.Questions.Add(new QuestionText("222"));
+                test.Questions.Add(new QuestionText("Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа."));
+                viewPager.Adapter = new TestViewPagerAdapter(this, test);
             };
         }
 

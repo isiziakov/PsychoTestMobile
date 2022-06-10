@@ -14,8 +14,7 @@ using System.Text;
 namespace PsychoTestAndroid.Model.Questions
 {
     public abstract class Question
-    {
-        protected Context context;
+    { 
         public string Type;
         public string Id;
         public string AnswersType;
@@ -26,9 +25,8 @@ namespace PsychoTestAndroid.Model.Questions
 
         }
 
-        public Question(JObject data, Context context)
+        public Question(JObject data)
         {
-            this.context = context;
             Type = data.SelectToken("type").ToString();
             Id = data.SelectToken("question_id").ToString();
             AnswersType = data.SelectToken("answers_type").ToString();
@@ -39,6 +37,7 @@ namespace PsychoTestAndroid.Model.Questions
             }
         }
 
-        public abstract Java.Lang.Object Show();
+        public abstract View Show(View layout);
+        public abstract int GetLayout();
     }
 }

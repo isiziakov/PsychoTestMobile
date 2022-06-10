@@ -34,12 +34,12 @@ namespace PsychoTestAndroid
             return view == obj;
         }
 
-        public override Java.Lang.Object InstantiateItem(View container, int position)
+        public override Java.Lang.Object InstantiateItem(ViewGroup container, int position)
         {
-            var ll = new LinearLayout(context);
+            View view = LayoutInflater.From(container.Context).Inflate(test.Questions[position].GetLayout(), container, false);
             var viewPager = container.JavaCast<ViewPager>();
-            viewPager.AddView(ll);
-            return ll;
+            viewPager.AddView(test.Questions[position].Show(view));
+            return view;
         }
 
         public override void DestroyItem(View container, int position, Java.Lang.Object view)

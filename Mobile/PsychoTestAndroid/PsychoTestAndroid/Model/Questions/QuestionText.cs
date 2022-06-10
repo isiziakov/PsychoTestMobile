@@ -16,18 +16,29 @@ namespace PsychoTestAndroid.Model.Questions
     {
         string text;
 
-        public QuestionText(JObject data, Context context) : base(data, context)
+        public QuestionText(string text)
+        {
+            this.text = text;
+        }
+
+        public QuestionText(JObject data) : base(data)
         {
             text = data.SelectToken("text").ToString();
         }
 
-        public override Java.Lang.Object Show()
+        public override int GetLayout()
         {
-            LinearLayout layout = new LinearLayout(context);
-            ScrollView scrollView = new ScrollView(context);
-            layout.AddView(scrollView);
-            View view = new View(context);
-            return view;
+            return Resource.Layout.question_layout;
+        }
+
+        public override View Show(View layout)
+        {
+            LinearLayout questionLinear = layout.FindViewById<LinearLayout>(Resource.Id.question_view);
+            TextView questionText = new TextView(layout.Context);
+            questionText.Text = text;
+            questionText.SetTextSize(Android.Util.ComplexUnitType.Sp, 24);
+            questionLinear.AddView(questionText);
+            return layout;
         }
     }
 }
