@@ -17,7 +17,7 @@ namespace PsychoTestAndroid
     {
         public override int Count
         {
-            get { return test.Questions == null ? 0 : test.Questions.Count(); }
+            get { return test.Questions.Count(); }
         }
 
         Context context;

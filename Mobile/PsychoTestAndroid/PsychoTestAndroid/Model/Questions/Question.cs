@@ -4,6 +4,8 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using Newtonsoft.Json.Linq;
+using PsychoTestAndroid.Model.Answers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +13,32 @@ using System.Text;
 
 namespace PsychoTestAndroid.Model.Questions
 {
-    internal class Question
+    public abstract class Question
     {
+        protected Context context;
+        public string Type;
+        public string Id;
+        public string AnswersType;
+        public List<Answer> Answers = new List<Answer>();
+
+        public Question()
+        {
+
+        }
+
+        public Question(JObject data, Context context)
+        {
+            this.context = context;
+            Type = data.SelectToken("type").ToString();
+            Id = data.SelectToken("question_id").ToString();
+            AnswersType = data.SelectToken("answers_type").ToString();
+            JArray jAnserws = JArray.Parse(data.SelectToken("answers").ToString());
+            foreach (JObject answer in jAnserws)
+            {
+
+            }
+        }
+
+        public abstract Java.Lang.Object Show();
     }
 }

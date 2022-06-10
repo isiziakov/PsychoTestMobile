@@ -16,7 +16,12 @@ namespace PsychoTestAndroid.Model.Answers
     public class Answer
     {
         public int answerId;
-        
+
+        public Answer()
+        {
+           
+        }
+
         public Answer(JObject data)
         {
             answerId = Int32.Parse(data.SelectToken("answer_id").ToString());
@@ -24,6 +29,8 @@ namespace PsychoTestAndroid.Model.Answers
 
         public LinearLayout Show(AppCompatActivity activity)
         {
+            LinearLayout layout = new LinearLayout(activity);
+            //layout.wid = 
             return new LinearLayout(activity);
         }
 
