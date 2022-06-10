@@ -2,20 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson;
 
 namespace PsychoTestWeb.Models
 {
     public class Patient
     {
-        public Patient()
-        {
-            Tests = new HashSet<Test>();
-            Results = new HashSet<Result>();
-        }
-        public string Name { get; set; }
-        public int Id { get; set; }
-        public virtual ICollection<Test> Tests { get; set; }
-        public virtual ICollection<Result> Results { get; set; }
-
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string id { get; set; }
+        public string name { get; set; }
+        public List<string> tests { get; set; }
+        public List<string> results { get; set; }
     }
 }

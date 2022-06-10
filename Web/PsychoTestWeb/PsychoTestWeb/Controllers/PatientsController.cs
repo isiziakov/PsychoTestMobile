@@ -16,12 +16,18 @@ namespace PsychoTestWeb.Controllers
     public class PatientsController : ControllerBase
     {
         // тестовые данные вместо использования базы данных
-        private List<Patient> people = new List<Patient>
+        //private List<Patient> people = new List<Patient>
+        //{
+        //    new Patient {Name = "test1", Id = 1 },
+        //    new Patient {Name = "test2", Id = 2 },
+        //};
+        private readonly Service db;
+        List<Patient> people;
+        public PatientsController(Service context)
         {
-            new Patient {Name = "test1", Id = 1 },
-            new Patient {Name = "test2", Id = 2 },
-        };
-
+            db = context;
+            people = db.GetPatients().ToList();
+        }
 
         // GET: api/<PatientsController>
         [Authorize]
@@ -31,20 +37,20 @@ namespace PsychoTestWeb.Controllers
             return people;
         }
 
-        // GET api/<PatientsController>/5
+        // GET api/<PatientsController>/62a1f08829de97df5563051f
         [Authorize]
         [HttpGet("{id}")]
-        public Patient Get(int id)
+        public Patient Get(string id)
         {
-            return people.FirstOrDefault(x => x.Id == id);
+            return people.FirstOrDefault(x => x.id == id);
         }
 
         // GET api/<PatientsController>/name/value
         [Authorize]
         [HttpGet("name/{value}")]
-        public IEnumerable<Patient> Get(string value)
+        public IEnumerable<Patient> GetByName(string value)
         {
-            return people.FindAll(x => x.Name.Contains(value) == true);
+            return people.FindAll(x => x.name.Contains(value) == true);
         }
 
         // POST api/<PatientsController>
@@ -52,20 +58,23 @@ namespace PsychoTestWeb.Controllers
         [HttpPost]
         public void Post([FromBody] Patient value)
         {
+            db.CreatePatient(value);
         }
 
-        // PUT api/<PatientsController>/5
+        // PUT api/<PatientsController>/62a1f08829de97df5563051f
         [Authorize]
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Patient value)
+        public void Put(string id, [FromBody] Patient value)
         {
+            db.UpdatePatient(id, value);
         }
 
-        // DELETE api/<PatientsController>/5
+        // DELETE api/<PatientsController>/62a1f08829de97df5563051f
         [Authorize]
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public void Delete(string id)
         {
+            db.RemovePatient(id);
         }
     }
 }
