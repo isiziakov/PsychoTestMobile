@@ -11,6 +11,7 @@ export default class ModalPatient extends React.Component {
             modal: false,
             isCreate: props.isCreate,
             patient: props.patient,
+            name: props.patient.name,
             prescribedTests: [],
             tests: [],
             availableTests: [],
@@ -44,9 +45,7 @@ export default class ModalPatient extends React.Component {
         });
     }
     onChangeName(e) {
-        var tmp = this.state.patient;
-        tmp.name = e.target.value;
-        this.setState({ patient: tmp });
+        this.setState({ name: e.target.value });
     }
     onTestsChange(e) {
         this.setState({ addedTest: e.target.value });
@@ -133,34 +132,36 @@ export default class ModalPatient extends React.Component {
     }
 
     allRequestIsDone() {
-        if (this.state.allRequestIsDone === 2) {
+        if (this.state.allRequestIsDone == 2) {
             this.addPrescribedTests();
             this.addNameTestsForResults();
         }
     }
 
     addPrescribedTests() {
-        if (this.state.patient.tests !== null && this.state.patient.tests !== undefined) {
-            this.state.patient.tests.map((testId) => {
-                this.state.tests.map((test) => {
-                    if (testId === test.id) {
-                        var tmp = this.state.prescribedTests;
-                        tmp.push({ name: test.name, id: test.id, isChecked: true });
-                        this.setState({ prescribedTests: tmp });
-                    }
-                    else {
-                        var tmp = this.state.availableTests;
-                        tmp.push({ name: test.name, id: test.id });
-                        this.setState({ availableTests: tmp });
-                    }
+        this.setState({ availableTests: [], prescribedTests: [] }, () => {
+            if (this.state.patient.tests !== null && this.state.patient.tests !== undefined) {
+                this.state.patient.tests.map((testId) => {
+                    this.state.tests.map((test) => {
+                        if (testId === test.id) {
+                            var tmp = this.state.prescribedTests;
+                            tmp.push({ name: test.name, id: test.id, isChecked: true });
+                            this.setState({ prescribedTests: tmp });
+                        }
+                        else {
+                            var tmp = this.state.availableTests;
+                            tmp.push({ name: test.name, id: test.id });
+                            this.setState({ availableTests: tmp });
+                        }
+                    });
                 });
-            });
-            if (this.state.patient.tests.length === 0) {
-                this.setState({ availableTests: this.state.tests, isPrescribedTests: "Тестов пока нет!" });
+                if (this.state.patient.tests.length === 0) {
+                    this.setState({ availableTests: this.state.tests, isPrescribedTests: "Тестов пока нет!" });
+                }
             }
-        }
-        else
-            this.setState({ availableTests: this.state.tests, isPrescribedTests: "Тестов пока нет!" });
+            else
+                this.setState({ availableTests: this.state.tests, isPrescribedTests: "Тестов пока нет!" });
+        });
     }
 
     addNameTestsForResults() {
@@ -201,7 +202,7 @@ export default class ModalPatient extends React.Component {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    name: this.state.patient.name,
+                    name: this.state.name,
                     id: this.state.patient.id,
                     tests: tests
                 })
@@ -216,7 +217,7 @@ export default class ModalPatient extends React.Component {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    name: this.state.patient.name,
+                    name: this.state.name,
                     tests: tests
                 })
             });
@@ -227,6 +228,7 @@ export default class ModalPatient extends React.Component {
         this.state.results.map((result) => {
             this.putResults(result);
         });
+        this.setState({ name: "", availableTests: this.state.tests, prescribedTests: [], isPrescribedTests: "Тестов пока нет!" });
         this.props.onClose("/api/patients/");
         this.toggle();
     }
@@ -274,29 +276,37 @@ export default class ModalPatient extends React.Component {
         }
     }
 
+    onClose() {
+        this.toggle();
+        var a = this.state.allRequestIsDone - 1;
+        this.setState({ allRequestIsDone: a });
+        this.getResults();
+        this.setState({ name: this.state.patient.name, results: [] });
+    }
+
     render() {
         return (
             <div>
                 <Button color="info" onClick={this.toggle}>{this.state.button}</Button>
                 <Modal size="lg" isOpen={this.state.modal}>
                     <Form onSubmit={this.onSubmit}>
-                        <ModalHeader toggle={() => { this.toggle(); }}>Информация о пациенте:</ModalHeader>
+                        <ModalHeader toggle={() => { this.onClose() }}>Информация о пациенте:</ModalHeader>
                         <ModalBody>
                             <FormGroup>
                                 <Label for="name">Имя:</Label>
-                                <Input id="name" required value={this.state.patient.name} onChange={this.onChangeName} placeholder="ФИО" />
+                                <Input id="name" required value={this.state.name} onChange={this.onChangeName} placeholder="ФИО" />
                             </FormGroup>
 
                             <FormGroup>
                                 <Label for="newTest">Назначить тест</Label>
                                 <Row>
                                     <Col xs="9">
-                                        <Input type="select" name="select" onChange={this.onTestsChange} id="newTest">
-                                            <option value="0" selected disabled hidden>Выберите тест</option>
+                                        <Input type="select" name="select" defaultValue={'0'} onChange={this.onTestsChange} id="newTest">
+                                            <option value="0" disabled>Выберите тест</option>
                                             {
                                                 this.state.availableTests.map((test) => {
                                                     return (
-                                                        <option value={test.id}>{test.name}</option>
+                                                        <option key={test.id} value={test.id}>{test.name}</option>
                                                     );
                                                 })
                                             }
@@ -315,7 +325,7 @@ export default class ModalPatient extends React.Component {
                                     {
                                         this.state.prescribedTests.map((test) => {
                                             return (
-                                                <FormGroup check>
+                                                <FormGroup check key={test.id}>
                                                     <Label check>
                                                         <Input type="checkbox" value={test.id} checked={test.isChecked} onChange={(e) => { this.onChangeCheckbox(test.id, e.target.checked) }} />{test.name}</Label>
                                                 </FormGroup>
@@ -330,7 +340,7 @@ export default class ModalPatient extends React.Component {
                             {
                                 this.state.results.map((result) => {
                                     return (
-                                        <FormGroup>
+                                        <FormGroup key={result.id}>
                                             <strong>{result.name}</strong>
                                             <br />
                                             <>Результат: {result.result}</>

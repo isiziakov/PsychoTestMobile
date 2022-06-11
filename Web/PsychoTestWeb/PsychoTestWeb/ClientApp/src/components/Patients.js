@@ -12,7 +12,7 @@ export class Patients extends Component {
         this.state = {
             patients: [],
             searchString: "",
-            emptyPatient: []
+            emptyPatient: { name: "", tests: [], id: "" }
         };
         this.getPatients = this.getPatients.bind(this);
         this.onSearchStringChange = this.onSearchStringChange.bind(this);
@@ -20,7 +20,7 @@ export class Patients extends Component {
 
     componentDidMount() {
         this.getPatients("/api/patients/");
-        this.setState({ searchString: "", emptyPatient: { name: "", tests: [], id: "" } });
+        this.setState({ searchString: ""  });
     }
 
     onSearchStringChange(e) {
@@ -70,7 +70,7 @@ export class Patients extends Component {
                 <div>
                     {
                         this.state.patients.map((patient) => {
-                            return <Patient patient={patient} getPatients={this.getPatients} />
+                            return <Patient patient={patient} getPatients={this.getPatients} key={patient.id} />
                         })
                     }
                 </div>

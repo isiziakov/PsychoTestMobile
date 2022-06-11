@@ -14,7 +14,7 @@ export class Layout extends Component {
         };
     }
 
-    componentWillMount() {
+    componentDidMount() {
         this.getData();
     }
 
@@ -60,6 +60,7 @@ export class Layout extends Component {
         }
         if (this.state.isLoggedIn === "")
             return (<h2>Loading...</h2>);
-  }
+    }
 }
 
+    
