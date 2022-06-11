@@ -9,7 +9,6 @@ namespace PsychoTestWeb.Models
 {
     public class Service
     {
-        //IGridFSBucket gridFS;   // файловое хранилище
         IMongoCollection<User> Users; // коллекция в базе данных
         IMongoCollection<Patient> Patients;
         IMongoCollection<Test> Tests;
@@ -23,15 +22,13 @@ namespace PsychoTestWeb.Models
             MongoClient client = new MongoClient(connectionString);
             // получаем доступ к самой базе данных
             IMongoDatabase database = client.GetDatabase(connection.DatabaseName);
-            // получаем доступ к файловому хранилищу
-            //gridFS = new GridFSBucket(database);
-            // обращаемся к коллекции Products
+            // обращаемся к коллекциям
             Users = database.GetCollection<User>("Users");
             Patients = database.GetCollection<Patient>("Patients");
             Tests = database.GetCollection<Test>("Tests");
             Results = database.GetCollection<Result>("Results");
         }
-        // получаем все документы, используя критерии фильтрации
+        // получаем всех пользователей, используя критерии фильтрации
         public IEnumerable<User> GetUsers()
         {
             // строитель фильтров
@@ -41,12 +38,13 @@ namespace PsychoTestWeb.Models
             return Users.Find(filter).ToList();
         }
 
-        // получаем один документ по id
+        // получаем одного пользователя по id
         public User GetUser(string id)
         {
             return Users.Find(new BsonDocument("_id", new ObjectId(id))).FirstOrDefault();
         }
 
+        // получаем всех пациетов, используя критерии фильтрации
         public IEnumerable<Patient> GetPatients()
         {
             var builder = new FilterDefinitionBuilder<Patient>();
@@ -70,5 +68,34 @@ namespace PsychoTestWeb.Models
         {
             Patients.DeleteOne(new BsonDocument("_id", new ObjectId(id)));
         }
+        // получаем все тесты, используя критерии фильтрации
+        public IEnumerable<Test> GetTests()
+        {
+            var builder = new FilterDefinitionBuilder<Test>();
+            var filter = builder.Empty;
+            return Tests.Find(filter).ToList();
+        }
+
+        // получаем результаты пациента
+        public IEnumerable<Result> GetPatientsResults(string patientId)
+        {
+            var builder = new FilterDefinitionBuilder<Result>();
+            var filter = builder.Empty;
+            filter = filter & builder.Regex("patient", new BsonRegularExpression(patientId));
+            return Results.Find(filter).ToList();
+        }
+
+        public IEnumerable<Result> GetResults()
+        {
+            var builder = new FilterDefinitionBuilder<Result>();
+            var filter = builder.Empty;
+            return Results.Find(filter).ToList();
+        }
+
+        public void UpdateResults(string id, Result r)
+        {
+            Results.ReplaceOne(new BsonDocument("_id", new ObjectId(id)), r);
+        }
     }
+
 }

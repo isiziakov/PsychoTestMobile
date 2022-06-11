@@ -13,6 +13,5 @@ namespace PsychoTestWeb.Models
         public string id { get; set; }
         public string name { get; set; }
         public List<string> tests { get; set; }
-        public List<string> results { get; set; }
     }
 }
