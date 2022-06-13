@@ -1,5 +1,7 @@
 ﻿import React, { Component } from 'react';
 import { Button, Row, Col, Input, InputGroup, InputGroupAddon } from 'reactstrap';
+import ModalPatient from './ModalPatient';
+
 
 
 export class Patients extends Component {
@@ -9,7 +11,8 @@ export class Patients extends Component {
         super(props);
         this.state = {
             patients: [],
-            searchString: ""
+            searchString: "",
+            emptyPatient: { name: "", tests: [], id: "", results: [] }
         };
         this.getPatients = this.getPatients.bind(this);
         this.onSearchStringChange = this.onSearchStringChange.bind(this);
@@ -46,6 +49,7 @@ export class Patients extends Component {
     render() {
         return (
             <div>
+
                 <h2>Список пациентов:</h2>
                 <br />
                 <Row>
@@ -58,15 +62,19 @@ export class Patients extends Component {
                             </InputGroupAddon>
                         </InputGroup>
                     </Col>
-                    <Col xs="3"><Button color="info" onClick={() => { this.getPatients("api/patients/name/" + this.state.searchString) }}>Найти</Button></Col>
-                    <Col xs="auto"><Button color="info" >Добавить пациента</Button></Col>
+                    <Col xs="3"><Button color="info" onClick={() => {
+                        if (this.state.searchString !== "")
+                            this.getPatients("api/patients/name/" + this.state.searchString);
+                        else this.getPatients("api/patients/");
+                    }}>Найти</Button></Col>
+                    <Col xs="auto"><ModalPatient patient={this.state.emptyPatient} isCreate={true} onClose={this.getPatients} /></Col>
                 </Row>
                 <br />
                 <hr />
                 <div>
                     {
                         this.state.patients.map((patient) => {
-                            return <Patient patient={patient} />
+                            return <Patient patient={patient} getPatients={this.getPatients} key={patient.id} />
                         })
                     }
                 </div>
@@ -90,10 +98,11 @@ class Patient extends Component {
             <div>
                 <Row>
                     <Col xs="6">{this.state.patient.name}</Col>
-                    <Col xs="auto"><Button color="info" outline >Просмотр</Button></Col>
+                    <Col xs="auto"><ModalPatient patient={this.state.patient} isCreate={false} onClose={this.props.getPatients} /></Col>
                 </Row>
                 <br />
             </div>
         );
     }
 }
+

@@ -42,7 +42,7 @@ namespace PsychoTestWeb.Controllers
         [HttpGet("{id}")]
         public Patient Get(string id)
         {
-            return people.FirstOrDefault(x => x.id == id);
+            return db.GetPatientById(id);
         }
 
         // GET api/<PatientsController>/name/value
@@ -50,7 +50,7 @@ namespace PsychoTestWeb.Controllers
         [HttpGet("name/{value}")]
         public IEnumerable<Patient> GetByName(string value)
         {
-            return people.FindAll(x => x.name.Contains(value) == true);
+            return db.GetPatientsByName(value);
         }
 
         // POST api/<PatientsController>

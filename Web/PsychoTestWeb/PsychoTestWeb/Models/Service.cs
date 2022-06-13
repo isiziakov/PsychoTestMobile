@@ -4,16 +4,18 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace PsychoTestWeb.Models
 {
     public class Service
     {
-        //IGridFSBucket gridFS;   // файловое хранилище
         IMongoCollection<User> Users; // коллекция в базе данных
         IMongoCollection<Patient> Patients;
         IMongoCollection<Test> Tests;
-        IMongoCollection<Result> Results;
+        IMongoCollection<BsonDocument> TestsBson;
         public Service()
         {
             // строка подключения
@@ -23,15 +25,13 @@ namespace PsychoTestWeb.Models
             MongoClient client = new MongoClient(connectionString);
             // получаем доступ к самой базе данных
             IMongoDatabase database = client.GetDatabase(connection.DatabaseName);
-            // получаем доступ к файловому хранилищу
-            //gridFS = new GridFSBucket(database);
-            // обращаемся к коллекции Products
+            // обращаемся к коллекциям
             Users = database.GetCollection<User>("Users");
             Patients = database.GetCollection<Patient>("Patients");
             Tests = database.GetCollection<Test>("Tests");
-            Results = database.GetCollection<Result>("Results");
+            TestsBson = database.GetCollection<BsonDocument>("Tests");
         }
-        // получаем все документы, используя критерии фильтрации
+        // получаем всех пользователей
         public IEnumerable<User> GetUsers()
         {
             // строитель фильтров
@@ -40,35 +40,69 @@ namespace PsychoTestWeb.Models
 
             return Users.Find(filter).ToList();
         }
-
-        // получаем один документ по id
-        public User GetUser(string id)
-        {
-            return Users.Find(new BsonDocument("_id", new ObjectId(id))).FirstOrDefault();
-        }
-
+        // получаем всех пациетов
         public IEnumerable<Patient> GetPatients()
         {
             var builder = new FilterDefinitionBuilder<Patient>();
             var filter = builder.Empty;
             return Patients.Find(filter).ToList();
         }
-
+        // фильтрация пациентов по имени
+        public IEnumerable<Patient> GetPatientsByName(string value)
+        {
+            var builder = new FilterDefinitionBuilder<Patient>();
+            var filter = builder.Empty;
+            var allPatients = Patients.Find(filter).ToList();
+            if (value != "")
+                return allPatients.FindAll(x => x.name.ToLower().Contains(value.ToLower()) == true);
+            else return allPatients;
+        }
+        //получаем пациента по id
+        public Patient GetPatientById(string id)
+        {
+            return Patients.Find(new BsonDocument("_id", new ObjectId(id))).FirstOrDefault();
+        }
         // добавление пациента
         public void CreatePatient(Patient p)
         {
             Patients.InsertOne(p);
         }
-
         // обновление пациента
         public void UpdatePatient(string id, Patient p)
         {
-            Patients.ReplaceOne(new BsonDocument("_id", new ObjectId(id)), p);
+            BsonDocument doc = new BsonDocument("_id", new ObjectId(id));
+            Patients.ReplaceOne(doc, p);
         }
         // удаление пациента
         public void RemovePatient(string id)
         {
             Patients.DeleteOne(new BsonDocument("_id", new ObjectId(id)));
         }
+        // получаем все тесты
+        public IEnumerable<Test> GetTests()
+        {
+            var builder = new FilterDefinitionBuilder<Test>();
+            var filter = builder.Empty;
+            return Tests.Find(filter).ToList();
+        }
+        // фильтрация тестов по имени
+        public IEnumerable<Test> GetTestsByName(string value)
+        {
+            var builder = new FilterDefinitionBuilder<Test>();
+            var filter = builder.Empty;
+            var allPatients = Tests.Find(filter).ToList();
+            return allPatients.FindAll(x => x.name.ToLower().Contains(value.ToLower()) == true);
+        }
+
+        public void ImportFile(string file)
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(file);
+            var json = JsonConvert.SerializeXmlNode(doc, Newtonsoft.Json.Formatting.None, true);
+            //string json = JsonConvert.SerializeXmlNode(file);
+            BsonDocument bsonDoc = BsonDocument.Parse(json);
+            TestsBson.InsertOne(bsonDoc);
+        }
     }
+
 }
