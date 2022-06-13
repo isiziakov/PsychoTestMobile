@@ -12,7 +12,7 @@ export class Patients extends Component {
         this.state = {
             patients: [],
             searchString: "",
-            emptyPatient: { name: "", tests: [], id: "" }
+            emptyPatient: { name: "", tests: [], id: "", results: [] }
         };
         this.getPatients = this.getPatients.bind(this);
         this.onSearchStringChange = this.onSearchStringChange.bind(this);
@@ -20,7 +20,7 @@ export class Patients extends Component {
 
     componentDidMount() {
         this.getPatients("/api/patients/");
-        this.setState({ searchString: ""  });
+        this.setState({ searchString: "" });
     }
 
     onSearchStringChange(e) {
@@ -62,7 +62,11 @@ export class Patients extends Component {
                             </InputGroupAddon>
                         </InputGroup>
                     </Col>
-                    <Col xs="3"><Button color="info" onClick={() => { this.getPatients("api/patients/name/" + this.state.searchString) }}>Найти</Button></Col>
+                    <Col xs="3"><Button color="info" onClick={() => {
+                        if (this.state.searchString !== "")
+                            this.getPatients("api/patients/name/" + this.state.searchString);
+                        else this.getPatients("api/patients/");
+                    }}>Найти</Button></Col>
                     <Col xs="auto"><ModalPatient patient={this.state.emptyPatient} isCreate={true} onClose={this.getPatients} /></Col>
                 </Row>
                 <br />
