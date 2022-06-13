@@ -46,6 +46,7 @@ namespace PsychoTestAndroid
             AnswersViewHolder vh = new AnswersViewHolder(itemView, OnClick);
             return vh;
         }
+
         private void OnClick(int obj)
         {
             if (ItemClick != null)

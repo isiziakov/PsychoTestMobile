@@ -20,12 +20,10 @@ namespace PsychoTestAndroid
             get { return test.Questions.Count(); }
         }
 
-        Context context;
         Test test;
 
-        public TestViewPagerAdapter(Context context, Test test)
+        public TestViewPagerAdapter(Test test)
         {
-            this.context = context;
             this.test = test;
         }
 
@@ -40,6 +38,12 @@ namespace PsychoTestAndroid
             var viewPager = container.JavaCast<ViewPager>();
             viewPager.AddView(test.Questions[position].Show(view));
             return view;
+        }
+
+        public override Java.Lang.ICharSequence GetPageTitleFormatted(int position)
+        {
+            string title = "Вопрос " + (position + 1) + " из " + test.Questions.Count;
+            return new Java.Lang.String(title);
         }
 
         public override void DestroyItem(View container, int position, Java.Lang.Object view)

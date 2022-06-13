@@ -4,6 +4,7 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using Newtonsoft.Json;
 using PsychoTestAndroid.Model.Questions;
 using System;
 using System.Collections.Generic;
@@ -14,9 +15,20 @@ namespace PsychoTestAndroid.Model
 {
     public class Test
     {
+        [JsonProperty("test_id")]
+        int Id;
+        [JsonProperty("max_duration")]
+        int duration;
+        int currentDuration;
+        [JsonProperty("answer_order")]
+        int answerOrder;
+        [JsonProperty("questions_order")]
+        int questionOrder;
+        [JsonProperty("name")]
         public string Name;
-        public string Title;
+        [JsonProperty("instruction")]
         public string Instruction;
+        [JsonIgnore]
         public List<Question> Questions = new List<Question>();
 
         public Test()
@@ -24,16 +36,14 @@ namespace PsychoTestAndroid.Model
 
         }
 
-        public Test(string name, string title)
+        public Test(string name)
         {
             Name = name;
-            Title = title;
         }
 
-        public Test(string name, string title, string instruction)
+        public Test(string name, string instruction)
         {
             Name = name;
-            Title = title;
             Instruction = instruction;
         }
     }
