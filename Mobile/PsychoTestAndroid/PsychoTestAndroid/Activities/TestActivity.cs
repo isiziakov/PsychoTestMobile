@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Timers;
 
 namespace PsychoTestAndroid
 {
@@ -20,6 +21,7 @@ namespace PsychoTestAndroid
     {
         ViewPager viewPager;
         Test test;
+        TextView testTimer;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -46,7 +48,7 @@ namespace PsychoTestAndroid
         private void InitializeInstructionComponents()
         {
             ImageButton backHeaderButton = FindViewById<ImageButton>(Resource.Id.headerBack_backButton);
-            backHeaderButton.SetMinimumHeight((int)(Resources.DisplayMetrics.HeightPixels * 0.06));
+            backHeaderButton.SetMinimumHeight((int)(Resources.DisplayMetrics.HeightPixels * 0.08));
             backHeaderButton.Click += InstructionBackButtonClick;
             TextView name = FindViewById<TextView>(Resource.Id.test_name);
             TextView instruction = FindViewById<TextView>(Resource.Id.test_instruction);
@@ -62,9 +64,35 @@ namespace PsychoTestAndroid
         private void InitializeTestContent()
         {
             SetContentView(Resource.Layout.test_viewPager);
-            ImageButton backHeaderButton = FindViewById<ImageButton>(Resource.Id.headerBack_backButton);
-            backHeaderButton.SetMinimumHeight((int)(Resources.DisplayMetrics.HeightPixels * 0.06));
+            ImageButton backHeaderButton = FindViewById<ImageButton>(Resource.Id.headerTest_backButton);
+            backHeaderButton.SetMinimumHeight((int)(Resources.DisplayMetrics.HeightPixels * 0.08));
+            backHeaderButton.SetMinimumHeight((int)(Resources.DisplayMetrics.WidthPixels * 0.08));
             backHeaderButton.Click += TestBackButtonClick;
+            ImageButton endHeaderButton = FindViewById<ImageButton>(Resource.Id.headerTest_endButton);
+            endHeaderButton.SetMinimumHeight((int)(Resources.DisplayMetrics.HeightPixels * 0.08));
+            endHeaderButton.SetMinimumHeight((int)(Resources.DisplayMetrics.WidthPixels * 0.08));
+            endHeaderButton.Click += EndHeaderButtonClick;
+            testTimer = FindViewById<TextView>(Resource.Id.test_timer);
+            var duration = test.StartTimer();
+            if (duration != "")
+            {
+                testTimer.Text = duration;
+                Timer timer = new Timer();
+                timer.Interval = 1000;
+                timer.Enabled = true;
+                timer.Elapsed += (sender, e) =>
+                {
+                    string newTime = test.TimerTick();
+                    if (newTime != "")
+                    {
+                        testTimer.Text = newTime;
+                    }
+                    else
+                    {
+                        timer.Stop();
+                    }
+                };
+            }
             viewPager = FindViewById<ViewPager>(Resource.Id.testViewPager);
             test.Questions.Add(new QuestionText("111"));
             test.Questions.Add(new QuestionText("222"));
@@ -89,6 +117,11 @@ namespace PsychoTestAndroid
         {
             // save results?
             Finish();
+        }
+
+        private void EndHeaderButtonClick(object sender, EventArgs e)
+        {
+            viewPager.SetCurrentItem(test.Questions.Count, false);
         }
         // перерисовываем страницу с результатами, необходимо, т.к. при изменении ответа последнего вопроса страница результатов не перерисовывается
         private void TestPageSelected(object sender, ViewPager.PageSelectedEventArgs e)

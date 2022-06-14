@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
     <include
-        layout="@layout/header_back"/>
+        layout="@layout/header_test"/>
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/testViewPager"
         android:layout_width="match_parent"

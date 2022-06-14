@@ -16,14 +16,14 @@ namespace PsychoTestAndroid.Model
     public class Test
     {
         [JsonProperty("test_id")]
-        int Id;
+        string id;
         [JsonProperty("max_duration")]
-        int duration;
+        string duration;
         int currentDuration;
         [JsonProperty("answer_order")]
-        int answerOrder;
+        string answerOrder;
         [JsonProperty("questions_order")]
-        int questionOrder;
+        string questionOrder;
         [JsonProperty("name")]
         public string Name;
         [JsonProperty("instruction")]
@@ -39,12 +39,45 @@ namespace PsychoTestAndroid.Model
         public Test(string name)
         {
             Name = name;
+            duration = "600";
         }
 
         public Test(string name, string instruction)
         {
+            duration = "10";
             Name = name;
             Instruction = instruction;
+        }
+
+        public string StartTimer()
+        {
+            if (duration != "")
+            {
+                currentDuration = Int32.Parse(duration);
+                duration = GetDuration();
+            }
+            return duration;
+        }
+
+        public string TimerTick()
+        {
+            if (currentDuration > 0)
+            {
+                currentDuration--;
+                duration = GetDuration();
+            }
+            else
+            {
+                duration = "";
+            }
+            return duration;
+        }
+
+        public string GetDuration()
+        {
+            var seconds = (currentDuration % 60).ToString();
+            seconds = seconds.Length == 1 ? "0" + seconds : seconds;
+            return "" + currentDuration / 60 + ":" + seconds;
         }
     }
 }

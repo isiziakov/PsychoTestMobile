@@ -38,7 +38,7 @@ namespace PsychoTestAndroid
         private void InitializeComponents()
         {
             ImageButton backHeaderButton = FindViewById<ImageButton>(Resource.Id.headerBack_backButton);
-            backHeaderButton.SetMinimumHeight((int)(Resources.DisplayMetrics.HeightPixels * 0.06));
+            backHeaderButton.SetMinimumHeight((int)(Resources.DisplayMetrics.HeightPixels * 0.08));
             backHeaderButton.Click += (sender, e) =>
             {
                 this.Finish();
