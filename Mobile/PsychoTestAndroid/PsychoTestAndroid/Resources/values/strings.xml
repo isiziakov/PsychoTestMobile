@@ -6,4 +6,5 @@
 	<string name="start_test">Начать</string>
 	<string name="main_code_error">Для введенного кода тестов не найдено</string>
 	<string name="main_enter_code">Введите код тестирования</string>
+	<string name="end_test">Завершить</string>
 </resources>

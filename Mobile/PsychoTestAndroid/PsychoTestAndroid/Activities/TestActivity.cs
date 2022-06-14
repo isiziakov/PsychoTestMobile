@@ -18,6 +18,7 @@ namespace PsychoTestAndroid
     [Activity(Label = "TestActivity")]
     public class TestActivity : Activity
     {
+        ViewPager viewPager;
         Test test;
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -64,11 +65,19 @@ namespace PsychoTestAndroid
             ImageButton backHeaderButton = FindViewById<ImageButton>(Resource.Id.headerBack_backButton);
             backHeaderButton.SetMinimumHeight((int)(Resources.DisplayMetrics.HeightPixels * 0.06));
             backHeaderButton.Click += TestBackButtonClick;
-            ViewPager viewPager = FindViewById<ViewPager>(Resource.Id.testViewPager);
+            viewPager = FindViewById<ViewPager>(Resource.Id.testViewPager);
             test.Questions.Add(new QuestionText("111"));
             test.Questions.Add(new QuestionText("222"));
             test.Questions.Add(new QuestionText("Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа."));
-            viewPager.Adapter = new TestViewPagerAdapter(test);
+            var adapter = new TestViewPagerAdapter(test);
+            adapter.EndAnswerItemClick += EndAnswerItemClick;
+            viewPager.Adapter = adapter;
+            viewPager.PageSelected += TestPageSelected;
+        }
+
+        private void EndAnswerItemClick(object sender, int e)
+        {
+            viewPager.SetCurrentItem(e, false);
         }
 
         private void InstructionBackButtonClick(object sender, EventArgs e)
@@ -80,6 +89,15 @@ namespace PsychoTestAndroid
         {
             // save results?
             Finish();
+        }
+        // перерисовываем страницу с результатами, необходимо, т.к. при изменении ответа последнего вопроса страница результатов не перерисовывается
+        private void TestPageSelected(object sender, ViewPager.PageSelectedEventArgs e)
+        {
+            if (e.Position == test.Questions.Count)
+            {
+                var adapter = viewPager.Adapter as TestViewPagerAdapter;
+                adapter.ReDrawEnd();
+            }
         }
     }
 }

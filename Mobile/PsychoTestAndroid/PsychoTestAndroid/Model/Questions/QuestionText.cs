@@ -4,6 +4,7 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PsychoTestAndroid.Model.Answers;
 using System;
@@ -15,7 +16,9 @@ namespace PsychoTestAndroid.Model.Questions
 {
     public class QuestionText : Question
     {
+        [JsonProperty("text")]
         string text;
+        [JsonIgnore]
         TextView textView;
 
         public QuestionText(string text) : base()
@@ -39,7 +42,7 @@ namespace PsychoTestAndroid.Model.Questions
             LinearLayout questionLinear = layout.FindViewById<LinearLayout>(Resource.Id.question_view);
             textView = new TextView(layout.Context);
             textView.Text = text;
-            textView.SetTextSize(Android.Util.ComplexUnitType.Sp, 24);
+            textView.SetTextSize(Android.Util.ComplexUnitType.Sp, 20);
             questionLinear.AddView(textView);
             return layout;
         }

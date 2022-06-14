@@ -4,6 +4,7 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using Newtonsoft.Json;
 using PsychoTestAndroid.Model.Questions;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,9 @@ namespace PsychoTestAndroid.Model.Answers
 {
     public class AnswerSingleTest : Answer
     {
+        [JsonProperty("answer_text")]
         string text;
+        [JsonIgnore]
         RadioButton radio;
 
         public AnswerSingleTest(Question owner) : base(owner)

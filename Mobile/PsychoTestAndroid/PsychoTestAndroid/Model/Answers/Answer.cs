@@ -5,6 +5,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using AndroidX.AppCompat.App;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PsychoTestAndroid.Model.Questions;
 using System;
@@ -16,7 +17,9 @@ namespace PsychoTestAndroid.Model.Answers
 {
     public abstract class Answer
     {
+        [JsonIgnore]
         protected Question owner;
+        [JsonProperty("answer_id")]
         public string Id;
 
         public Answer(Question owner)

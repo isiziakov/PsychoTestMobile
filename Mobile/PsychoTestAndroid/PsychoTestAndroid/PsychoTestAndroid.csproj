@@ -77,6 +77,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="View\AllTestsAdapter.cs" />
     <Compile Include="View\AnswersAdapter.cs" />
+    <Compile Include="View\EndTestAdapter.cs" />
     <Compile Include="View\TestViewPagerAdapter.cs" />
     <Compile Include="Web\WebApi.cs" />
   </ItemGroup>
@@ -145,6 +146,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\answers_recycler_item.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\end_test_result.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

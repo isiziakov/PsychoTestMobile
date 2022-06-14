@@ -33,12 +33,29 @@ namespace PsychoTestAndroid
         }
         public override int ItemCount
         {
-            get { return question.Answers.Count; }
+            get { return question.Answers.Count + 1; }
         }
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
             AnswersViewHolder vh = holder as AnswersViewHolder;
-            vh.Layout = question.Answers[position].Show(vh.Layout);
+            if (position != 0)
+            {
+                vh.Layout = question.Answers[position - 1].Show(vh.Layout);
+            }
+            else
+            {
+                if (question.Answers.Count > 1)
+                {
+                    vh.Layout.Orientation = Orientation.Horizontal;
+                    vh.Layout.SetGravity(GravityFlags.CenterVertical);
+                    TextView tx = new TextView(vh.Layout.Context);
+                    tx.Text = "Вариантов ответа - " + question.Answers.Count;
+                    tx.TextSize = 20;
+                    vh.Layout.AddView(tx);
+                    tx.LayoutParameters.Width = ViewGroup.LayoutParams.MatchParent;
+                    tx.LayoutParameters.Height = ViewGroup.LayoutParams.WrapContent;
+                }
+            }
         }
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {

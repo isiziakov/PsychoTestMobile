@@ -4,6 +4,7 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using AndroidX.RecyclerView.Widget;
 using AndroidX.ViewPager.Widget;
 using PsychoTestAndroid.Model;
 using System;
@@ -15,12 +16,13 @@ namespace PsychoTestAndroid
 {
     public class TestViewPagerAdapter : PagerAdapter
     {
+        RecyclerView endRecyclerView;
+        Test test;
         public override int Count
         {
-            get { return test.Questions.Count(); }
+            get { return test.Questions.Count() + 1; }
         }
-
-        Test test;
+        public event EventHandler<int> EndAnswerItemClick;
 
         public TestViewPagerAdapter(Test test)
         {
@@ -34,15 +36,39 @@ namespace PsychoTestAndroid
 
         public override Java.Lang.Object InstantiateItem(ViewGroup container, int position)
         {
-            View view = LayoutInflater.From(container.Context).Inflate(test.Questions[position].GetLayout(), container, false);
-            var viewPager = container.JavaCast<ViewPager>();
-            viewPager.AddView(test.Questions[position].Show(view));
-            return view;
+            if (position != test.Questions.Count)
+            {
+                View view = LayoutInflater.From(container.Context).Inflate(test.Questions[position].GetLayout(), container, false);
+                var viewPager = container.JavaCast<ViewPager>();
+                viewPager.AddView(test.Questions[position].Show(view));
+                return view;
+            }
+            else
+            {
+                View view = LayoutInflater.From(container.Context).Inflate(Resource.Layout.end_test_result, container, false);
+                endRecyclerView = view.FindViewById<RecyclerView>(Resource.Id.end_test_result);
+                var mLayoutManager = new LinearLayoutManager(view.Context);
+                endRecyclerView.SetLayoutManager(mLayoutManager);
+                var adapter = new EndTestAdapter(test);
+                adapter.ItemClick += EndAnswerItemClick;
+                endRecyclerView.SetAdapter(adapter);
+                var viewPager = container.JavaCast<ViewPager>();
+                viewPager.AddView(view);
+                return view;
+            }
         }
 
         public override Java.Lang.ICharSequence GetPageTitleFormatted(int position)
         {
-            string title = "Вопрос " + (position + 1) + " из " + test.Questions.Count;
+            string title;
+            if (position != test.Questions.Count)
+            {
+                title = "Вопрос " + (position + 1) + " из " + test.Questions.Count;
+            }
+            else
+            {
+                title = "Результаты";
+            }
             return new Java.Lang.String(title);
         }
 
@@ -50,6 +76,11 @@ namespace PsychoTestAndroid
         {
             var viewPager = container.JavaCast<ViewPager>();
             viewPager.RemoveView(view as View);
+        }
+
+        public void ReDrawEnd()
+        {
+            endRecyclerView.SetAdapter(endRecyclerView.GetAdapter());
         }
     }
 }

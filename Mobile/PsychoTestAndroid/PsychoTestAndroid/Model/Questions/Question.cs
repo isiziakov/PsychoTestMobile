@@ -5,6 +5,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using AndroidX.RecyclerView.Widget;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PsychoTestAndroid.Model.Answers;
 using System;
@@ -16,10 +17,15 @@ namespace PsychoTestAndroid.Model.Questions
 {
     public abstract class Question
     {
+        [JsonIgnore]
         public string result;
+        [JsonProperty("type")]
         public string Type;
+        [JsonProperty("question_id")]
         public string Id;
+        [JsonProperty("answers_type")]
         public string AnswersType;
+        [JsonIgnore]
         public List<Answer> Answers = new List<Answer>();
 
         public Question()

@@ -1,0 +1,71 @@
+﻿using Android.App;
+using Android.Content;
+using Android.OS;
+using Android.Runtime;
+using Android.Views;
+using Android.Widget;
+using AndroidX.RecyclerView.Widget;
+using PsychoTestAndroid.Model;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace PsychoTestAndroid
+{
+    public class EndTestViewHolder : RecyclerView.ViewHolder
+    {
+        public LinearLayout Layout { get; set; }
+        public EndTestViewHolder(View itemview, Action<int> listener) : base(itemview)
+        {
+            Layout = itemview.FindViewById<LinearLayout>(Resource.Id.answers_recycler_item);
+            itemview.Click += (sender, e) => listener(Position);
+        }
+    }
+
+    public class EndTestAdapter : RecyclerView.Adapter
+    {
+        public event EventHandler<int> ItemClick;
+        Test test;
+        public EndTestAdapter(Test test)
+        {
+            this.test = test;
+        }
+        public override int ItemCount
+        {
+            get { return test.Questions.Count; }
+        }
+        public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
+        {
+            EndTestViewHolder vh = holder as EndTestViewHolder;
+            vh.Layout.Orientation = Orientation.Horizontal;
+            TextView tx = new TextView(vh.Layout.Context);
+            tx.TextSize = 20;
+            vh.Layout.AddView(tx);
+            tx.Text = "Вопрос " + (position + 1) + " - ";
+            tx.LayoutParameters.Width = ViewGroup.LayoutParams.MatchParent;
+            tx.LayoutParameters.Height = ViewGroup.LayoutParams.WrapContent;
+            // учесть вариант, когда ответ - нет ответа
+            if (test.Questions[position].result != null && test.Questions[position].result != "")
+            {
+                tx.Text += test.Questions[position].result;
+            }
+            else
+            {
+                tx.SetTextColor(Android.Graphics.Color.Red);
+                tx.Text += "нет ответа";
+            }
+        }
+        public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
+        {
+            View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.answers_recycler_item, parent, false);
+            EndTestViewHolder vh = new EndTestViewHolder(itemView, OnClick);
+            return vh;
+        }
+        private void OnClick(int obj)
+        {
+            if (ItemClick != null)
+                ItemClick(this, obj);
+        }
+    }
+}
