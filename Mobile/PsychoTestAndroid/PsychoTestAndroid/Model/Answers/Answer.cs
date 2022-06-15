@@ -15,13 +15,21 @@ using System.Text;
 
 namespace PsychoTestAndroid.Model.Answers
 {
+    // базовый класс для варианта ответа
     public abstract class Answer
     {
+        // владелец, необходим для установки результата, т.к. только сам вопрос знает как
+        // правильно записать свой результат, события не работают при наследовании
         [JsonIgnore]
-        protected Question owner;
+        public Question owner { set; protected get; }
+        // номер ответа
         [JsonProperty("answer_id")]
         public string Id;
 
+        public Answer()
+        {
+
+        }
         public Answer(Question owner)
         {
            this.owner = owner;
@@ -32,7 +40,9 @@ namespace PsychoTestAndroid.Model.Answers
             Id = data.SelectToken("answer_id").ToString();
         }
 
+        // отрисовка ответа внутри LinearLayout
         public abstract LinearLayout Show(LinearLayout layout);
+        // обработка изменения ответа на вопрос
         public abstract void UpdateResult(string result);
     }
 }

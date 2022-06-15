@@ -13,19 +13,21 @@ using System.Text;
 
 namespace PsychoTestAndroid.Model.Answers
 {
-    public class AnswerSingleTest : Answer
+    // ответ с выбором 1 варианта ответа
+    public class AnswerSingleText : AnswerSingle
     {
         [JsonProperty("answer_text")]
         string text;
-        [JsonIgnore]
-        RadioButton radio;
+        public AnswerSingleText() : base()
+        {
 
-        public AnswerSingleTest(Question owner) : base(owner)
+        }
+        public AnswerSingleText(Question owner) : base(owner)
         {
 
         }
 
-        public AnswerSingleTest(Question owner, string text) : base(owner)
+        public AnswerSingleText(Question owner, string text) : base(owner)
         {
             this.text = text;
         }
@@ -43,22 +45,6 @@ namespace PsychoTestAndroid.Model.Answers
             radio.LayoutParameters.Height = ViewGroup.LayoutParams.WrapContent;
             UpdateResult(owner.result);
             return layout;
-        }
-
-        public override void UpdateResult(string result)
-        {
-            if (radio != null)
-            {
-                radio.Checked = result == Id;
-            }
-        }
-
-        void Select(object sender, EventArgs e)
-        {
-            if (radio.Checked)
-            {
-                owner.SetResult(Id);
-            }
         }
     }
 }

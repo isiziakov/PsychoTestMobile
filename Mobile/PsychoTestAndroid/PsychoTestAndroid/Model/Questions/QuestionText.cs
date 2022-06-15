@@ -21,6 +21,10 @@ namespace PsychoTestAndroid.Model.Questions
         [JsonIgnore]
         TextView textView;
 
+        public QuestionText()
+        {
+        }
+
         public QuestionText(string text) : base()
         {
             this.text = text;

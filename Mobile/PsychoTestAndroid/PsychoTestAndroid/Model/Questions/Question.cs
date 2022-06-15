@@ -18,7 +18,7 @@ namespace PsychoTestAndroid.Model.Questions
     public abstract class Question
     {
         [JsonIgnore]
-        public string result;
+        public string result = "";
         [JsonProperty("type")]
         public string Type;
         [JsonProperty("question_id")]
@@ -30,12 +30,12 @@ namespace PsychoTestAndroid.Model.Questions
 
         public Question()
         {
-            Answers.Add(new AnswerSingleTest(this, "111"));
-            Answers[0].Id = "0";
-            Answers.Add(new AnswerSingleTest(this, "111"));
-            Answers[1].Id = "1";
-            Answers.Add(new AnswerSingleTest(this, "111"));
-            Answers[2].Id = "2";
+            //Answers.Add(new AnswerSingleText(this, "111"));
+            //Answers[0].Id = "0";
+            //Answers.Add(new AnswerSingleText(this, "111"));
+            //Answers[1].Id = "1";
+            //Answers.Add(new AnswerSingleText(this, "111"));
+            //Answers[2].Id = "2";
         }
 
         public Question(JObject data)
@@ -71,6 +71,16 @@ namespace PsychoTestAndroid.Model.Questions
             foreach (Answer answer in Answers)
             {
                 answer.UpdateResult(result);
+            }
+        }
+
+        public void SetAnswers(JObject data)
+        {
+            JArray answers = JArray.Parse(data.SelectToken("answers").ToString());
+            foreach (JObject answer in answers)
+            {
+                Answers.Add(AnswerHelper.GetAnswerForType(Int32.Parse(AnswersType), answer));
+                Answers.Last().owner = this;
             }
         }
     }

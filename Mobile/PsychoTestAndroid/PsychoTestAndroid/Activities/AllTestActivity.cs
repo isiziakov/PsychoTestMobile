@@ -6,6 +6,7 @@ using Android.Views;
 using Android.Widget;
 using AndroidX.RecyclerView.Widget;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using PsychoTestAndroid.Model;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,7 @@ namespace PsychoTestAndroid
     [Activity(Label = "AllTestActivity")]
     public class AllTestActivity : Activity
     {
+        JArray jTests;
         List<Test> tests;
         RecyclerView recycleView;
         protected override void OnCreate(Bundle savedInstanceState)
@@ -25,7 +27,7 @@ namespace PsychoTestAndroid
 
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.activity_allTests);
-
+            jTests = JArray.Parse(Intent.GetStringExtra("Tests"));
             tests = JsonConvert.DeserializeObject<List<Test>>(Intent.GetStringExtra("Tests"));
             if (tests == null)
             {
@@ -54,7 +56,7 @@ namespace PsychoTestAndroid
         private void MAdapter_ItemClick(object sender, int e)
         {
             Intent intent = new Intent(this, typeof(TestActivity));
-            intent.PutExtra("Test", JsonConvert.SerializeObject(tests[e]));
+            intent.PutExtra("Test", jTests[e].ToString());
             this.StartActivity(intent);
         }
     }

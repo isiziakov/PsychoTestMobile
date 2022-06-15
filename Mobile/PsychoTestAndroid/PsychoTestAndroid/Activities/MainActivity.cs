@@ -6,8 +6,11 @@ using Android.Views;
 using Android.Widget;
 using AndroidX.AppCompat.App;
 using Newtonsoft.Json;
+using PsychoTestAndroid.Model;
 using PsychoTestAndroid.Web;
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace PsychoTestAndroid
 {
@@ -32,19 +35,26 @@ namespace PsychoTestAndroid
             Button enterButton = FindViewById<Button>(Resource.Id.main_enter_button);
             if (enterButton != null)
             {
-                enterButton.Click += enterClick;
+                enterButton.Click += enterClickAsync;
             }
         }
 
-        private void enterClick(object sender, EventArgs e)
+        private async void enterClickAsync(object sender, EventArgs e)
         {
             if (code != null)
             {
-                var tests = WebApi.getTestsForCode(code.Text);
-                if (tests != null && tests.Count > 0)
+                //List<Test> tests = await WebApi.GetTestsForCode(code.Text);
+                //if (tests != null && tests.Count > 0)
+                //{
+                //    Intent intent = new Intent(this, typeof(AllTestActivity));
+                //    intent.PutExtra("Tests", JsonConvert.SerializeObject(tests));
+                //    this.StartActivity(intent);
+                //}
+                string tests = await WebApi.GetTest();
+                if (tests != null)
                 {
                     Intent intent = new Intent(this, typeof(AllTestActivity));
-                    intent.PutExtra("Tests", JsonConvert.SerializeObject(tests));
+                    intent.PutExtra("Tests", tests);
                     this.StartActivity(intent);
                 }
                 else

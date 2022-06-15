@@ -13,12 +13,17 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace PsychoTestAndroid.Web
 {
+    // класс для работы с апи
     public static class WebApi
     {
-        public static List<Test> getTestsForCode(string code)
+        // ссылка на апи сервер
+        const string url = "http://192.168.231.1:8080/api";
+        // получить список доступных тестов
+        public static async Task<List<Test>> GetTestsForCode(string code)
         {
             List<Test> tests = new List<Test>();
             // only for tests
@@ -28,6 +33,7 @@ namespace PsychoTestAndroid.Web
             }
             else
             {
+                //tests.Add(await GetTest());
                 tests.Add(new Test("Тест1", "Внимательно прочтите каждое утверждение и выберите один из вариантов ответа. Внимательно прочтите каждое утверждение и выберите один из вариантов ответа. Внимательно прочтите каждое утверждение и выберите один из вариантов ответа. Внимательно прочтите каждое утверждение и выберите один из вариантов ответа. Внимательно прочтите каждое утверждение и выберите один из вариантов ответа. Внимательно прочтите каждое утверждение и выберите один из вариантов ответа. Внимательно прочтите каждое утверждение и выберите один из вариантов ответа. Внимательно прочтите каждое утверждение и выберите один из вариантов ответа. Внимательно прочтите каждое утверждение и выберите один из вариантов ответа. Внимательно прочтите каждое утверждение и выберите один из вариантов ответа. Внимательно прочтите каждое утверждение и выберите один из вариантов ответа. Внимательно прочтите каждое утверждение и выберите один из вариантов ответа. Внимательно прочтите каждое утверждение и выберите один из вариантов ответа. Внимательно прочтите каждое утверждение и выберите один из вариантов ответа. Внимательно прочтите каждое утверждение и выберите один из вариантов ответа. Внимательно прочтите каждое утверждение и выберите один из вариантов ответа."));
                 tests.Add(new Test("Тест2", "В процессе"));
                 tests.Add(new Test("Тест3", "Пройден"));
@@ -36,13 +42,24 @@ namespace PsychoTestAndroid.Web
             return tests;
         }
 
-        //public static async Task<List<Test>> apiForTests(string code) // тестирование возможности обращаться
-        //к апи, будет удалено после реализации функционала по обращению к апи
-        //{
-        //    List<Test> tests = new List<Test>();
-        //    string s = await GetTests();
-        //    return tests;
-        //}
+        // получить тест
+        public static async Task<string> GetTest()
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                var result = await client.GetAsync(client.BaseAddress + "/questions");
+                string info = null;
+                if (result != null && result.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    info = await result.Content.ReadAsStringAsync();
+                }
+                return info;
+            }
+        }
 
         //static async Task<string> GetTests()
         //{
@@ -51,7 +68,7 @@ namespace PsychoTestAndroid.Web
         //        client.BaseAddress = new Uri("https://cat-fact.herokuapp.com");
         //        client.DefaultRequestHeaders.Accept.Clear();
         //        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                
+
         //        var result = await client.GetAsync("/facts");
 
         //        return await result.Content.ReadAsStringAsync();

@@ -6,6 +6,7 @@ using Android.Views;
 using Android.Widget;
 using AndroidX.ViewPager.Widget;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using PsychoTestAndroid.Model;
 using PsychoTestAndroid.Model.Questions;
 using System;
@@ -30,6 +31,7 @@ namespace PsychoTestAndroid
             SetContentView(Resource.Layout.instruction);
 
             test = JsonConvert.DeserializeObject<Test>(Intent.GetStringExtra("Test"));
+            test.SetQuestions(JObject.Parse(Intent.GetStringExtra("Test")));
             if (test == null)
             {
                 AlertDialog.Builder alert = new AlertDialog.Builder(this);
@@ -94,9 +96,6 @@ namespace PsychoTestAndroid
                 };
             }
             viewPager = FindViewById<ViewPager>(Resource.Id.testViewPager);
-            test.Questions.Add(new QuestionText("111"));
-            test.Questions.Add(new QuestionText("222"));
-            test.Questions.Add(new QuestionText("Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа.Внимательно прочтите каждое утверждение и выберите один из вариантов ответа."));
             var adapter = new TestViewPagerAdapter(test);
             adapter.EndAnswerItemClick += EndAnswerItemClick;
             viewPager.Adapter = adapter;
