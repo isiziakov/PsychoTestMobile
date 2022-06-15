@@ -26,7 +26,7 @@ namespace PsychoTestWeb.Controllers
             db = context;
         }
 
-        // GET: api/<TestsController>
+        // GET: api/<TestsController>/view
         [Authorize]
         [Route("view")]
         [HttpGet]
@@ -35,6 +35,7 @@ namespace PsychoTestWeb.Controllers
             return await db.GetTestsView();
         }
 
+        // GET: api/<TestsController>
         [HttpGet]
         [Authorize]
         public async Task<string> GetTests()
@@ -42,18 +43,10 @@ namespace PsychoTestWeb.Controllers
             return JsonConvert.SerializeObject(await db.GetTests());
         }
 
-        //// GET api/<PatientsController>/name/value
-        //[Authorize]
-        //[HttpGet("name/{value}")]
-        //public async Task<IEnumerable<Test>> GetByName(string value)
-        //{
-        //    return await db.GetTestsByName(value);
-        //}
-
         // GET api/<TestsController>/62a2ee61e5ab646eb9231448
-        [Authorize]
+        //[Authorize]
         [HttpGet("{id}")]
-        public async Task<Test> Get(string id)
+        public async Task<string> Get(string id)
         {
             return await db.GetTestById(id);
         }

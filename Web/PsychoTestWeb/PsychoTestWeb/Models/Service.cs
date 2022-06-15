@@ -107,19 +107,12 @@ namespace PsychoTestWeb.Models
             return dotNetObjList;
         }
 
-        // фильтрация тестов по имени
-        public async Task<IEnumerable<Test>> GetTestsByName(string value)
-        {
-            var builder = new FilterDefinitionBuilder<Test>();
-            var filter = builder.Empty;
-            var allPatients = await Tests.Find(filter).ToListAsync();
-            return allPatients.FindAll(x => x.name.ToLower().Contains(value.ToLower()) == true);
-        }
-
         //получаем тест по id
-        public async Task<Test> GetTestById(string id)
+        public async Task<string> GetTestById(string id)
         {
-            return await Tests.Find(new BsonDocument("_id", new ObjectId(id))).FirstOrDefaultAsync();
+            var bsonDoc = await TestsBson.Find(new BsonDocument("_id", new ObjectId(id))).FirstOrDefaultAsync();
+            var dotNetObj = BsonTypeMapper.MapToDotNetValue(bsonDoc);
+            return JsonConvert.SerializeObject(dotNetObj);
         }
 
         //Импорт теста

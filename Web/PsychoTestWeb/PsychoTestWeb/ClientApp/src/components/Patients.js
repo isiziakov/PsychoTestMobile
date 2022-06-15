@@ -61,11 +61,12 @@ export class Patients extends Component {
                             </InputGroupAddon>
                         </InputGroup>
                     </Col>
-                    <Col xs="3"><Button color="info" onClick={() => {
+                    <Col xs="2"><Button color="info" outline className="col-12" onClick={() => {
                         if (this.state.searchString !== "")
                             this.getPatients("api/patients/name/" + this.state.searchString);
                         else this.getPatients("api/patients/");
                     }}>Найти</Button></Col>
+                    <Col xs="1"></Col>
                     <Col xs="auto"><ModalPatient patient={this.state.emptyPatient} isCreate={true} onClose={this.getPatients} /></Col>
                 </Row>
                 <br />
@@ -98,8 +99,7 @@ class Patient extends Component {
                 <Row>
                     <Col xs="6">{this.state.patient.name}</Col>
                     {/*    <Col xs="auto"><ModalPatient patient={this.state.patient} isCreate={false} onClose={this.props.getPatients} /></Col>*/}
-                    <Col xs="auto"><ViewPatient patientId={this.state.patient.id} /></Col>
-                    <Col xs="auto"></Col>
+                    <Col xs="2"><ViewPatient patientId={this.state.patient.id} /></Col>
                 </Row>
                 <br />
             </div>
@@ -114,7 +114,7 @@ const ViewPatient = (patientId) => {
         history.push("/patient/" + patientId.patientId);
     };
     return (
-        <Button color="info" onClick={goToPatient}>Просмотр</Button>
+        <Button color="info" className="col-12" onClick={goToPatient}>Просмотр</Button>
     );
 };
 

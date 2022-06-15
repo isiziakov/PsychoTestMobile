@@ -71,19 +71,26 @@ class ModalImportTest extends React.Component {
 
     async onSubmit(e) {
         e.preventDefault();
-        var formData = new FormData();
-        formData.append('value', this.state.files[0]);
+        var save = 0;
+        for (var i = 0; i < this.state.files.length; i++) {
+            var formData = new FormData();
+            formData.append('value', this.state.files[i]);
 
-        const token = sessionStorage.getItem('tokenKey');
-        var response = await fetch("/api/tests/", {
-            method: "POST",
-            headers: {
-                "Authorization": "Bearer " + token
-            },
-            body: formData
-        });
-        if (response.ok !== true) {
-            console.log("Error: ", response.status);
+            const token = sessionStorage.getItem('tokenKey');
+            var response = await fetch("/api/tests/", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + token
+                },
+                body: formData
+            });
+            if (response.ok !== true) {
+                console.log("Error: ", response.status);
+            }
+            else save++;
+        }
+        if (save === this.state.files.length) {
+            this.toggle();
         }
     }
 
@@ -102,9 +109,9 @@ class ModalImportTest extends React.Component {
                         <ModalBody>
                             <FormGroup>
                                 <Label for="file">Файл:</Label>
-                                <Input type="file" name="file" accept=".xml" id="file" onChange={this.uploadFile} />
+                                <Input type="file" name="file" accept=".xml" id="file" multiple onChange={this.uploadFile} />
                                 <FormText color="muted">
-                                    Прикрепите файл с тестом в формате xml.
+                                    Прикрепите один или несколько файлов с тестом в формате xml.
                                 </FormText>
                             </FormGroup>
                         </ModalBody>

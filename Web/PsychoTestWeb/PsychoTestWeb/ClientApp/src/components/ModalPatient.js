@@ -126,7 +126,7 @@ export default class ModalPatient extends React.Component {
     render() {
         return (
             <div>
-                <Button color="info" onClick={this.toggle}>Добавить пациента</Button>
+                <Button color="info" className="col-12" onClick={this.toggle}>Добавить пациента</Button>
                 <Modal size="lg" isOpen={this.state.modal}>
                     <Form onSubmit={this.onSubmit}>
                         <ModalHeader toggle={() => { this.toggle() }}>Новый пациент</ModalHeader>
