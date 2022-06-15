@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace PsychoTestWeb.Models
 {
@@ -18,7 +19,6 @@ namespace PsychoTestWeb.Models
         IMongoCollection<BsonDocument> TestsBson;
         public Service()
         {
-            // строка подключения
             string connectionString = "mongodb://localhost:27017/MobilePsychoTest";
             var connection = new MongoUrlBuilder(connectionString);
             // получаем клиента для взаимодействия с базой данных
@@ -31,7 +31,9 @@ namespace PsychoTestWeb.Models
             Tests = database.GetCollection<Test>("Tests");
             TestsBson = database.GetCollection<BsonDocument>("Tests");
         }
-        // получаем всех пользователей
+
+        //пользователи
+        #region
         public IEnumerable<User> GetUsers()
         {
             // строитель фильтров
@@ -40,69 +42,158 @@ namespace PsychoTestWeb.Models
 
             return Users.Find(filter).ToList();
         }
-        // получаем всех пациетов
-        public IEnumerable<Patient> GetPatients()
+        #endregion
+
+        //пациенты
+        #region
+        //список всех пациентов
+        public async Task<IEnumerable<Patient>> GetPatients()
         {
             var builder = new FilterDefinitionBuilder<Patient>();
             var filter = builder.Empty;
-            return Patients.Find(filter).ToList();
+            return await Patients.Find(filter).ToListAsync();
         }
-        // фильтрация пациентов по имени
-        public IEnumerable<Patient> GetPatientsByName(string value)
+        //фильтрация по имени
+        public async Task<IEnumerable<Patient>> GetPatientsByName(string value)
         {
             var builder = new FilterDefinitionBuilder<Patient>();
             var filter = builder.Empty;
-            var allPatients = Patients.Find(filter).ToList();
-            if (value != "")
-                return allPatients.FindAll(x => x.name.ToLower().Contains(value.ToLower()) == true);
-            else return allPatients;
+            var allPatients = await Patients.Find(filter).ToListAsync();
+            return allPatients.FindAll(x => x.name.ToLower().Contains(value.ToLower()) == true);
         }
         //получаем пациента по id
-        public Patient GetPatientById(string id)
+        public async Task<Patient> GetPatientById(string id)
         {
-            return Patients.Find(new BsonDocument("_id", new ObjectId(id))).FirstOrDefault();
+            return await Patients.Find(new BsonDocument("_id", new ObjectId(id))).FirstOrDefaultAsync();
         }
         // добавление пациента
-        public void CreatePatient(Patient p)
+        public async Task CreatePatient(Patient p)
         {
-            Patients.InsertOne(p);
+            await Patients.InsertOneAsync(p);
         }
         // обновление пациента
-        public void UpdatePatient(string id, Patient p)
+        public async Task UpdatePatient(string id, Patient p)
         {
             BsonDocument doc = new BsonDocument("_id", new ObjectId(id));
-            Patients.ReplaceOne(doc, p);
+            await Patients.ReplaceOneAsync(doc, p);
         }
         // удаление пациента
-        public void RemovePatient(string id)
+        public async Task RemovePatient(string id)
         {
-            Patients.DeleteOne(new BsonDocument("_id", new ObjectId(id)));
+            await Patients.DeleteOneAsync(new BsonDocument("_id", new ObjectId(id)));
         }
+        #endregion
+
+
+        //Тесты
+        #region
+        //получаем краткий список всех тестов в формате id-название
+        public async Task<IEnumerable<Test>> GetTestsView()
+        {
+            var documents = await TestsBson.Find(new BsonDocument()).ToListAsync();
+            List<Test> tests = new List<Test>();
+            foreach (BsonDocument doc in documents)
+            {
+                tests.Add(new Test { name = doc["IR"]["Name"]["#text"].AsString, id = doc["_id"].AsObjectId.ToString() });
+            }
+            return tests;
+        }
+
         // получаем все тесты
-        public IEnumerable<Test> GetTests()
+        public async Task<List<object>> GetTests()
         {
-            var builder = new FilterDefinitionBuilder<Test>();
-            var filter = builder.Empty;
-            return Tests.Find(filter).ToList();
+            var documents = await TestsBson.Find(new BsonDocument()).ToListAsync();
+            var dotNetObjList = documents.ConvertAll(BsonTypeMapper.MapToDotNetValue);
+            return dotNetObjList;
         }
+
         // фильтрация тестов по имени
-        public IEnumerable<Test> GetTestsByName(string value)
+        public async Task<IEnumerable<Test>> GetTestsByName(string value)
         {
             var builder = new FilterDefinitionBuilder<Test>();
             var filter = builder.Empty;
-            var allPatients = Tests.Find(filter).ToList();
+            var allPatients = await Tests.Find(filter).ToListAsync();
             return allPatients.FindAll(x => x.name.ToLower().Contains(value.ToLower()) == true);
         }
 
-        public void ImportFile(string file)
+        //получаем тест по id
+        public async Task<Test> GetTestById(string id)
         {
-            XmlDocument doc = new XmlDocument();
-            doc.LoadXml(file);
-            var json = JsonConvert.SerializeXmlNode(doc, Newtonsoft.Json.Formatting.None, true);
-            //string json = JsonConvert.SerializeXmlNode(file);
-            BsonDocument bsonDoc = BsonDocument.Parse(json);
-            TestsBson.InsertOne(bsonDoc);
+            return await Tests.Find(new BsonDocument("_id", new ObjectId(id))).FirstOrDefaultAsync();
         }
+
+        //Импорт теста
+        public async Task ImportFile(string file)
+        {
+
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(file);
+            var json = JsonConvert.SerializeXmlNode(xmlDoc, Newtonsoft.Json.Formatting.None, true);
+
+            var jObj = JObject.Parse(json);
+            int i = 0;
+            foreach (var question in jObj["Questions"]["item"])
+            {
+                question["Question_id"] = i;
+                i++;
+
+                //если вопрос только с текстом — Question_Type = 0, если с изображением Question_Type = 1
+                if (question["ImageFileName"] != null)
+                    question["Question_Type"] = 1;
+                else
+                    question["Question_Type"] = 0;
+
+                //если вопрос c выбором одного отета — Question_Choice = 1, если с вводом своего — Question_Choice = 0
+                if (question["TypeQPanel"] != null)
+                {
+                    if (question["TypeQPanel"].ToString() == "2" || question["AnsString_Num"] != null ||
+                                question["AnsString_ExanineAnsMethod"] != null || question["Ans_CheckUpperCase"] != null)
+                    {
+                        question["Question_Choice"] = 0;
+                        if (question["Answers"]["item"] is JArray)
+                            foreach (var answer in question["Answers"]["item"])
+                                answer["Answer_type"] = 1;
+                        else question["Answers"]["item"]["Answer_Type"] = 1;
+
+                    }
+                    else
+                    {
+                        question["Question_Choice"] = 1;
+                        if (question["Answers"]["item"] is JArray)
+                            foreach (var answer in question["Answers"]["item"])
+                                answer["Answer_type"] = 0;
+                        else question["Answers"]["item"]["Answer_Type"] = 0;
+                    }
+                }
+                else
+                {
+                    question["Question_Choice"] = 1;
+                    if (question["Answers"]["item"] is JArray)
+                        foreach (var answer in question["Answers"]["item"])
+                            answer["Answer_type"] = 0;
+                    else question["Answers"]["item"]["Answer_Type"] = 0;
+                }
+                int j = 0;
+                if (question["Answers"]["item"] is JArray)
+                    foreach (var answer in question["Answers"]["item"])
+                    {
+                        answer["Answer_id"] = j;
+                        j++;
+                        //если ответ это текст — Answer_Type = 0, если это поле для ввода — Answer_Type = 1, если изображение — Answer_Type = 2;
+                        if (answer["ImageFileName"] != null)
+                            answer["Answer_Type"] = 2;
+                    }
+                else
+                {
+                    question["Answers"]["item"]["Answer_id"] = 0;
+                    if (question["Answers"]["item"]["ImageFileName"] != null)
+                        question["Answers"]["item"]["Answer_Type"] = 2;
+                }
+            }
+            var document = BsonDocument.Parse(Newtonsoft.Json.JsonConvert.SerializeObject(jObj));
+            await TestsBson.InsertOneAsync(document);
+        }
+        #endregion
     }
 
 }

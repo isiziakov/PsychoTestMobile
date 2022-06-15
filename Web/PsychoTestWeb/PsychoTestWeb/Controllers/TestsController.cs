@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Http;
 using System.Xml;
 using System.IO;
 using System.Text;
+using MongoDB.Bson;
+using Newtonsoft.Json;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -26,40 +28,52 @@ namespace PsychoTestWeb.Controllers
 
         // GET: api/<TestsController>
         [Authorize]
+        [Route("view")]
         [HttpGet]
-        public IEnumerable<Test> Get()
+        public async Task<IEnumerable<Test>> Get()
         {
-            return db.GetTests().ToList();
+            return await db.GetTestsView();
         }
 
-        // GET api/<PatientsController>/name/value
+        [HttpGet]
         [Authorize]
-        [HttpGet("name/{value}")]
-        public IEnumerable<Test> GetByName(string value)
+        public async Task<string> GetTests()
         {
-            return db.GetTestsByName(value);
+            return JsonConvert.SerializeObject(await db.GetTests());
         }
+
+        //// GET api/<PatientsController>/name/value
+        //[Authorize]
+        //[HttpGet("name/{value}")]
+        //public async Task<IEnumerable<Test>> GetByName(string value)
+        //{
+        //    return await db.GetTestsByName(value);
+        //}
 
         // GET api/<TestsController>/62a2ee61e5ab646eb9231448
         [Authorize]
         [HttpGet("{id}")]
-        public Test Get(string id)
+        public async Task<Test> Get(string id)
         {
-            return db.GetTests().ToList().FirstOrDefault(x => x.id == id);
+            return await db.GetTestById(id);
         }
 
         // POST api/<TestsController>
-        //[Authorize]
+        [Authorize]
         [HttpPost]
-        public void Post([FromForm] IFormFile value)
+        public async Task Post([FromForm] IFormFile value)
         {
-            var result = new StringBuilder();
-            using (var r = new StreamReader(value.OpenReadStream()))
+            if (value != null)
             {
-                while (r.Peek() >= 0)
-                    result.AppendLine(r.ReadLine());
+                var result = new StringBuilder();
+                using (var r = new StreamReader(value.OpenReadStream()))
+                {
+                    while (r.Peek() >= 0)
+                        result.AppendLine(r.ReadLine());
+                }
+                await db.ImportFile(result.ToString());
             }
-            db.ImportFile(result.ToString());
+
         }
 
         // PUT api/<TestsController>/62a2ee61e5ab646eb9231448

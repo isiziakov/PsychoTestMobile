@@ -1,7 +1,7 @@
 ﻿import React, { Component } from 'react';
 import { Button, Row, Col, Input, InputGroup, InputGroupAddon } from 'reactstrap';
 import ModalPatient from './ModalPatient';
-
+import { useHistory } from "react-router-dom";
 
 
 export class Patients extends Component {
@@ -49,7 +49,6 @@ export class Patients extends Component {
     render() {
         return (
             <div>
-
                 <h2>Список пациентов:</h2>
                 <br />
                 <Row>
@@ -98,11 +97,24 @@ class Patient extends Component {
             <div>
                 <Row>
                     <Col xs="6">{this.state.patient.name}</Col>
-                    <Col xs="auto"><ModalPatient patient={this.state.patient} isCreate={false} onClose={this.props.getPatients} /></Col>
+                    {/*    <Col xs="auto"><ModalPatient patient={this.state.patient} isCreate={false} onClose={this.props.getPatients} /></Col>*/}
+                    <Col xs="auto"><ViewPatient patientId={this.state.patient.id} /></Col>
+                    <Col xs="auto"></Col>
                 </Row>
                 <br />
             </div>
         );
     }
 }
+
+const ViewPatient = (patientId) => {
+    let history = useHistory();
+
+    const goToPatient = () => {
+        history.push("/patient/" + patientId.patientId);
+    };
+    return (
+        <Button color="info" onClick={goToPatient}>Просмотр</Button>
+    );
+};
 

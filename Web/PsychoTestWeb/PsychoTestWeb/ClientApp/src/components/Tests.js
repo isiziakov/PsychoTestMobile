@@ -69,23 +69,22 @@ class ModalImportTest extends React.Component {
         });
     }
 
-    onSubmit(e) {
+    async onSubmit(e) {
         e.preventDefault();
+        var formData = new FormData();
+        formData.append('value', this.state.files[0]);
+
         const token = sessionStorage.getItem('tokenKey');
-        this.stste.files.map(async (file) => {
-            var response = await fetch("/api/tests/", {
-                method: "POST",
-                headers: {
-                    "Authorization": "Bearer " + token,
-                },
-                body: {
-                    value: file
-                }
-            });
-            if (response.ok !== true) {
-                console.log("Error: ", response.status);
-            }
+        var response = await fetch("/api/tests/", {
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer " + token
+            },
+            body: formData
         });
+        if (response.ok !== true) {
+            console.log("Error: ", response.status);
+        }
     }
 
     uploadFile(e) {
@@ -98,7 +97,7 @@ class ModalImportTest extends React.Component {
             <div>
                 <Button color="info" onClick={this.toggle}>Импортировать</Button>
                 <Modal isOpen={this.state.modal}>
-                    <Form onSubmit={this.onSubmit} encType="multipart/form-data">
+                    <Form onSubmit={(e) => { this.onSubmit(e) }} encType="multipart/form-data">
                         <ModalHeader toggle={this.toggle}>Импорт нового теста</ModalHeader>
                         <ModalBody>
                             <FormGroup>

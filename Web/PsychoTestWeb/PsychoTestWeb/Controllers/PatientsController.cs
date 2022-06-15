@@ -22,59 +22,57 @@ namespace PsychoTestWeb.Controllers
         //    new Patient {Name = "test2", Id = 2 },
         //};
         private readonly Service db;
-        List<Patient> people;
         public PatientsController(Service context)
         {
             db = context;
-            people = db.GetPatients().ToList();
         }
 
         // GET: api/<PatientsController>
         [Authorize]
         [HttpGet]
-        public IEnumerable<Patient> Get()
+        public async Task<IEnumerable<Patient>> Get()
         {
-            return people;
+            return await db.GetPatients();
         }
 
         // GET api/<PatientsController>/62a1f08829de97df5563051f
         [Authorize]
         [HttpGet("{id}")]
-        public Patient Get(string id)
+        public async Task<Patient> Get(string id)
         {
-            return db.GetPatientById(id);
+            return await db.GetPatientById(id);
         }
 
         // GET api/<PatientsController>/name/value
         [Authorize]
         [HttpGet("name/{value}")]
-        public IEnumerable<Patient> GetByName(string value)
+        public async Task<IEnumerable<Patient>> GetByName(string value)
         {
-            return db.GetPatientsByName(value);
+            return await db.GetPatientsByName(value);
         }
 
         // POST api/<PatientsController>
         [Authorize]
         [HttpPost]
-        public void Post([FromBody] Patient value)
+        public async Task Post([FromBody] Patient value)
         {
-            db.CreatePatient(value);
+            await db.CreatePatient(value);
         }
 
         // PUT api/<PatientsController>/62a1f08829de97df5563051f
         [Authorize]
         [HttpPut("{id}")]
-        public void Put(string id, [FromBody] Patient value)
+        public async Task Put(string id, [FromBody] Patient value)
         {
-            db.UpdatePatient(id, value);
+            await db.UpdatePatient(id, value);
         }
 
         // DELETE api/<PatientsController>/62a1f08829de97df5563051f
         [Authorize]
         [HttpDelete("{id}")]
-        public void Delete(string id)
+        public async Task Delete(string id)
         {
-            db.RemovePatient(id);
+            await db.RemovePatient(id);
         }
     }
 }
