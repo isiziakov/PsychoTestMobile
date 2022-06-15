@@ -15,8 +15,10 @@ using System.Text;
 
 namespace PsychoTestAndroid.Model.Questions
 {
+    // вопрос теста
     public abstract class Question
     {
+        // выбранный ответ на вопрос
         [JsonIgnore]
         public string result = "";
         [JsonProperty("type")]

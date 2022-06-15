@@ -39,11 +39,13 @@ namespace PsychoTestAndroid.Model.Answers
             radio = new RadioButton(layout.Context);
             radio.Text = text;
             radio.TextSize = 20;
-            radio.CheckedChange += Select;
+            radio.Click += Select;
+            layout.Click += Select;
             layout.AddView(radio);
-            radio.LayoutParameters.Width = ViewGroup.LayoutParams.MatchParent;
-            radio.LayoutParameters.Height = ViewGroup.LayoutParams.WrapContent;
+            radio.LayoutParameters.Width = ViewGroup.LayoutParams.WrapContent;
+            radio.LayoutParameters.Height = ViewGroup.LayoutParams.MatchParent;
             UpdateResult(owner.result);
+            base.Show(layout);
             return layout;
         }
     }

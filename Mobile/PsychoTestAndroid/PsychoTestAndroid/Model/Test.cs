@@ -45,17 +45,15 @@ namespace PsychoTestAndroid.Model
 
         }
 
-        public Test(string name)
+        public Test(JObject data)
         {
-            Name = name;
-            duration = "600";
-        }
+            id = data["_id"].ToString();
+            Name = data["IR"]["Name"].ToString();
+            Instruction = data["Instruction"]["#text"].ToString();
+            duration = data["TestTime"].ToString();
+            answerOrder = data["OrderOfAnswers"].ToString();
+            questionOrder = data["QuestionsOrder"].ToString();
 
-        public Test(string name, string instruction)
-        {
-            duration = "10";
-            Name = name;
-            Instruction = instruction;
         }
 
         // запустить таймер
@@ -100,6 +98,7 @@ namespace PsychoTestAndroid.Model
             return "" + currentDuration / 60 + ":" + seconds;
         }
 
+        // заполнить вопросы из json объекта теста
         public void SetQuestions(JObject data)
         {
             JArray questions = JArray.Parse(data.SelectToken("questions").ToString());

@@ -6,4 +6,12 @@
     android:id="@+id/answers_recycler_item"
     android:orientation="horizontal"
     android:layout_margin="4dp">
+    <RadioButton
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"/>
+    <TextView
+        android:text="1111111111111"
+        android:textSize="100sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 </LinearLayout>

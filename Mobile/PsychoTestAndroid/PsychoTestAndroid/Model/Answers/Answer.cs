@@ -25,14 +25,15 @@ namespace PsychoTestAndroid.Model.Answers
         // номер ответа
         [JsonProperty("answer_id")]
         public string Id;
-
+        [JsonIgnore]
+        protected AnswersDecorator decorator;
         public Answer()
         {
 
         }
         public Answer(Question owner)
         {
-           this.owner = owner;
+            this.owner = owner;
         }
 
         public Answer(JObject data)
@@ -41,7 +42,14 @@ namespace PsychoTestAndroid.Model.Answers
         }
 
         // отрисовка ответа внутри LinearLayout
-        public abstract LinearLayout Show(LinearLayout layout);
+        public virtual LinearLayout Show(LinearLayout layout)
+        {
+            if (decorator != null)
+            {
+                layout.AddView(decorator.Show(new LinearLayout(layout.Context)));
+            }
+            return layout;
+        }
         // обработка изменения ответа на вопрос
         public abstract void UpdateResult(string result);
     }

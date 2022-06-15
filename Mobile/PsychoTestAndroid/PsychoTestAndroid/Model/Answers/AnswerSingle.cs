@@ -28,6 +28,21 @@ namespace PsychoTestAndroid.Model.Answers
 
         }
 
+        public override LinearLayout Show(LinearLayout layout)
+        {
+            layout.Orientation = Orientation.Horizontal;
+            layout.SetGravity(GravityFlags.CenterVertical);
+            radio = new RadioButton(layout.Context);
+            radio.Click += Select;
+            layout.Click += Select;
+            layout.AddView(radio);
+            radio.LayoutParameters.Width = ViewGroup.LayoutParams.WrapContent;
+            radio.LayoutParameters.Height = ViewGroup.LayoutParams.MatchParent;
+            UpdateResult(owner.result);
+            base.Show(layout);
+            return layout;
+        }
+
         public override void UpdateResult(string result)
         {
             if (radio != null)
@@ -38,6 +53,7 @@ namespace PsychoTestAndroid.Model.Answers
 
         protected void Select(object sender, EventArgs e)
         {
+            radio.Checked = true;
             if (radio.Checked)
             {
                 owner.SetResult(Id);
