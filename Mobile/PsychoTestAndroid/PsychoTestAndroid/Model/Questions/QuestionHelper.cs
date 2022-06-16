@@ -19,8 +19,9 @@ namespace PsychoTestAndroid.Model.Questions
         {
             switch (type)
             {
-                case 0: return JsonConvert.DeserializeObject<QuestionText>(data.ToString());
-                default: return new QuestionText();
+                case 0: return new QuestionText(data);
+                case 1: return new QuestionImage(data);
+                default: return null;
             }
         }
     }

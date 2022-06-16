@@ -3,6 +3,7 @@ using Android.Content;
 using Android.OS;
 using Android.Runtime;
 using Android.Views;
+using Android.Views.InputMethods;
 using Android.Widget;
 using AndroidX.ViewPager.Widget;
 using Newtonsoft.Json;
@@ -30,7 +31,7 @@ namespace PsychoTestAndroid
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.instruction);
 
-            test = JsonConvert.DeserializeObject<Test>(Intent.GetStringExtra("Test"));
+            test = new Test(JObject.Parse(Intent.GetStringExtra("Test")));
             test.SetQuestions(JObject.Parse(Intent.GetStringExtra("Test")));
             if (test == null)
             {
@@ -125,11 +126,19 @@ namespace PsychoTestAndroid
         // перерисовываем страницу с результатами, необходимо, т.к. при изменении ответа последнего вопроса страница результатов не перерисовывается
         private void TestPageSelected(object sender, ViewPager.PageSelectedEventArgs e)
         {
+            // закрыть клавиатуру
+            HideKeyboard();
             if (e.Position == test.Questions.Count)
             {
                 var adapter = viewPager.Adapter as TestViewPagerAdapter;
                 adapter.ReDrawEnd();
             }
+        }
+
+        private void HideKeyboard()
+        {
+            InputMethodManager inputMethodManager = (InputMethodManager)this.GetSystemService(Context.InputMethodService);
+            inputMethodManager.HideSoftInputFromWindow(this.viewPager.WindowToken, HideSoftInputFlags.None);
         }
     }
 }

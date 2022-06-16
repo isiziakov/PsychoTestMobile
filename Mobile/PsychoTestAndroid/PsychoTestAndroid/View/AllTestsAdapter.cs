@@ -41,14 +41,6 @@ namespace PsychoTestAndroid
         {
             AllTestsViewHolder vh = holder as AllTestsViewHolder;
             vh.Name.Text = tests[position].Name;
-            //if (tests[position].Title.Length == 0)
-            //{
-            //    vh.Title.Visibility = ViewStates.Gone;
-            //}
-            //else
-            //{
-            //    vh.Title.Text = tests[position].Title;
-            //}
         }
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
@@ -60,6 +52,16 @@ namespace PsychoTestAndroid
         {
             if (ItemClick != null)
                 ItemClick(this, obj);
+        }
+
+        public override long GetItemId(int position)
+        {
+            return position;
+        }
+
+        public override int GetItemViewType(int position)
+        {
+            return position;
         }
     }
 }

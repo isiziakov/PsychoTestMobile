@@ -14,11 +14,13 @@ namespace PsychoTestAndroid.Model.Answers
 {
     public static class DecoratorHelper
     {
-        public static AnswersDecorator GetDecorator(int type, JObject data)
+        public static AnswersDecorator GetDecorator(string type, JObject data)
         {
             switch (type)
             {
-                case 0: return new TextDecorator(data);
+                case "0": return new TextDecorator(data);
+                case "1": return null;
+                case "2": return new ImageDecorator(data);
                 default: return null;
             }
         }

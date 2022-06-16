@@ -2,6 +2,7 @@
 using Android.Content;
 using Android.OS;
 using Android.Runtime;
+using Android.Util;
 using Android.Views;
 using Android.Widget;
 using AndroidX.RecyclerView.Widget;
@@ -18,6 +19,7 @@ namespace PsychoTestAndroid
         public LinearLayout Layout { get; set; }
         public EndTestViewHolder(View itemview, Action<int> listener) : base(itemview)
         {
+            //this.IsRecyclable = false;
             Layout = itemview.FindViewById<LinearLayout>(Resource.Id.answers_recycler_item);
             itemview.Click += (sender, e) => listener(Position);
         }
@@ -45,6 +47,7 @@ namespace PsychoTestAndroid
             tx.Text = "Вопрос " + (position + 1) + " - ";
             tx.LayoutParameters.Width = ViewGroup.LayoutParams.MatchParent;
             tx.LayoutParameters.Height = ViewGroup.LayoutParams.WrapContent;
+            tx.SetMaxHeight((int)((tx.TextSize + 4) * tx.Context.Resources.DisplayMetrics.Density));
             // учесть вариант, когда ответ - нет ответа
             if (test.Questions[position].result != null && test.Questions[position].result != "")
             {
@@ -66,6 +69,16 @@ namespace PsychoTestAndroid
         {
             if (ItemClick != null)
                 ItemClick(this, obj);
+        }
+
+        public override long GetItemId(int position)
+        {
+            return position;
+        }
+
+        public override int GetItemViewType(int position)
+        {
+            return position;
         }
     }
 }

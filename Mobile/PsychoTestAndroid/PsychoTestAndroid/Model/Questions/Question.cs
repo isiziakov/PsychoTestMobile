@@ -42,14 +42,9 @@ namespace PsychoTestAndroid.Model.Questions
 
         public Question(JObject data)
         {
-            Type = data.SelectToken("type").ToString();
-            Id = data.SelectToken("question_id").ToString();
-            AnswersType = data.SelectToken("answers_type").ToString();
-            JArray jAnserws = JArray.Parse(data.SelectToken("answers").ToString());
-            foreach (JObject answer in jAnserws)
-            {
-
-            }
+            Type = data["Question_Type"].ToString();
+            Id = data["Question_id"].ToString();
+            AnswersType = data["Question_Choice"].ToString();
         }
 
         public virtual View Show(View layout)
@@ -78,11 +73,15 @@ namespace PsychoTestAndroid.Model.Questions
 
         public void SetAnswers(JObject data)
         {
-            JArray answers = JArray.Parse(data.SelectToken("answers").ToString());
+            JArray answers = JArray.Parse(data["Answers"]["item"].ToString());
             foreach (JObject answer in answers)
             {
-                Answers.Add(AnswerHelper.GetAnswerForType(Int32.Parse(AnswersType), answer));
-                Answers.Last().owner = this;
+                var newAnswer = AnswerHelper.GetAnswerForType(Int32.Parse(AnswersType), answer);
+                if (newAnswer != null)
+                {
+                    Answers.Add(newAnswer);
+                    Answers.Last().owner = this;
+                }
             }
         }
     }

@@ -6,7 +6,6 @@ using Android.Views;
 using Android.Widget;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using PsychoTestAndroid.Model.Questions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,17 +13,17 @@ using System.Text;
 
 namespace PsychoTestAndroid.Model.Answers
 {
-    public class AnswerSingle : Answer
+    public class AnswerInput : Answer
     {
         [JsonIgnore]
-        protected RadioButton radio;
+        protected EditText editText;
 
-        public AnswerSingle() : base()
+        public AnswerInput() : base()
         {
 
         }
 
-        public AnswerSingle(JObject data) : base(data)
+        public AnswerInput(JObject data) : base(data)
         {
 
         }
@@ -33,31 +32,30 @@ namespace PsychoTestAndroid.Model.Answers
         {
             layout.Orientation = Orientation.Horizontal;
             layout.SetGravity(GravityFlags.CenterVertical);
-            radio = new RadioButton(layout.Context);
-            radio.Click += Select;
-            layout.Click += Select;
-            layout.AddView(radio);
-            radio.LayoutParameters.Width = ViewGroup.LayoutParams.WrapContent;
-            radio.LayoutParameters.Height = ViewGroup.LayoutParams.MatchParent;
+            editText = new EditText(layout.Context);
+            editText.TextSize = 20;
+            layout.AddView(editText);
+            editText.LayoutParameters.Width = ViewGroup.LayoutParams.MatchParent;
+            editText.LayoutParameters.Height = ViewGroup.LayoutParams.WrapContent;
             UpdateResult(owner.result);
+            editText.TextChanged += Edit;
             return base.Show(layout);
         }
 
         public override void UpdateResult(string result)
         {
-            if (radio != null)
+            if (editText != null)
             {
-                radio.Checked = result == Id;
+                if (editText.Text != result)
+                {
+                    editText.Text = result;
+                }
             }
         }
 
-        protected void Select(object sender, EventArgs e)
+        protected void Edit(object sender, EventArgs e)
         {
-            radio.Checked = true;
-            if (radio.Checked)
-            {
-                owner.SetResult(Id);
-            }
+            owner.SetResult(editText.Text);
         }
     }
 }

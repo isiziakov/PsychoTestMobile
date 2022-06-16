@@ -6,7 +6,6 @@ using Android.Views;
 using Android.Widget;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using PsychoTestAndroid.Model.Answers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,24 +13,23 @@ using System.Text;
 
 namespace PsychoTestAndroid.Model.Questions
 {
-    public class QuestionText : Question
+    // пока без картинок :)
+    public class QuestionImage : Question
     {
+        [JsonProperty("image")]
+        string image;
         [JsonProperty("text")]
         string text;
         [JsonIgnore]
         TextView textView;
 
-        public QuestionText()
+        public QuestionImage()
         {
         }
 
-        public QuestionText(string text) : base()
+        public QuestionImage(JObject data) : base(data)
         {
-            this.text = text;
-        }
-
-        public QuestionText(JObject data) : base(data)
-        {
+            image = data["ImageFileName"].ToString();
             text = data["Text"]["#text"].ToString();
         }
 

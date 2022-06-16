@@ -19,7 +19,7 @@ namespace PsychoTestAndroid
     public class AllTestActivity : Activity
     {
         JArray jTests;
-        List<Test> tests;
+        List<Test> tests = new List<Test>();
         RecyclerView recycleView;
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -28,10 +28,9 @@ namespace PsychoTestAndroid
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.activity_allTests);
             jTests = JArray.Parse(Intent.GetStringExtra("Tests"));
-            tests = JsonConvert.DeserializeObject<List<Test>>(Intent.GetStringExtra("Tests"));
-            if (tests == null)
+            foreach(JObject test in jTests)
             {
-                tests = new List<Test>();
+                tests.Add(new Test(test));
             }
 
             InitializeComponents();

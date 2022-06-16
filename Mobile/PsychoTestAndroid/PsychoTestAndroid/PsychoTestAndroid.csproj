@@ -73,13 +73,15 @@
     <Compile Include="Activities\TestActivity.cs" />
     <Compile Include="Model\Answers\Answer.cs" />
     <Compile Include="Model\Answers\AnswerHelper.cs" />
+    <Compile Include="Model\Answers\AnswerInput.cs" />
     <Compile Include="Model\Answers\Decorators\AnswersDecorator.cs" />
     <Compile Include="Model\Answers\AnswerSingle.cs" />
-    <Compile Include="Model\Answers\AnswerSingleText.cs" />
     <Compile Include="Model\Answers\Decorators\DecoratorHelper.cs" />
+    <Compile Include="Model\Answers\Decorators\ImageDecorator.cs" />
     <Compile Include="Model\Answers\Decorators\TextDecorator.cs" />
     <Compile Include="Model\Questions\Question.cs" />
     <Compile Include="Model\Questions\QuestionHelper.cs" />
+    <Compile Include="Model\Questions\QuestionImage.cs" />
     <Compile Include="Model\Questions\QuestionText.cs" />
     <Compile Include="Model\Test.cs" />
     <Compile Include="Resources\Resource.designer.cs" />

@@ -25,6 +25,8 @@ namespace PsychoTestAndroid.Model.Answers
         // номер ответа
         [JsonProperty("answer_id")]
         public string Id;
+        [JsonProperty("answer_type")]
+        public string Type;
         [JsonIgnore]
         protected AnswersDecorator decorator;
         public Answer()
@@ -38,7 +40,9 @@ namespace PsychoTestAndroid.Model.Answers
 
         public Answer(JObject data)
         {
-            Id = data.SelectToken("answer_id").ToString();
+            Id = data["Answer_id"].ToString();
+            Type = data["Answer_type"].ToString();
+            decorator = DecoratorHelper.GetDecorator(Type, data);
         }
 
         // отрисовка ответа внутри LinearLayout

@@ -21,7 +21,7 @@ namespace PsychoTestAndroid.Web
     public static class WebApi
     {
         // ссылка на апи сервер
-        const string url = "http://192.168.231.1:8080/api";
+        const string url = "http://192.168.1.71:8081/api"; //https://askdev.ru/q/kak-poluchit-dostup-k-localhost-s-moego-ustroystva-android-3227/?ysclid=l4f7nbioym907025393
         // получить список доступных тестов
         public static async Task<List<Test>> GetTestsForCode(string code)
         {

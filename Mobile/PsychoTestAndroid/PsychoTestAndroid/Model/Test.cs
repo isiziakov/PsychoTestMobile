@@ -48,7 +48,7 @@ namespace PsychoTestAndroid.Model
         public Test(JObject data)
         {
             id = data["_id"].ToString();
-            Name = data["IR"]["Name"].ToString();
+            Name = data["IR"]["Name"]["#text"].ToString();
             Instruction = data["Instruction"]["#text"].ToString();
             duration = data["TestTime"].ToString();
             answerOrder = data["OrderOfAnswers"].ToString();
@@ -101,12 +101,16 @@ namespace PsychoTestAndroid.Model
         // заполнить вопросы из json объекта теста
         public void SetQuestions(JObject data)
         {
-            JArray questions = JArray.Parse(data.SelectToken("questions").ToString());
+            JArray questions = JArray.Parse(data["Questions"]["item"].ToString());
             foreach (JObject question in questions)
             {
-                string type = question.SelectToken("type").ToString();
-                Questions.Add(QuestionHelper.GetQuestionForType(Int32.Parse(type), question));
-                Questions.Last().SetAnswers(question);
+                string type = question["Question_Type"].ToString();
+                var newQuestion = QuestionHelper.GetQuestionForType(Int32.Parse(type), question);
+                if (newQuestion != null)
+                {
+                    Questions.Add(newQuestion);
+                    Questions.Last().SetAnswers(question);
+                }
             }
         }
     }
