@@ -146,7 +146,13 @@ namespace PsychoTestWeb.Models
                         if (question["Answers"]["item"] is JArray)
                             foreach (var answer in question["Answers"]["item"])
                                 answer["Answer_type"] = 1;
-                        else question["Answers"]["item"]["Answer_Type"] = 1;
+                        else
+                        {
+                            JArray arr = new JArray();
+                            question["Answers"]["item"]["Answer_Type"] = 1;
+                            arr.Add(question["Answers"]["item"]);
+                            question["Answers"]["item"] = arr;
+                        }
 
                     }
                     else
@@ -155,7 +161,13 @@ namespace PsychoTestWeb.Models
                         if (question["Answers"]["item"] is JArray)
                             foreach (var answer in question["Answers"]["item"])
                                 answer["Answer_type"] = 0;
-                        else question["Answers"]["item"]["Answer_Type"] = 0;
+                        else
+                        {
+                            JArray arr = new JArray();
+                            question["Answers"]["item"]["Answer_Type"] = 0;
+                            arr.Add(question["Answers"]["item"]);
+                            question["Answers"]["item"] = arr;
+                        }
                     }
                 }
                 else
@@ -164,7 +176,13 @@ namespace PsychoTestWeb.Models
                     if (question["Answers"]["item"] is JArray)
                         foreach (var answer in question["Answers"]["item"])
                             answer["Answer_type"] = 0;
-                    else question["Answers"]["item"]["Answer_Type"] = 0;
+                    else
+                    {
+                        JArray arr = new JArray();
+                        question["Answers"]["item"]["Answer_Type"] = 0;
+                        arr.Add(question["Answers"]["item"]);
+                        question["Answers"]["item"] = arr;
+                    }
                 }
                 int j = 0;
                 if (question["Answers"]["item"] is JArray)
@@ -178,9 +196,12 @@ namespace PsychoTestWeb.Models
                     }
                 else
                 {
+                    JArray arr = new JArray();
                     question["Answers"]["item"]["Answer_id"] = 0;
                     if (question["Answers"]["item"]["ImageFileName"] != null)
                         question["Answers"]["item"]["Answer_Type"] = 2;
+                    arr.Add(question["Answers"]["item"]);
+                    question["Answers"]["item"] = arr;
                 }
             }
             var document = BsonDocument.Parse(Newtonsoft.Json.JsonConvert.SerializeObject(jObj));
