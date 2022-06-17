@@ -19,7 +19,6 @@ namespace PsychoTestAndroid
         public LinearLayout Layout { get; set; }
         public EndTestViewHolder(View itemview, Action<int> listener) : base(itemview)
         {
-            //this.IsRecyclable = false;
             Layout = itemview.FindViewById<LinearLayout>(Resource.Id.answers_recycler_item);
             itemview.Click += (sender, e) => listener(Position);
         }
@@ -46,8 +45,8 @@ namespace PsychoTestAndroid
             vh.Layout.AddView(tx);
             tx.Text = "Вопрос " + (position + 1) + " - ";
             tx.LayoutParameters.Width = ViewGroup.LayoutParams.MatchParent;
-            tx.LayoutParameters.Height = ViewGroup.LayoutParams.WrapContent;
-            tx.SetMaxHeight((int)((tx.TextSize + 4) * tx.Context.Resources.DisplayMetrics.Density));
+            tx.LayoutParameters.Height = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, tx.TextSize * 0.6f, tx.Context.Resources.DisplayMetrics);
+            tx.SetMaxHeight(tx.LayoutParameters.Height);
             // учесть вариант, когда ответ - нет ответа
             if (test.Questions[position].result != null && test.Questions[position].result != "")
             {

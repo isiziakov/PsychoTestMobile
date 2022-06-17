@@ -74,13 +74,21 @@ namespace PsychoTestAndroid.Model.Questions
         public void SetAnswers(JObject data)
         {
             JArray answers = JArray.Parse(data["Answers"]["item"].ToString());
-            foreach (JObject answer in answers)
+            if (AnswersType == "0")
             {
-                var newAnswer = AnswerHelper.GetAnswerForType(Int32.Parse(AnswersType), answer);
-                if (newAnswer != null)
+                Answers.Add(new AnswerInput(answers.First() as JObject));
+                Answers.Last().owner = this;
+            }
+            else
+            {
+                foreach (JObject answer in answers)
                 {
-                    Answers.Add(newAnswer);
-                    Answers.Last().owner = this;
+                    var newAnswer = AnswerHelper.GetAnswerForType(Int32.Parse(AnswersType), answer);
+                    if (newAnswer != null)
+                    {
+                        Answers.Add(newAnswer);
+                        Answers.Last().owner = this;
+                    }
                 }
             }
         }

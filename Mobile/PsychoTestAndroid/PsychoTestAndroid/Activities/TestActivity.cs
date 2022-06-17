@@ -69,11 +69,11 @@ namespace PsychoTestAndroid
             SetContentView(Resource.Layout.test_viewPager);
             ImageButton backHeaderButton = FindViewById<ImageButton>(Resource.Id.headerTest_backButton);
             backHeaderButton.SetMinimumHeight((int)(Resources.DisplayMetrics.HeightPixels * 0.08));
-            backHeaderButton.SetMinimumHeight((int)(Resources.DisplayMetrics.WidthPixels * 0.08));
+            backHeaderButton.SetMinimumWidth((int)(Resources.DisplayMetrics.WidthPixels * 0.08));
             backHeaderButton.Click += TestBackButtonClick;
             ImageButton endHeaderButton = FindViewById<ImageButton>(Resource.Id.headerTest_endButton);
             endHeaderButton.SetMinimumHeight((int)(Resources.DisplayMetrics.HeightPixels * 0.08));
-            endHeaderButton.SetMinimumHeight((int)(Resources.DisplayMetrics.WidthPixels * 0.08));
+            endHeaderButton.SetMinimumWidth((int)(Resources.DisplayMetrics.WidthPixels * 0.08));
             endHeaderButton.Click += EndHeaderButtonClick;
             testTimer = FindViewById<TextView>(Resource.Id.test_timer);
             var duration = test.StartTimer();
