@@ -22,7 +22,7 @@ namespace PsychoTestAndroid
             itemview.Click += (sender, e) => listener(Position);
         }
     }
-
+    // адаптер для отображения списка тестов
     public class AllTestsAdapter : RecyclerView.Adapter
     {
         public event EventHandler<int> ItemClick;

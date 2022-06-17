@@ -119,5 +119,34 @@ namespace PsychoTestAndroid.Model
         {
 
         }
+        // подготовка теста к запуску
+        public void StartTest()
+        {
+            // перемешиваем вопросы
+            if (questionOrder == "1")
+            {
+                Mix(Questions);
+            }
+            // перемешиваем ответы
+            if (answerOrder == "1")
+            {
+                foreach(Question question in Questions)
+                {
+                    Mix(question.Answers);
+                }
+            }
+        }
+        // перемешать элементы листа
+        public void Mix<T>(List<T> list)
+        {
+            var random = new Random();
+            for (int i = list.Count - 1; i >= 1; i--)
+            {
+                int j = random.Next(i + 1);
+                var temp = list[j];
+                list[j] = list[i];
+                list[i] = temp;
+            }
+        }
     }
 }

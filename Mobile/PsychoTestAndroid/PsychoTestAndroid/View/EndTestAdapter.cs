@@ -14,6 +14,7 @@ using System.Text;
 
 namespace PsychoTestAndroid
 {
+    // список вопросов с выбранными ответами
     public class EndTestViewHolder : RecyclerView.ViewHolder
     {
         public LinearLayout Layout { get; set; }

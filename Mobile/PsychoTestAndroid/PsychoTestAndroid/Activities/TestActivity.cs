@@ -89,6 +89,20 @@ namespace PsychoTestAndroid
             endHeaderButton.SetMinimumHeight((int)(Resources.DisplayMetrics.HeightPixels * 0.08));
             endHeaderButton.SetMinimumWidth((int)(Resources.DisplayMetrics.WidthPixels * 0.08));
             endHeaderButton.Click += EndHeaderButtonClick;
+            
+            viewPager = FindViewById<ViewPager>(Resource.Id.testViewPager);
+            var adapter = new TestViewPagerAdapter(test);
+            adapter.EndAnswerItemClick += EndAnswerItemClick;
+            viewPager.Adapter = adapter;
+            // смена страницы
+            viewPager.PageSelected += TestPageSelected;
+
+            StartTest();
+        }
+        // запуск теста
+        private void StartTest()
+        {
+            test.StartTest();
             // таймер
             testTimer = FindViewById<TextView>(Resource.Id.test_timer);
             // оставшееся время
@@ -120,12 +134,6 @@ namespace PsychoTestAndroid
                     }
                 };
             }
-            viewPager = FindViewById<ViewPager>(Resource.Id.testViewPager);
-            var adapter = new TestViewPagerAdapter(test);
-            adapter.EndAnswerItemClick += EndAnswerItemClick;
-            viewPager.Adapter = adapter;
-            // смена страницы
-            viewPager.PageSelected += TestPageSelected;
         }
         // выбор вопроса из списка результатов
         private void EndAnswerItemClick(object sender, int e)

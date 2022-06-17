@@ -13,6 +13,7 @@ using System.Text;
 
 namespace PsychoTestAndroid
 {
+    // адаптер для отображения списка ответов вопроса
     public class AnswersViewHolder : RecyclerView.ViewHolder
     {
         public LinearLayout Layout { get; set; }
@@ -32,6 +33,7 @@ namespace PsychoTestAndroid
         {
             this.question = question;
         }
+        // +1, т.к. 1 элемент - пояснение к ответам
         public override int ItemCount
         {
             get { return question.Answers.Count + 1; }
@@ -39,6 +41,7 @@ namespace PsychoTestAndroid
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
             AnswersViewHolder vh = holder as AnswersViewHolder;
+            // элемент на 0 позиции - пояснение к ответам
             if (position != 0)
             {
                 vh.Layout = question.Answers[position - 1].Show(vh.Layout);
