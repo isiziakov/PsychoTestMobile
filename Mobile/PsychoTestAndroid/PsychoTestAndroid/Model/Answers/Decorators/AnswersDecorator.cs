@@ -12,6 +12,7 @@ using System.Text;
 
 namespace PsychoTestAndroid.Model.Answers
 {
+    // базовый класс декоратора для ответа
     public abstract class AnswersDecorator
     {
         public AnswersDecorator()
@@ -23,6 +24,7 @@ namespace PsychoTestAndroid.Model.Answers
         {
 
         }
+        // отобразить
         public abstract LinearLayout Show(LinearLayout layout);
     }
 }

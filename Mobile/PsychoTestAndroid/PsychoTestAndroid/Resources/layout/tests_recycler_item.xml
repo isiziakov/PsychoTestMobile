@@ -13,15 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:textSize="24sp"
-        android:paddingTop="2dp"/>
-    <TextView
-        android:id="@+id/tests_recycler_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:textSize="20sp"
-        android:paddingTop="4dp"
-        android:paddingBottom="4sp"/>
+        android:paddingTop="4dp"/>
 </LinearLayout>
 
     

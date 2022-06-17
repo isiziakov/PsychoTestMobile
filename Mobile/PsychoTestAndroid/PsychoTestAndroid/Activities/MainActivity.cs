@@ -14,24 +14,27 @@ using System.Threading.Tasks;
 
 namespace PsychoTestAndroid
 {
+    // стартовая активность
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
     public class MainActivity : AppCompatActivity
     {
+        // ошибка входа
         TextView error;
+        // код для входа
         EditText code;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
-            // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.activity_main);
             InitializeComponents();
         }
-
+        // инициализацмя визуальных элементов
         void InitializeComponents()
         {
             error = FindViewById<TextView>(Resource.Id.main_error);
             code = FindViewById<EditText>(Resource.Id.main_code);
+            // кнопка войти
             Button enterButton = FindViewById<Button>(Resource.Id.main_enter_button);
             if (enterButton != null)
             {
@@ -43,22 +46,18 @@ namespace PsychoTestAndroid
         {
             if (code != null)
             {
-                //List<Test> tests = await WebApi.GetTestsForCode(code.Text);
-                //if (tests != null && tests.Count > 0)
-                //{
-                //    Intent intent = new Intent(this, typeof(AllTestActivity));
-                //    intent.PutExtra("Tests", JsonConvert.SerializeObject(tests));
-                //    this.StartActivity(intent);
-                //}
+                // получение всех доступных тестов
                 string tests = await WebApi.GetTest();
                 if (tests != null)
                 {
+                    // переход на активность с тестами
                     Intent intent = new Intent(this, typeof(AllTestActivity));
                     intent.PutExtra("Tests", tests);
                     this.StartActivity(intent);
                 }
                 else
                 {
+                    // отобразить ошибку
                     if (error != null)
                     {
                         error.Visibility = ViewStates.Visible;

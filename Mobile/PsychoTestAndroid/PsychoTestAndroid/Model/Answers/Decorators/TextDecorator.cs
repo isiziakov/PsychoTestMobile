@@ -12,8 +12,10 @@ using System.Text;
 
 namespace PsychoTestAndroid.Model.Answers
 {
+    // декоратор с текстом
     public class TextDecorator : AnswersDecorator
     {
+        // текст
         string text;
         public TextDecorator()
         {
@@ -24,7 +26,7 @@ namespace PsychoTestAndroid.Model.Answers
         {
             text = data["Name"]["#text"].ToString();
         }
-
+        // отображение декоратора
         public override LinearLayout Show(LinearLayout layout)
         {
             TextView textView = new TextView(layout.Context);

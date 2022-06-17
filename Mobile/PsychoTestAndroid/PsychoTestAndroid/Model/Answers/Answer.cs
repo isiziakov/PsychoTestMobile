@@ -25,18 +25,12 @@ namespace PsychoTestAndroid.Model.Answers
         // номер ответа
         [JsonProperty("answer_id")]
         public string Id;
+        // тип декоратора ответа
         [JsonProperty("answer_type")]
         public string Type;
+        // декоратор
         [JsonIgnore]
         protected AnswersDecorator decorator;
-        public Answer()
-        {
-
-        }
-        public Answer(Question owner)
-        {
-            this.owner = owner;
-        }
 
         public Answer(JObject data)
         {
@@ -48,6 +42,7 @@ namespace PsychoTestAndroid.Model.Answers
         // отрисовка ответа внутри LinearLayout
         public virtual LinearLayout Show(LinearLayout layout)
         {
+            // отрисовка декоратора, если он есть
             if (decorator != null)
             {
                 layout.AddView(decorator.Show(new LinearLayout(layout.Context)));

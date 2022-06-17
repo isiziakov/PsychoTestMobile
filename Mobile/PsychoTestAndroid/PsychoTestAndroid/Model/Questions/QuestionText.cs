@@ -14,12 +14,12 @@ using System.Text;
 
 namespace PsychoTestAndroid.Model.Questions
 {
+    // вопрос с текстом
     public class QuestionText : Question
     {
+        // текст вопроса
         [JsonProperty("text")]
         string text;
-        [JsonIgnore]
-        TextView textView;
 
         public QuestionText()
         {
@@ -34,17 +34,12 @@ namespace PsychoTestAndroid.Model.Questions
         {
             text = data["Text"]["#text"].ToString();
         }
-
-        public override int GetLayout()
-        {
-            return Resource.Layout.question_layout;
-        }
-
+        // отобразить вопрос
         public override View Show(View layout)
         {
             layout = base.Show(layout);
             LinearLayout questionLinear = layout.FindViewById<LinearLayout>(Resource.Id.question_view);
-            textView = new TextView(layout.Context);
+            TextView textView = new TextView(layout.Context);
             textView.Text = text;
             textView.SetTextSize(Android.Util.ComplexUnitType.Sp, 20);
             questionLinear.AddView(textView);

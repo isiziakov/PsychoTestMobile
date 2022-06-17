@@ -15,29 +15,27 @@ using System.Text;
 
 namespace PsychoTestAndroid.Model.Questions
 {
-    // вопрос теста
+    // базовый класс для вопроса теста
     public abstract class Question
     {
         // выбранный ответ на вопрос
         [JsonIgnore]
         public string result = "";
+        // тип пояснения к вопросу
         [JsonProperty("type")]
         public string Type;
+        // id вопроса
         [JsonProperty("question_id")]
         public string Id;
+        // тип ответов вопроса (одиночный выбор варианта, ввод ответа...)
         [JsonProperty("answers_type")]
         public string AnswersType;
+        // лист ответов
         [JsonIgnore]
         public List<Answer> Answers = new List<Answer>();
 
         public Question()
         {
-            //Answers.Add(new AnswerSingleText(this, "111"));
-            //Answers[0].Id = "0";
-            //Answers.Add(new AnswerSingleText(this, "111"));
-            //Answers[1].Id = "1";
-            //Answers.Add(new AnswerSingleText(this, "111"));
-            //Answers[2].Id = "2";
         }
 
         public Question(JObject data)
@@ -46,44 +44,57 @@ namespace PsychoTestAndroid.Model.Questions
             Id = data["Question_id"].ToString();
             AnswersType = data["Question_Choice"].ToString();
         }
-
-        public virtual View Show(View layout)
+        // отрисовать вопрос
+        public virtual View Show(View view)
         {
-            RecyclerView recycler = layout.FindViewById<RecyclerView>(Resource.Id.answers_view);
-            var mLayoutManager = new LinearLayoutManager(layout.Context);
+            // отрисовывает список ответов как RecyclerView
+            RecyclerView recycler = view.FindViewById<RecyclerView>(Resource.Id.answers_view);
+            var mLayoutManager = new LinearLayoutManager(view.Context);
             recycler.SetLayoutManager(mLayoutManager);
             var adapter = new AnswersAdapter(this);
             recycler.SetAdapter(adapter);
-            return layout;
+            return view;
         }
-        public abstract int GetLayout();
+        // получить layout для вопроса
+        public virtual int GetLayout()
+        {
+            return Resource.Layout.question_layout;
+        }
+        // установить ответ для вопроса
         public void SetResult(string result)
         {
             this.result = result;
+            // обновить ответы
             UpdateResult();
         }
-
+        // обновить ответы при изменении ответа
         public void UpdateResult()
         {
+            // для каждого ответа установить результат
             foreach (Answer answer in Answers)
             {
                 answer.UpdateResult(result);
             }
         }
-
+        // установить ответы
         public void SetAnswers(JObject data)
         {
+            // массив ответов
             JArray answers = JArray.Parse(data["Answers"]["item"].ToString());
+            // при вводе текста в ответах лежат все правильные комбинации, в этом случае вариант ответа с вводом 1
             if (AnswersType == "0")
             {
+                // добавляем новый ответ
                 Answers.Add(new AnswerInput(answers.First() as JObject));
+                // устанавливаем владельца для ответа
                 Answers.Last().owner = this;
             }
             else
             {
+                // добавляем все ответы
                 foreach (JObject answer in answers)
                 {
-                    var newAnswer = AnswerHelper.GetAnswerForType(Int32.Parse(AnswersType), answer);
+                    var newAnswer = AnswerHelper.GetAnswerForType(AnswersType, answer);
                     if (newAnswer != null)
                     {
                         Answers.Add(newAnswer);

@@ -12,8 +12,10 @@ using System.Text;
 
 namespace PsychoTestAndroid.Model.Answers
 {
+    // вспомогательный класс для декораторов
     public static class DecoratorHelper
     {
+        // получить декоратор по типу
         public static AnswersDecorator GetDecorator(string type, JObject data)
         {
             switch (type)

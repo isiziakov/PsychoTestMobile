@@ -16,11 +16,9 @@ namespace PsychoTestAndroid
     public class AllTestsViewHolder : RecyclerView.ViewHolder
     {
         public TextView Name { get; set; }
-        public TextView Title { get; set; }
         public AllTestsViewHolder(View itemview, Action<int> listener) : base(itemview)
         {
             Name = itemview.FindViewById<TextView>(Resource.Id.tests_recycler_name);
-            Title = itemview.FindViewById<TextView>(Resource.Id.tests_recycler_title);
             itemview.Click += (sender, e) => listener(Position);
         }
     }

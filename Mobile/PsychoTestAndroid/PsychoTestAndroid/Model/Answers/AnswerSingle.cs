@@ -14,21 +14,18 @@ using System.Text;
 
 namespace PsychoTestAndroid.Model.Answers
 {
+    // ответ с выбором одного ответа
     public class AnswerSingle : Answer
     {
+        // radioButton
         [JsonIgnore]
         protected RadioButton radio;
-
-        public AnswerSingle() : base()
-        {
-
-        }
 
         public AnswerSingle(JObject data) : base(data)
         {
 
         }
-
+        // отображение ответа
         public override LinearLayout Show(LinearLayout layout)
         {
             layout.Orientation = Orientation.Horizontal;
@@ -42,22 +39,21 @@ namespace PsychoTestAndroid.Model.Answers
             UpdateResult(owner.result);
             return base.Show(layout);
         }
-
+        // обновление результата
         public override void UpdateResult(string result)
         {
             if (radio != null)
             {
+                // выделение, если 
                 radio.Checked = result == Id;
             }
         }
-
+        // выбор radioButton
         protected void Select(object sender, EventArgs e)
         {
             radio.Checked = true;
-            if (radio.Checked)
-            {
-                owner.SetResult(Id);
-            }
+            // установка нового результата
+            owner.SetResult(Id);
         }
     }
 }

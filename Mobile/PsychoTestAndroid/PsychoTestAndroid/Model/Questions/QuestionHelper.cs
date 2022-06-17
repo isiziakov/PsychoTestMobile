@@ -13,14 +13,16 @@ using System.Text;
 
 namespace PsychoTestAndroid.Model.Questions
 {
+    // вспомогательный класс для вопросов
     public static class QuestionHelper
     {
-        public static Question GetQuestionForType(int type, JObject data)
+        // создаем новый вопрос в соответствии с типом
+        public static Question GetQuestionForType(string type, JObject data)
         {
             switch (type)
             {
-                case 0: return new QuestionText(data);
-                case 1: return new QuestionImage(data);
+                case "0": return new QuestionText(data);
+                case "1": return new QuestionImage(data);
                 default: return null;
             }
         }

@@ -14,6 +14,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Android.Graphics;
 
 namespace PsychoTestAndroid.Web
 {
@@ -60,19 +61,10 @@ namespace PsychoTestAndroid.Web
                 return info;
             }
         }
-
-        //static async Task<string> GetTests()
-        //{
-        //    using (var client = new HttpClient())
-        //    {
-        //        client.BaseAddress = new Uri("https://cat-fact.herokuapp.com");
-        //        client.DefaultRequestHeaders.Accept.Clear();
-        //        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-        //        var result = await client.GetAsync("/facts");
-
-        //        return await result.Content.ReadAsStringAsync();
-        //    }
-        //}
+        // получить картинку по имени
+        public static async Task<Bitmap> GetImage(string imageSrc)
+        {
+            return null;
+        }
     }
 }
