@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Route, Redirect } from 'react-router';
+import { Route } from 'react-router';
 import { Layout } from './components/Layout';
 import { Authorisation } from './components/Authorisation';
 

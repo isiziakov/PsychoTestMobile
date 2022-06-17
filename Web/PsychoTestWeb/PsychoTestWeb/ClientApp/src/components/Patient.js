@@ -1,8 +1,5 @@
-﻿//ModalComponent.js
-import React, { Component } from 'react';
-import { Button, Row, Col, Input, Form, FormGroup, Label, Alert, ButtonGroup } from 'reactstrap';
-import { withRouter } from 'react-router-dom';
-
+﻿import React, { Component } from 'react';
+import { Button, Row, Col, Input, Form, FormGroup, Label, Alert } from 'reactstrap';
 
 export default class Patient extends React.Component {
     static displayName = Patient.name;
@@ -292,7 +289,7 @@ export default class Patient extends React.Component {
                                 <br />
                             })
                         }
-                        <br/>
+                        <br />
                         <FormGroup>
                             <div className="row">
                                 <Button className="col-5" color="danger" onClick={() => this.remove()}>Удалить</Button>

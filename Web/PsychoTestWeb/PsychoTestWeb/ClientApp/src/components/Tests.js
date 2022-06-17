@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import { Button, Row, Col, Input, InputGroup, InputGroupAddon, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, FormText } from 'reactstrap';
+import { Button, Input, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, FormText } from 'reactstrap';
 
 
 

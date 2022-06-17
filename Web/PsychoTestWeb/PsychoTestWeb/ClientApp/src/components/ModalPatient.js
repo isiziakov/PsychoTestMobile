@@ -1,7 +1,5 @@
-﻿//ModalComponent.js
-import React, { Component } from 'react';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Row, Col, Input, Form, FormGroup, Label, FormText } from 'reactstrap';
-import { Patients } from './Patients';
+﻿import React, { Component } from 'react';
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Row, Col, Input, Form, FormGroup, Label } from 'reactstrap';
 
 export default class ModalPatient extends React.Component {
     static displayName = ModalPatient.name;
@@ -126,7 +124,7 @@ export default class ModalPatient extends React.Component {
     render() {
         return (
             <div>
-                <Button color="info" className="col-12" onClick={this.toggle}>Добавить пациента</Button>
+                <Button color="info" onClick={this.toggle}>Добавить пациента</Button>
                 <Modal size="lg" isOpen={this.state.modal}>
                     <Form onSubmit={this.onSubmit}>
                         <ModalHeader toggle={() => { this.toggle() }}>Новый пациент</ModalHeader>

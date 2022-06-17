@@ -17,6 +17,7 @@ namespace PsychoTestWeb.Models
         IMongoCollection<Patient> Patients;
         IMongoCollection<Test> Tests;
         IMongoCollection<BsonDocument> TestsBson;
+        IMongoDatabase database;
         public Service()
         {
             string connectionString = "mongodb://localhost:27017/MobilePsychoTest";
@@ -24,7 +25,7 @@ namespace PsychoTestWeb.Models
             // получаем клиента для взаимодействия с базой данных
             MongoClient client = new MongoClient(connectionString);
             // получаем доступ к самой базе данных
-            IMongoDatabase database = client.GetDatabase(connection.DatabaseName);
+            database = client.GetDatabase(connection.DatabaseName);
             // обращаемся к коллекциям
             Users = database.GetCollection<User>("Users");
             Patients = database.GetCollection<Patient>("Patients");
@@ -66,6 +67,29 @@ namespace PsychoTestWeb.Models
         {
             return await Patients.Find(new BsonDocument("_id", new ObjectId(id))).FirstOrDefaultAsync();
         }
+
+        //получаем количество страниц с пациентами, если на странице 10 пациентов
+        public async Task<double> GetPatientsPagesCount()
+        {
+            var builder = new FilterDefinitionBuilder<Patient>();
+            var filter = builder.Empty;
+            long count = await Patients.CountDocumentsAsync(filter);
+            return Math.Ceiling((double)count / 10.0);
+        }
+        //получаем часть пациентов для пагинации
+        public async Task<IEnumerable<Patient>> GetPatientsWithCount(int pageNumber)
+        {
+            var builder = new FilterDefinitionBuilder<Patient>();
+            var filter = builder.Empty;
+            List<Patient> allPatients = await Patients.Find(filter).ToListAsync();
+            int start = (pageNumber - 1) * 10;
+            int count = 10;
+            if (start + count >= allPatients.Count)
+                count = allPatients.Count - start;
+            Patient[] page = new Patient[count];
+            allPatients.CopyTo(start, page, 0, count);
+            return page;
+        }
         // добавление пациента
         public async Task CreatePatient(Patient p)
         {
@@ -106,7 +130,6 @@ namespace PsychoTestWeb.Models
             var dotNetObjList = documents.ConvertAll(BsonTypeMapper.MapToDotNetValue);
             return dotNetObjList;
         }
-
         //получаем тест по id
         public async Task<string> GetTestById(string id)
         {

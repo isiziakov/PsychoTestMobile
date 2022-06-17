@@ -15,18 +15,13 @@ namespace PsychoTestWeb.Controllers
     [ApiController]
     public class PatientsController : ControllerBase
     {
-        // тестовые данные вместо использования базы данных
-        //private List<Patient> people = new List<Patient>
-        //{
-        //    new Patient {Name = "test1", Id = 1 },
-        //    new Patient {Name = "test2", Id = 2 },
-        //};
         private readonly Service db;
         public PatientsController(Service context)
         {
             db = context;
         }
 
+        //получение всех пациентов
         // GET: api/<PatientsController>
         [Authorize]
         [HttpGet]
@@ -35,6 +30,7 @@ namespace PsychoTestWeb.Controllers
             return await db.GetPatients();
         }
 
+        //получение пациента по id
         // GET api/<PatientsController>/62a1f08829de97df5563051f
         [Authorize]
         [HttpGet("{id}")]
@@ -43,12 +39,32 @@ namespace PsychoTestWeb.Controllers
             return await db.GetPatientById(id);
         }
 
+        //получение пациентов с подстрокой value в имени
         // GET api/<PatientsController>/name/value
         [Authorize]
         [HttpGet("name/{value}")]
         public async Task<IEnumerable<Patient>> GetByName(string value)
         {
             return await db.GetPatientsByName(value);
+        }
+
+        //получение общего количества страниц с пациентами
+        // GET: api/<PatientsController>/pageCount
+        [Authorize]
+        [Route("pageCount")]
+        [HttpGet]
+        public async Task<double> GetPagesCount()
+        {
+            return await db.GetPatientsPagesCount();
+        }
+
+        //получение списка пациентов на конкретной странице
+        // GET api/<PatientsController>/page/3
+        [Authorize]
+        [HttpGet("page/{value}")]
+        public async Task<IEnumerable<Patient>> GetWithCount(int value)
+        {
+            return await db.GetPatientsWithCount(value);
         }
 
         // POST api/<PatientsController>
