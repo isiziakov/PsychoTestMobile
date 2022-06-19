@@ -117,7 +117,7 @@ export default class ModalPatient extends React.Component {
             console.log("Error: ", response.status);
         }
         this.setState({ availableTests: this.state.tests, prescribedTests: [], isPrescribedTests: "Тестов пока нет!", name: "" });
-        this.props.onClose("/api/patients/");
+        this.props.onClose("/api/patients/page/1");
         this.toggle();
     }
 

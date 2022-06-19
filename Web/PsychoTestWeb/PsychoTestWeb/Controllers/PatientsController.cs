@@ -39,18 +39,9 @@ namespace PsychoTestWeb.Controllers
             return await db.GetPatientById(id);
         }
 
-        //получение пациентов с подстрокой value в имени
-        // GET api/<PatientsController>/name/value
-        [Authorize]
-        [HttpGet("name/{value}")]
-        public async Task<IEnumerable<Patient>> GetByName(string value)
-        {
-            return await db.GetPatientsByName(value);
-        }
-
         //получение общего количества страниц с пациентами
         // GET: api/<PatientsController>/pageCount
-        [Authorize]
+        //[Authorize]
         [Route("pageCount")]
         [HttpGet]
         public async Task<double> GetPagesCount()
@@ -60,11 +51,38 @@ namespace PsychoTestWeb.Controllers
 
         //получение списка пациентов на конкретной странице
         // GET api/<PatientsController>/page/3
-        [Authorize]
+        //[Authorize]
         [HttpGet("page/{value}")]
         public async Task<IEnumerable<Patient>> GetWithCount(int value)
         {
             return await db.GetPatientsWithCount(value);
+        }
+
+        //получение пациентов с подстрокой value в имени
+        // GET api/<PatientsController>/name/value
+        //[Authorize]
+        [HttpGet("name/{value}")]
+        public async Task<IEnumerable<Patient>> GetByName(string value)
+        {
+            return await db.GetPatientsByName(value);
+        }
+
+        //получение общего количества страниц с пациентами c фильтрацией по имени
+        // GET: api/<PatientsController>/name/pageCount/value
+        //[Authorize]
+        [HttpGet("name/pageCount/{value}")]
+        public async Task<double> GetByNamePagesCount(string value)
+        {
+            return await db.GetPatientsByNamePagesCount(value);
+        }
+
+        //получение списка пациентов на конкретной странице с фильтрацией по имени
+        // GET api/<PatientsController>/name/page/3/value
+        //[Authorize]
+        [HttpGet("name/page/{pageValue}/{nameValue}")]
+        public async Task<IEnumerable<Patient>> GetByNameWithCount(int pageValue, string nameValue)
+        {
+            return await db.GetPatientsByNameWithCount(pageValue, nameValue);
         }
 
         // POST api/<PatientsController>

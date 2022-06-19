@@ -12,9 +12,9 @@ export class CustomPagination extends Component {
             currentPage: 1,
             firstPage: 1,
             secondPage: 2,
-            thirdPage: 3,
-            controllerUrl: props.controllerUrl
+            thirdPage: 3
         };
+        var changeCurrentPage = false;
         this.onClick = this.onClick.bind(this);
     }
 
@@ -24,20 +24,35 @@ export class CustomPagination extends Component {
 
     async getCountOfPage() {
         const token = sessionStorage.getItem('tokenKey');
-        var response = await fetch(this.state.controllerUrl + "pageCount/", {
-            method: "GET",
-            headers: {
-                "Accept": "application/json",
-                "Authorization": "Bearer " + token
+        if (this.changeCurrentPage === true)
+            this.setState({ currentPage: 1, firstPage: 1, secondPage: 2, thirdPage: 3 });
+        if (this.props.controllerUrl !== "") {
+            var response = await fetch(this.props.controllerUrl + "pageCount/" + this.props.postfixUrl, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                    "Authorization": "Bearer " + token
+                }
+            });
+            var data = await response.json();
+            if (response.ok === true) {
+                this.setState({ pageCount: data });
             }
-        });
-        var data = await response.json();
-        if (response.ok === true) {
-            this.setState({ pageCount: data });
+            else {
+                console.log("Error: ", response.status);
+            }
         }
-        else {
-            console.log("Error: ", response.status);
-        }
+    }
+
+    componentDidUpdate() {
+        this.getCountOfPage();
+    }
+    shouldComponentUpdate(nextProps, nextState) {
+        if (this.state.pageCount != nextState.pageCount || this.props.controllerUrl != nextProps.controllerUrl || this.props.postfixUrl != nextProps.postfixUrl)
+            this.changeCurrentPage = true;
+        else this.changeCurrentPage = false;
+        return this.state.pageCount != nextState.pageCount || this.props.controllerUrl != nextProps.controllerUrl ||
+            this.props.postfixUrl != nextProps.postfixUrl || this.state.currentPage != nextState.currentPage
     }
 
     onClick(newPage) {
@@ -58,7 +73,7 @@ export class CustomPagination extends Component {
             else if (newPage >= this.state.pageCount) newPage = this.state.pageCount;
 
         this.setState({ currentPage: newPage }, () => {
-            this.props.getContent(this.props.controllerUrl + "page/" + this.state.currentPage);
+            this.props.getContent(this.props.controllerUrl + "page/" + this.state.currentPage + "/" + this.props.postfixUrl);
         });
     }
 
@@ -111,5 +126,6 @@ export class CustomPagination extends Component {
                 );
             else return (<></>);
     }
+
 }
 

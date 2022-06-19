@@ -14,7 +14,8 @@ export class Patients extends Component {
             patients: [],
             searchString: "",
             emptyPatient: { name: "", tests: [], id: "", results: [] },
-            onSearch: false
+            urlForPagination: "",
+            postfixUrlForPagination: ""
         };
         this.getPatients = this.getPatients.bind(this);
         this.onSearchStringChange = this.onSearchStringChange.bind(this);
@@ -22,13 +23,11 @@ export class Patients extends Component {
 
     componentDidMount() {
         this.getPatients("/api/patients/page/1");
-        this.setState({ searchString: "" });
+        this.setState({ searchString: "", urlForPagination: "api/patients/", postfixUrlForPagination: "" });
     }
-
     onSearchStringChange(e) {
         this.setState({ searchString: e.target.value });
     }
-
     async getPatients(url) {
         const token = sessionStorage.getItem('tokenKey');
         var response = await fetch(url, {
@@ -59,14 +58,19 @@ export class Patients extends Component {
                         <InputGroup>
                             <Input value={this.state.searchString} onChange={this.onSearchStringChange} />
                             <InputGroupAddon addonType="append">
-                                <Button color="secondary" outline onClick={() => { this.getPatients("api/patients/page/1"); this.setState({ searchString: "" }) }}>&#215;</Button>
+                                <Button color="secondary" outline onClick={() => { this.getPatients("api/patients/page/1"); this.setState({ searchString: "", urlForPagination: "api/patients/", postfixUrlForPagination: ""}) }}>&#215;</Button>
                             </InputGroupAddon>
                         </InputGroup>
                     </Col>
                     <Col xs="2"><Button color="info" outline className="col-12" onClick={() => {
-                        if (this.state.searchString !== "")
-                            this.getPatients("api/patients/name/" + this.state.searchString);
-                        else this.getPatients("api/patients/page/1");
+                        if (this.state.searchString !== "") {
+                            this.getPatients("api/patients/name/page/1/" + this.state.searchString);
+                            this.setState({ urlForPagination: "api/patients/name/", postfixUrlForPagination: this.state.searchString });
+                        }
+                        else {
+                            this.getPatients("api/patients/page/1");
+                            this.setState({ urlForPagination: "api/patients/", postfixUrlForPagination: "" })
+                        }
                     }}>Найти</Button></Col>
                     <Col xs="1"></Col>
                     <Col xs="auto"><ModalPatient patient={this.state.emptyPatient} isCreate={true} onClose={this.getPatients} /></Col>
@@ -81,7 +85,7 @@ export class Patients extends Component {
                     }
                 </div>
                 <br />
-                <CustomPagination controllerUrl="api/patients/" getContent={this.getPatients} className="col-12" />
+                <CustomPagination controllerUrl={this.state.urlForPagination} postfixUrl={this.state.postfixUrlForPagination} getContent={this.getPatients} className="col-12" />
             </div>
         );
     }

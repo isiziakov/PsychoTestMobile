@@ -8,6 +8,7 @@ using System.Xml;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Linq;
 
 namespace PsychoTestWeb.Models
 {
@@ -54,14 +55,6 @@ namespace PsychoTestWeb.Models
             var filter = builder.Empty;
             return await Patients.Find(filter).ToListAsync();
         }
-        //фильтрация по имени
-        public async Task<IEnumerable<Patient>> GetPatientsByName(string value)
-        {
-            var builder = new FilterDefinitionBuilder<Patient>();
-            var filter = builder.Empty;
-            var allPatients = await Patients.Find(filter).ToListAsync();
-            return allPatients.FindAll(x => x.name.ToLower().Contains(value.ToLower()) == true);
-        }
         //получаем пациента по id
         public async Task<Patient> GetPatientById(string id)
         {
@@ -76,6 +69,7 @@ namespace PsychoTestWeb.Models
             long count = await Patients.CountDocumentsAsync(filter);
             return Math.Ceiling((double)count / 10.0);
         }
+
         //получаем часть пациентов для пагинации
         public async Task<IEnumerable<Patient>> GetPatientsWithCount(int pageNumber)
         {
@@ -88,6 +82,36 @@ namespace PsychoTestWeb.Models
                 count = allPatients.Count - start;
             Patient[] page = new Patient[count];
             allPatients.CopyTo(start, page, 0, count);
+            return page;
+        }
+        //фильтрация по имени
+        public async Task<IEnumerable<Patient>> GetPatientsByName(string value)
+        {
+            var builder = new FilterDefinitionBuilder<Patient>();
+            var filter = builder.Empty;
+            var allPatients = await Patients.Find(filter).ToListAsync();
+            return allPatients.FindAll(x => x.name.ToLower().Contains(value.ToLower()) == true);
+        }
+        //получаем количество страниц с пациентами c фильтрацией по имени, если на странице 10 пациентов
+        public async Task<double> GetPatientsByNamePagesCount(string value)
+        {
+            var patients = await GetPatientsByName(value);
+            patients = patients.ToList();
+            long count = patients.Count();
+            return Math.Ceiling((double)count / 10.0);
+        }
+        //получаем часть пациентов c фильтрацией по имени для пагинации
+        public async Task<IEnumerable<Patient>> GetPatientsByNameWithCount(int pageNumber, string name)
+        {
+            List<Patient> patients = new List<Patient>();
+            var p = await GetPatientsByName(name);
+            patients = p.ToList();
+            int start = (pageNumber - 1) * 10;
+            int count = 10;
+            if (start + count >= patients.Count)
+                count = patients.Count - start;
+            Patient[] page = new Patient[count];
+            patients.CopyTo(start, page, 0, count);
             return page;
         }
         // добавление пациента
@@ -231,6 +255,8 @@ namespace PsychoTestWeb.Models
             await TestsBson.InsertOneAsync(document);
         }
         #endregion
+
+
     }
 
 }
