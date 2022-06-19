@@ -16,13 +16,6 @@ namespace PsychoTestWeb.Controllers
 {
     public class AccountController : Controller
     {
-        // тестовые данные вместо использования базы данных
-        //private List<User> people = new List<User>
-        //{
-        //    new User {login="admin@gmail.com", password="12345", role = "admin" },
-        //    new User { login="qwerty@gmail.com", password="12345", role = "user" }
-        //};
-
         private readonly Service db;
         List<User> people;
         public AccountController(Service context)

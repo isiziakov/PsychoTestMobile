@@ -1,7 +1,8 @@
 ﻿import React, { Component } from 'react';
-import { Button, Row, Col, Input, InputGroup, InputGroupAddon } from 'reactstrap';
+import { Button, Row, Col, Input, InputGroup, InputGroupAddon, Pagination } from 'reactstrap';
 import ModalPatient from './ModalPatient';
 import { useHistory } from "react-router-dom";
+import { CustomPagination } from './Pagination';
 
 
 export class Patients extends Component {
@@ -12,21 +13,21 @@ export class Patients extends Component {
         this.state = {
             patients: [],
             searchString: "",
-            emptyPatient: { name: "", tests: [], id: "", results: [] }
+            emptyPatient: { name: "", tests: [], id: "", results: [] },
+            urlForPagination: "",
+            postfixUrlForPagination: ""
         };
         this.getPatients = this.getPatients.bind(this);
         this.onSearchStringChange = this.onSearchStringChange.bind(this);
     }
 
     componentDidMount() {
-        this.getPatients("/api/patients/");
-        this.setState({ searchString: "" });
+        this.getPatients("/api/patients/page/1");
+        this.setState({ searchString: "", urlForPagination: "api/patients/", postfixUrlForPagination: "" });
     }
-
     onSearchStringChange(e) {
         this.setState({ searchString: e.target.value });
     }
-
     async getPatients(url) {
         const token = sessionStorage.getItem('tokenKey');
         var response = await fetch(url, {
@@ -57,14 +58,19 @@ export class Patients extends Component {
                         <InputGroup>
                             <Input value={this.state.searchString} onChange={this.onSearchStringChange} />
                             <InputGroupAddon addonType="append">
-                                <Button color="secondary" outline onClick={() => { this.getPatients("api/patients/"); this.setState({ searchString: "" }) }}>&#215;</Button>
+                                <Button color="secondary" outline onClick={() => { this.getPatients("api/patients/page/1"); this.setState({ searchString: "", urlForPagination: "api/patients/", postfixUrlForPagination: ""}) }}>&#215;</Button>
                             </InputGroupAddon>
                         </InputGroup>
                     </Col>
                     <Col xs="2"><Button color="info" outline className="col-12" onClick={() => {
-                        if (this.state.searchString !== "")
-                            this.getPatients("api/patients/name/" + this.state.searchString);
-                        else this.getPatients("api/patients/");
+                        if (this.state.searchString !== "") {
+                            this.getPatients("api/patients/name/page/1/" + this.state.searchString);
+                            this.setState({ urlForPagination: "api/patients/name/", postfixUrlForPagination: this.state.searchString });
+                        }
+                        else {
+                            this.getPatients("api/patients/page/1");
+                            this.setState({ urlForPagination: "api/patients/", postfixUrlForPagination: "" })
+                        }
                     }}>Найти</Button></Col>
                     <Col xs="1"></Col>
                     <Col xs="auto"><ModalPatient patient={this.state.emptyPatient} isCreate={true} onClose={this.getPatients} /></Col>
@@ -78,6 +84,8 @@ export class Patients extends Component {
                         })
                     }
                 </div>
+                <br />
+                <CustomPagination controllerUrl={this.state.urlForPagination} postfixUrl={this.state.postfixUrlForPagination} getContent={this.getPatients} className="col-12" />
             </div>
         );
     }
@@ -98,7 +106,6 @@ class Patient extends Component {
             <div>
                 <Row>
                     <Col xs="6">{this.state.patient.name}</Col>
-                    {/*    <Col xs="auto"><ModalPatient patient={this.state.patient} isCreate={false} onClose={this.props.getPatients} /></Col>*/}
                     <Col xs="2"><ViewPatient patientId={this.state.patient.id} /></Col>
                 </Row>
                 <br />
