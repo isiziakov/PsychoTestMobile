@@ -7,6 +7,7 @@ using Android.Widget;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PsychoTestAndroid.Model.Questions;
+using PsychoTestAndroid.Web;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,9 +17,6 @@ namespace PsychoTestAndroid.Model
 {
     public class Test
     {
-        // id теста
-        [JsonProperty("test_id")]
-        string id;
         // продолжительность теста
         [JsonProperty("max_duration")]
         string duration;
@@ -30,6 +28,9 @@ namespace PsychoTestAndroid.Model
         // порядок вопросов (фиксирован / случаен)
         [JsonProperty("questions_order")]
         string questionOrder;
+        // id теста
+        [JsonProperty("test_id")]
+        public string Id;
         // название теста
         [JsonProperty("name")]
         public string Name;
@@ -47,7 +48,7 @@ namespace PsychoTestAndroid.Model
 
         public Test(JObject data)
         {
-            id = data["_id"].ToString();
+            Id = data["_id"].ToString();
             Name = data["IR"]["Name"]["#text"].ToString();
             Instruction = data["Instruction"]["#text"].ToString();
             duration = data["TestTime"].ToString();
@@ -115,9 +116,10 @@ namespace PsychoTestAndroid.Model
             }
         }
         // завершение теста
-        public void EndTest()
+        public bool EndTest()
         {
-
+            TestResult result = new TestResult(this);
+            return WebApi.SendResult(JsonConvert.SerializeObject(result)).GetAwaiter().GetResult();
         }
         // подготовка теста к запуску
         public void StartTest()

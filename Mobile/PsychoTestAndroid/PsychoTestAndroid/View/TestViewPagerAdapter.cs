@@ -26,6 +26,7 @@ namespace PsychoTestAndroid
             get { return test.Questions.Count() + 1; }
         }
         public event EventHandler<int> EndAnswerItemClick;
+        public event EventHandler EndTestItemClick;
 
         public TestViewPagerAdapter(Test test)
         {
@@ -55,6 +56,9 @@ namespace PsychoTestAndroid
                 var adapter = new EndTestAdapter(test);
                 adapter.ItemClick += EndAnswerItemClick;
                 endRecyclerView.SetAdapter(adapter);
+                Button endButton = view.FindViewById<Button>(Resource.Id.end_test);
+                endButton.Click += EndTestItemClick;
+
                 var viewPager = container.JavaCast<ViewPager>();
                 viewPager.AddView(view);
                 return view;

@@ -20,7 +20,7 @@ namespace PsychoTestAndroid.Model.Questions
     {
         // выбранный ответ на вопрос
         [JsonIgnore]
-        public string result = "";
+        public string Result = "";
         // тип пояснения к вопросу
         [JsonProperty("type")]
         public string Type;
@@ -63,7 +63,7 @@ namespace PsychoTestAndroid.Model.Questions
         // установить ответ для вопроса
         public void SetResult(string result)
         {
-            this.result = result;
+            this.Result = result;
             // обновить ответы
             UpdateResult();
         }
@@ -73,7 +73,7 @@ namespace PsychoTestAndroid.Model.Questions
             // для каждого ответа установить результат
             foreach (Answer answer in Answers)
             {
-                answer.UpdateResult(result);
+                answer.UpdateResult(Result);
             }
         }
         // установить ответы

@@ -36,7 +36,7 @@ namespace PsychoTestAndroid.Model.Answers
             layout.AddView(radio);
             radio.LayoutParameters.Width = ViewGroup.LayoutParams.WrapContent;
             radio.LayoutParameters.Height = ViewGroup.LayoutParams.MatchParent;
-            UpdateResult(owner.result);
+            UpdateResult(owner.Result);
             return base.Show(layout);
         }
         // обновление результата

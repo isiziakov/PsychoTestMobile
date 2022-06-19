@@ -83,7 +83,9 @@
     <Compile Include="Model\Questions\QuestionHelper.cs" />
     <Compile Include="Model\Questions\QuestionImage.cs" />
     <Compile Include="Model\Questions\QuestionText.cs" />
+    <Compile Include="Model\Result.cs" />
     <Compile Include="Model\Test.cs" />
+    <Compile Include="Model\TestResult.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="View\AllTestsAdapter.cs" />

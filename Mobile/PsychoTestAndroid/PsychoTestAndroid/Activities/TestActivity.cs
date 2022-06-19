@@ -93,6 +93,7 @@ namespace PsychoTestAndroid
             viewPager = FindViewById<ViewPager>(Resource.Id.testViewPager);
             var adapter = new TestViewPagerAdapter(test);
             adapter.EndAnswerItemClick += EndAnswerItemClick;
+            adapter.EndTestItemClick += EndTestButtonClick;
             viewPager.Adapter = adapter;
             // смена страницы
             viewPager.PageSelected += TestPageSelected;
@@ -130,7 +131,7 @@ namespace PsychoTestAndroid
                         // время закончилось останавливаем таймер
                         timer.Stop();
                         // завершаем тест
-                        test.EndTest();
+                        EndTest();
                     }
                 };
             }
@@ -158,6 +159,12 @@ namespace PsychoTestAndroid
             // переход на последнюю страницу
             viewPager.SetCurrentItem(test.Questions.Count, false);
         }
+
+        private void EndTestButtonClick(object sender, EventArgs e)
+        {
+            // переход на последнюю страницу
+            EndTest();
+        }
         // перерисовываем страницу с результатами, необходимо, т.к. при изменении ответа последнего вопроса страница результатов не перерисовывается
         private void TestPageSelected(object sender, ViewPager.PageSelectedEventArgs e)
         {
@@ -175,6 +182,11 @@ namespace PsychoTestAndroid
         {
             InputMethodManager inputMethodManager = (InputMethodManager)this.GetSystemService(Context.InputMethodService);
             inputMethodManager.HideSoftInputFromWindow(this.viewPager.WindowToken, HideSoftInputFlags.None);
+        }
+        // завершение теста
+        private void EndTest()
+        {
+            test.EndTest();
         }
     }
 }

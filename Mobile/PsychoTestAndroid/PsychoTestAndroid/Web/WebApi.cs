@@ -61,6 +61,12 @@ namespace PsychoTestAndroid.Web
                 return info;
             }
         }
+
+        public static async Task<bool> SendResult(string testResult)
+        {
+            return true;
+        }
+
         // получить картинку по имени
         public static async Task<Bitmap> GetImage(string imageSrc)
         {

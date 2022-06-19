@@ -35,7 +35,7 @@ namespace PsychoTestAndroid.Model.Answers
             editText.LayoutParameters.Width = ViewGroup.LayoutParams.MatchParent;
             editText.LayoutParameters.Height = ViewGroup.LayoutParams.WrapContent;
             // обновить состояние поля ввода в зависимости от результата
-            UpdateResult(owner.result);
+            UpdateResult(owner.Result);
             // изменение текста
             editText.TextChanged += Edit;
             return base.Show(layout);
