@@ -10,7 +10,7 @@ namespace PsychoTestWeb.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ValuesController : ControllerBase
+    public class AuthorizationController : ControllerBase
     {
         [Authorize]
         [Route("getlogin")]
@@ -20,10 +20,10 @@ namespace PsychoTestWeb.Controllers
         }
 
         [Authorize(Roles = "admin")]
-        [Route("getrole")]
+        [Route("isAdmin")]
         public IActionResult GetRole()
         {
-            return Ok("Ваша роль: администратор");
+            return Ok();
         }
     }
 }

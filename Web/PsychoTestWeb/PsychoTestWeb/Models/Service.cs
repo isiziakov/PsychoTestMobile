@@ -36,13 +36,96 @@ namespace PsychoTestWeb.Models
 
         //пользователи
         #region
-        public IEnumerable<User> GetUsers()
+        //список всех пользователей
+        public async Task<IEnumerable<User>> GetUsers()
         {
             // строитель фильтров
             var builder = new FilterDefinitionBuilder<User>();
             var filter = builder.Empty; // фильтр для выборки всех документов
+            return await Users.Find(filter).ToListAsync();
+        }
+        //пользователь по логину и паролю
+        public User GetIdentityUsers(string username, string password)
+        {
+            // строитель фильтров
+            var builder = new FilterDefinitionBuilder<User>();
+            var filter = builder.Empty;
+            var people = Users.Find(filter).ToList();
+            return people.FirstOrDefault(x => x.login == username && x.password == password);
+        }
+        //получаем количество страниц с пользователями, если на странице 10 пользователей
+        public async Task<double> GetUsersPagesCount()
+        {
+            var builder = new FilterDefinitionBuilder<User>();
+            var filter = builder.Empty;
+            long count = await Users.CountDocumentsAsync(filter);
+            return Math.Ceiling((double)count / 10.0);
+        }
+        //получаем часть пользователей для пагинации
+        public async Task<IEnumerable<User>> GetUsersWithCount(int pageNumber)
+        {
+            var builder = new FilterDefinitionBuilder<User>();
+            var filter = builder.Empty;
+            List<User> allUsers = await Users.Find(filter).ToListAsync();
+            int start = (pageNumber - 1) * 10;
+            int count = 10;
+            if (start + count >= allUsers.Count)
+                count = allUsers.Count - start;
+            User[] page = new User[count];
+            allUsers.CopyTo(start, page, 0, count);
+            return page;
+        }
+        //фильтрация пользователей по имени
+        public async Task<IEnumerable<User>> GetUsersByName(string value)
+        {
+            var builder = new FilterDefinitionBuilder<User>();
+            var filter = builder.Empty;
+            var allUsers = await Users.Find(filter).ToListAsync();
+            return allUsers.FindAll(x => x.name.ToLower().Contains(value.ToLower()) == true);
+        }
+        //получаем количество страниц с пользователями c фильтрацией по имени, если на странице 10 пользователей
+        public async Task<double> GetUsersByNamePagesCount(string value)
+        {
+            var users = await GetUsersByName(value);
+            users = users.ToList();
+            long count = users.Count();
+            return Math.Ceiling((double)count / 10.0);
+        }
+        //получаем часть пользователей c фильтрацией по имени для пагинации
+        public async Task<IEnumerable<User>> GetUsersByNameWithCount(int pageNumber, string name)
+        {
+            List<User> users = new List<User>();
+            var u = await GetUsersByName(name);
+            users = u.ToList();
+            int start = (pageNumber - 1) * 10;
+            int count = 10;
+            if (start + count >= users.Count)
+                count = users.Count - start;
+            User[] page = new User[count];
+            users.CopyTo(start, page, 0, count);
+            return page;
+        }
 
-            return Users.Find(filter).ToList();
+        //получаем пользователя по id
+        public async Task<User> GetUserById(string id)
+        {
+            return await Users.Find(new BsonDocument("_id", new ObjectId(id))).FirstOrDefaultAsync();
+        }
+        // добавление пользователя
+        public async Task CreateUser(User u)
+        {
+            await Users.InsertOneAsync(u);
+        }
+        // обновление пользователя
+        public async Task UpdateUser(string id, User u)
+        {
+            BsonDocument doc = new BsonDocument("_id", new ObjectId(id));
+            await Users.ReplaceOneAsync(doc, u);
+        }
+        // удаление пользователя
+        public async Task RemoveUser(string id)
+        {
+            await Users.DeleteOneAsync(new BsonDocument("_id", new ObjectId(id)));
         }
         #endregion
 
@@ -255,8 +338,6 @@ namespace PsychoTestWeb.Models
             await TestsBson.InsertOneAsync(document);
         }
         #endregion
-
-
     }
 
 }

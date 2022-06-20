@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Container } from 'reactstrap';
 import { NavMenu } from './NavMenu';
 import { Authorisation } from './Authorisation';
+import { AdminsNavMenu } from './AdminsNavMenu';
 
 export class Layout extends Component {
     static displayName = Layout.name;
@@ -9,17 +10,19 @@ export class Layout extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            isLoggedIn: ""
+            isLoggedIn: "",
+            isAdmin: false
         };
     }
 
     componentDidMount() {
         this.getData();
+        this.checkRole();
     }
 
     async getData() {
         const token = sessionStorage.getItem('tokenKey');
-        const response = await fetch("/api/values/getlogin", {
+        const response = await fetch("/api/Authorization/getlogin", {
             method: "GET",
             headers: {
                 "Accept": "application/json",
@@ -28,9 +31,7 @@ export class Layout extends Component {
         });
         if (response.ok === true) {
             {
-                this.setState({ isLoggedIn: true }, () => {
-                    this.forceUpdate();
-                });
+                this.setState({ isLoggedIn: true });
             }
         }
         else {
@@ -38,6 +39,31 @@ export class Layout extends Component {
             this.setState({ isLoggedIn: false });
         }
     };
+
+    async checkRole() {
+        const token = sessionStorage.getItem('tokenKey');
+        const response = await fetch("/api/Authorization/isAdmin", {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": "Bearer " + token
+            }
+        });
+        if (response.ok === true) {
+            {
+                this.setState({ isAdmin: true });
+            }
+        }
+        else {
+            this.setState({ isAdmin: false });
+        }
+    };
+
+    renderNav() {
+        if (this.state.isAdmin === false)
+            return (<NavMenu />);
+        else return (<AdminsNavMenu />);
+    }
 
     render() {
         if (this.state.isLoggedIn === false) {
@@ -50,7 +76,7 @@ export class Layout extends Component {
         if (this.state.isLoggedIn === true) {
             return (
                 <div>
-                    <NavMenu />
+                    <div>{this.renderNav()}</div>
                     <Container>
                         {this.props.children}
                     </Container>
@@ -62,4 +88,3 @@ export class Layout extends Component {
     }
 }
 
-    

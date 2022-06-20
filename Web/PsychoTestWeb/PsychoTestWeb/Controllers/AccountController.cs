@@ -12,16 +12,15 @@ using PsychoTestWeb.Authorisation;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
+
 namespace PsychoTestWeb.Controllers
 {
     public class AccountController : Controller
     {
         private readonly Service db;
-        List<User> people;
         public AccountController(Service context)
         {
             db = context;
-            people = db.GetUsers().ToList();
         }
 
         [HttpPost("/authentication")]
@@ -55,7 +54,7 @@ namespace PsychoTestWeb.Controllers
 
         private ClaimsIdentity GetIdentity(string username, string password)
         {
-            User person = people.FirstOrDefault(x => x.login == username && x.password == password);
+            User person = db.GetIdentityUsers(username, password);
             if (person != null)
             {
                 var claims = new List<Claim>

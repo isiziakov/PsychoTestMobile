@@ -83,21 +83,21 @@ export class CustomPagination extends Component {
                 <div>
                     <Pagination>
                         <PaginationItem>
-                            <PaginationLink previous onClick={() => { this.onClick(this.state.currentPage - 1) }} href="#" />
+                            <PaginationLink previous onClick={() => { this.onClick(this.state.currentPage - 1) }} />
                         </PaginationItem>
 
                         <PaginationItem active={this.state.firstPage === this.state.currentPage} >
-                            <PaginationLink href="#" onClick={() => { this.onClick(this.state.firstPage) }}>{this.state.firstPage}</PaginationLink>
+                            <PaginationLink onClick={() => { this.onClick(this.state.firstPage) }}>{this.state.firstPage}</PaginationLink>
                         </PaginationItem>
                         <PaginationItem active={this.state.secondPage === this.state.currentPage}>
-                            <PaginationLink href="#" onClick={() => { this.onClick(this.state.secondPage) }}>{this.state.secondPage}</PaginationLink>
+                            <PaginationLink onClick={() => { this.onClick(this.state.secondPage) }}>{this.state.secondPage}</PaginationLink>
                         </PaginationItem>
                         <PaginationItem active={this.state.thirdPage === this.state.currentPage}>
-                            <PaginationLink href="#" onClick={() => { this.onClick(this.state.thirdPage) }}>{this.state.thirdPage}</PaginationLink>
+                            <PaginationLink onClick={() => { this.onClick(this.state.thirdPage) }}>{this.state.thirdPage}</PaginationLink>
                         </PaginationItem>
 
                         <PaginationItem>
-                            <PaginationLink next onClick={() => { this.onClick(this.state.currentPage + 1) }} href="#" />
+                            <PaginationLink next onClick={() => { this.onClick(this.state.currentPage + 1) }} />
                         </PaginationItem>
                     </Pagination>
                 </div>
@@ -108,18 +108,18 @@ export class CustomPagination extends Component {
                     <div>
                         <Pagination>
                             <PaginationItem>
-                                <PaginationLink previous onClick={() => { this.onClick(this.state.currentPage - 1) }} href="#" />
+                                <PaginationLink previous onClick={() => { this.onClick(this.state.currentPage - 1) }} />
                             </PaginationItem>
 
                             <PaginationItem active={this.state.firstPage === this.state.currentPage}>
-                                <PaginationLink href="#" onClick={() => { this.onClick(this.state.firstPage) }}>{this.state.firstPage}</PaginationLink>
+                                <PaginationLink onClick={() => { this.onClick(this.state.firstPage) }}>{this.state.firstPage}</PaginationLink>
                             </PaginationItem>
                             <PaginationItem active={this.state.secondPage === this.state.currentPage}>
-                                <PaginationLink href="#" onClick={() => { this.onClick(this.state.secondPage) }}>{this.state.secondPage}</PaginationLink>
+                                <PaginationLink onClick={() => { this.onClick(this.state.secondPage) }}>{this.state.secondPage}</PaginationLink>
                             </PaginationItem>
 
                             <PaginationItem>
-                                <PaginationLink next onClick={() => { this.onClick(this.state.currentPage + 1) }} href="#" />
+                                <PaginationLink next onClick={() => { this.onClick(this.state.currentPage + 1) }} />
                             </PaginationItem>
                         </Pagination>
                     </div>

@@ -58,11 +58,11 @@ export class Patients extends Component {
                         <InputGroup>
                             <Input value={this.state.searchString} onChange={this.onSearchStringChange} />
                             <InputGroupAddon addonType="append">
-                                <Button color="secondary" outline onClick={() => { this.getPatients("api/patients/page/1"); this.setState({ searchString: "", urlForPagination: "api/patients/", postfixUrlForPagination: ""}) }}>&#215;</Button>
+                                <Button color="secondary" outline onClick={() => { this.getPatients("api/patients/page/1"); this.setState({ searchString: "", urlForPagination: "api/patients/", postfixUrlForPagination: "" }) }}>&#215;</Button>
                             </InputGroupAddon>
                         </InputGroup>
                     </Col>
-                    <Col xs="2"><Button color="info" outline className="col-12" onClick={() => {
+                    <Col xs="2"><Button color="info" className="col-12" onClick={() => {
                         if (this.state.searchString !== "") {
                             this.getPatients("api/patients/name/page/1/" + this.state.searchString);
                             this.setState({ urlForPagination: "api/patients/name/", postfixUrlForPagination: this.state.searchString });
@@ -121,7 +121,7 @@ const ViewPatient = (patientId) => {
         history.push("/patient/" + patientId.patientId);
     };
     return (
-        <Button color="info" className="col-12" onClick={goToPatient}>Просмотр</Button>
+        <Button color="info" outline className="col-12" onClick={goToPatient}>Просмотр</Button>
     );
 };
 
