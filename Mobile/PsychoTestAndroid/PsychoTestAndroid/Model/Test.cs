@@ -150,5 +150,17 @@ namespace PsychoTestAndroid.Model
                 list[i] = temp;
             }
         }
+
+        public bool CheckResults()
+        {
+            foreach (Question question in Questions)
+            {
+                if (!question.CheckResult())
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

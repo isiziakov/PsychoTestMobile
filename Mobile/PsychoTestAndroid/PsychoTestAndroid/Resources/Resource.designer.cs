@@ -14,7 +14,7 @@ namespace PsychoTestAndroid
 {
 	
 	
-	[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Xamarin.Android.Build.Tasks", "12.1.0.11")]
+	[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Xamarin.Android.Build.Tasks", "12.2.0.155")]
 	public partial class Resource
 	{
 		
@@ -4653,6 +4653,15 @@ namespace PsychoTestAndroid
 			
 			// aapt resource value: 0x7F0D0034
 			public const int status_bar_notification_info_overflow = 2131558452;
+			
+			// aapt resource value: 0x7F0D0035
+			public const int test_result_failure = 2131558453;
+			
+			// aapt resource value: 0x7F0D0036
+			public const int test_result_incomplete = 2131558454;
+			
+			// aapt resource value: 0x7F0D0037
+			public const int test_result_success = 2131558455;
 			
 			static String()
 			{

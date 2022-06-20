@@ -41,6 +41,10 @@ namespace PsychoTestAndroid
 
             InitializeComponents();
         }
+        protected override void OnResume()
+        {
+            base.OnResume();
+        }
         // инициализировать визуальные элементы
         private void InitializeComponents()
         {

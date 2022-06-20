@@ -47,7 +47,7 @@ namespace PsychoTestAndroid
             if (code != null)
             {
                 // получение всех доступных тестов
-                string tests = await WebApi.GetTest();
+                string tests = await WebApi.GetTests();
                 if (tests != null)
                 {
                     // переход на активность с тестами

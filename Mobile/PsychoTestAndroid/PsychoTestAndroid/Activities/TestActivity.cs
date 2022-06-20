@@ -162,8 +162,14 @@ namespace PsychoTestAndroid
 
         private void EndTestButtonClick(object sender, EventArgs e)
         {
-            // переход на последнюю страницу
-            EndTest();
+            if (test.CheckResults())
+            {
+                EndTest();
+            }
+            else
+            {
+                Toast.MakeText(Application.Context, GetString(Resource.String.test_result_incomplete), ToastLength.Short).Show();
+            }
         }
         // перерисовываем страницу с результатами, необходимо, т.к. при изменении ответа последнего вопроса страница результатов не перерисовывается
         private void TestPageSelected(object sender, ViewPager.PageSelectedEventArgs e)
@@ -186,7 +192,16 @@ namespace PsychoTestAndroid
         // завершение теста
         private void EndTest()
         {
-            test.EndTest();
+            if (test.EndTest())
+            {
+                var t = Toast.MakeText(Application.Context, GetString(Resource.String.test_result_success), ToastLength.Short);
+                t.Show();
+                Finish();
+            }
+            else
+            {
+                Toast.MakeText(Application.Context, GetString(Resource.String.test_result_failure), ToastLength.Short).Show();
+            }
         }
     }
 }

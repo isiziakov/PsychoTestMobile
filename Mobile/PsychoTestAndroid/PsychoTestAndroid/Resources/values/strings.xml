@@ -7,4 +7,7 @@
 	<string name="main_code_error">Для введенного кода тестов не найдено</string>
 	<string name="main_enter_code">Введите код тестирования</string>
 	<string name="end_test">Завершить</string>
+  <string name="test_result_success">Тест завершен</string>
+  <string name="test_result_failure">Произошла ошибка при отправке результатов</string>
+  <string name="test_result_incomplete">Пожалуйста, ответьте на все вопросы</string>
 </resources>

@@ -33,7 +33,8 @@ namespace PsychoTestAndroid.Model.Questions
         // лист ответов
         [JsonIgnore]
         public List<Answer> Answers = new List<Answer>();
-
+        [JsonProperty("AnsString_Num")]
+        public string InputeNumber;
         public Question()
         {
         }
@@ -43,6 +44,7 @@ namespace PsychoTestAndroid.Model.Questions
             Type = data["Question_Type"].ToString();
             Id = data["Question_id"].ToString();
             AnswersType = data["Question_Choice"].ToString();
+            InputeNumber = data["AnsString_Num"]?.ToString();
         }
         // отрисовать вопрос
         public virtual View Show(View view)
@@ -102,6 +104,11 @@ namespace PsychoTestAndroid.Model.Questions
                     }
                 }
             }
+        }
+
+        public bool CheckResult()
+        {
+            return Result != null && Result != "";
         }
     }
 }

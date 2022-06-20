@@ -22,7 +22,7 @@ namespace PsychoTestAndroid.Model
         public Result(Question question)
         {
             id = question.Id;
-            answer = question.Result;
+            answer = question.Result != null ? question.Result : "";
         }
     }
 }
