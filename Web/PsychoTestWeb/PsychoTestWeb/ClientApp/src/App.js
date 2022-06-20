@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { Route } from 'react-router';
+import { Route } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { Authorisation } from './components/Authorisation';
-
 import './custom.css'
 import { Home } from './components/Home';
 import { Patients } from './components/Patients';
