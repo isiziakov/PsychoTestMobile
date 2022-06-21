@@ -31,5 +31,5 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }} 
         known_hosts: ${{ secrets.KNOWN_HOSTS }}
     - name: Deploy with rsync
-      working-directory : Web/PsyschoTestWeb/bin/Debug/net5.0
+      working-directory : Web/PsychoTestWeb/PsychoTestWeb/bin/Debug/net5.0/publish/
       run: rsync -avz ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:./dist/
