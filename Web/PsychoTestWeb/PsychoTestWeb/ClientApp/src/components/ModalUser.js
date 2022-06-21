@@ -13,7 +13,7 @@ export default class ModalUser extends React.Component {
             user: this.props.user,
             isCreate: this.props.isCreate,
             oldName: this.props.user.name,
-            oldPasswird: this.props.user.password,
+            oldPassword: this.props.user.password,
             oldLogin: this.props.user.login,
             oldRole: this.props.user.role
         };

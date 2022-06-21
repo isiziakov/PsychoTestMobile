@@ -44,9 +44,7 @@ export class Users extends Component {
             console.log("Error: ", response.status);
         }
     }
-    shouldComponentUpdate(nextProps, nextState) {
-        return this.state.users != nextState.users
-    }
+
     render() {
         return (
             <div>
@@ -56,7 +54,7 @@ export class Users extends Component {
                     <Col xs="1"><strong>Поиск</strong></Col>
                     <Col xs="5">
                         <InputGroup>
-                            <Input value={this.state.searchString} onChange={this.onSearchStringChange} />
+                            <Input type='text' value={this.state.searchString} onChange={this.onSearchStringChange} />
                             <InputGroupAddon addonType="append">
                                 <Button color="secondary" outline onClick={() => { this.getUsers("api/users/page/1"); this.setState({ searchString: "", urlForPagination: "api/users/", postfixUrlForPagination: "" }) }}>&#215;</Button>
                             </InputGroupAddon>
