@@ -28,7 +28,7 @@ namespace PsychoTestWeb.Controllers
 
         // GET: api/<TestsController>/view
         [Route("view")]
-        [Authorize(Roles = "admin")]
+        [Authorize]
         public async Task<IEnumerable<Test>> Get()
         {
             return await db.GetTestsView();

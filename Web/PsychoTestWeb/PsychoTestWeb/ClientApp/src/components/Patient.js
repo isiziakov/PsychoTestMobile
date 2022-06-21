@@ -17,7 +17,7 @@ export default class Patient extends React.Component {
             arePrescribedTests: "",
             areResults: "",
             isPatient: "",
-            alertVisible: false,
+            alertVisible: false
         };
 
         this.onSubmit = this.onSubmit.bind(this);
