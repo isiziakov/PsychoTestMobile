@@ -23,7 +23,7 @@ namespace PsychoTestAndroid.Web
     {
         static HttpClient client = new HttpClient();
         // ссылка на апи сервер
-        const string url = "http://192.168.231.1:8080/api"; //https://askdev.ru/q/kak-poluchit-dostup-k-localhost-s-moego-ustroystva-android-3227/?ysclid=l4f7nbioym907025393
+        const string url = "http://192.168.1.71:8081/api"; //https://askdev.ru/q/kak-poluchit-dostup-k-localhost-s-moego-ustroystva-android-3227/?ysclid=l4f7nbioym907025393
 
         public static async Task<string> Login(string code)
         {

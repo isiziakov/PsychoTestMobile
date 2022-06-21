@@ -68,6 +68,6 @@ namespace PsychoTestAndroid.Model.Answers
             owner.SetResult(editText.Text);
         }
 
-        void 
+        //void 
     }
 }
