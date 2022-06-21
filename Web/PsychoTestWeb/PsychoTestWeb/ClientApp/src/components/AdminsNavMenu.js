@@ -26,9 +26,6 @@ export class AdminsNavMenu extends Component {
         sessionStorage.removeItem('tokenKey');
         window.location.reload();
     }
-    componentDidMount() {
-        //goToUsers();
-    }
 
     render() {
         return (
@@ -59,8 +56,3 @@ export class AdminsNavMenu extends Component {
         );
     }
 }
-
-/*const goToUsers = () => {
-    let history = useHistory();
-    history.push("/users");
-};*/

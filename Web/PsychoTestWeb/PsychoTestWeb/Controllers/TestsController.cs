@@ -27,9 +27,8 @@ namespace PsychoTestWeb.Controllers
         }
 
         // GET: api/<TestsController>/view
-        [Authorize]
         [Route("view")]
-        [HttpGet]
+        [Authorize(Roles = "admin")]
         public async Task<IEnumerable<Test>> Get()
         {
             return await db.GetTestsView();
@@ -37,7 +36,7 @@ namespace PsychoTestWeb.Controllers
 
         // GET: api/<TestsController>
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "admin")]
         public async Task<string> GetTests()
         {
             return JsonConvert.SerializeObject(await db.GetTests());
@@ -52,7 +51,7 @@ namespace PsychoTestWeb.Controllers
         }
 
         // POST api/<TestsController>
-        [Authorize]
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task Post([FromForm] IFormFile value)
         {
@@ -70,17 +69,18 @@ namespace PsychoTestWeb.Controllers
         }
 
         // PUT api/<TestsController>/62a2ee61e5ab646eb9231448
-        [Authorize]
+        [Authorize(Roles = "admin")]
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] string value)
         {
         }
 
         // DELETE api/<TestsController>/62a2ee61e5ab646eb9231448
-        [Authorize]
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task Delete(string id)
         {
+            await db.RemoveTest(id);
         }
     }
 }

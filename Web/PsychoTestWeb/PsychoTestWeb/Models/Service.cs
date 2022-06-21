@@ -371,6 +371,11 @@ namespace PsychoTestWeb.Models
             var document = BsonDocument.Parse(Newtonsoft.Json.JsonConvert.SerializeObject(jObj));
             await TestsBson.InsertOneAsync(document);
         }
+        // удаление теста
+        public async Task RemoveTest(string id)
+        {
+            await Tests.DeleteOneAsync(new BsonDocument("_id", new ObjectId(id)));
+        }
         #endregion
     }
 

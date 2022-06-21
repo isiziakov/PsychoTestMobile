@@ -173,7 +173,6 @@ export default class Patient extends React.Component {
         var response = await fetch("/api/patients/" + this.state.patientId, {
             method: "PUT",
             headers: {
-                "Accept": "application/json",
                 "Authorization": "Bearer " + token,
                 "Content-Type": "application/json",
             },
@@ -198,9 +197,7 @@ export default class Patient extends React.Component {
             var response = await fetch("/api/patients/" + this.state.patient.id, {
                 method: "DELETE",
                 headers: {
-                    "Accept": "application/json",
                     "Authorization": "Bearer " + token,
-                    "Content-Type": "application/json",
                 }
             });
             if (response.ok !== true) {
@@ -369,7 +366,7 @@ class Url extends Component {
                         <Col xs="2"><Label for="url">Ссылка для привязки:</Label></Col>
                         <Col xs="8">
                             <InputGroup>
-                                <Input readonly id="url" value={this.state.url} />
+                                <Input readOnly id="url" value={this.state.url} />
                                 <InputGroupAddon addonType="append">
                                     <Button color="secondary" outline onClick={() => { navigator.clipboard.writeText(this.state.url) }}>Копировать</Button>
                                 </InputGroupAddon>

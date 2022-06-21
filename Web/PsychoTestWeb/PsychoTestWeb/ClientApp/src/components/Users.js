@@ -104,8 +104,7 @@ class User extends Component {
             <div>
                 <Row>
                     <Col xs="6">{this.state.user.name}</Col>
-                    <Col><ModalUser user={this.state.user} isCreate={false} onClose={this.props.getUsers} /></Col>
-                    <Col xs="2"></Col>
+                    <Col xs="2"><ModalUser user={this.state.user} isCreate={false} onClose={this.props.getUsers} /></Col>
                 </Row>
                 <br />
             </div>

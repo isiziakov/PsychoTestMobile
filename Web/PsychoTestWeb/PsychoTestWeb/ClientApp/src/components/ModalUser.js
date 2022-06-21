@@ -65,7 +65,6 @@ export default class ModalUser extends React.Component {
             var response = await fetch("/api/users/" + this.state.user.id, {
                 method: "PUT",
                 headers: {
-                    "Accept": "application/json",
                     "Authorization": "Bearer " + token,
                     "Content-Type": "application/json",
                 },
@@ -83,7 +82,6 @@ export default class ModalUser extends React.Component {
                 method: "POST",
                 headers: {
                     "Accept": "application/json",
-                    "Authorization": "Bearer " + token,
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
@@ -108,9 +106,7 @@ export default class ModalUser extends React.Component {
             var response = await fetch("/api/users/" + this.state.user.id, {
                 method: "DELETE",
                 headers: {
-                    "Accept": "application/json",
                     "Authorization": "Bearer " + token,
-                    "Content-Type": "application/json",
                 }
             });
             if (response.ok !== true) {
@@ -138,7 +134,7 @@ export default class ModalUser extends React.Component {
     render() {
         return (
             <div>
-                <Button color="info" outline={!this.state.isCreate} onClick={this.toggle}>{this.state.button}</Button>
+                <Button color="info" outline={!this.state.isCreate} onClick={this.toggle} className="col-12">{this.state.button}</Button>
                 <Modal size="lg" isOpen={this.state.modal}>
                     <Form onSubmit={this.onSubmit}>
                         <ModalHeader toggle={() => { this.onClose() }}>{this.state.modalHeader}</ModalHeader>

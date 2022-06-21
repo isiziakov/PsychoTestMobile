@@ -61,7 +61,7 @@ export class Authorisation extends Component {
                         <br />
                         <div className="row mt-2">
                             <label className="control-label col-6">Email:</label>
-                            <input type="text"
+                            <input type="email"
                                 className="form-control col-6"
                                 placeholder="example@gmail.com"
                                 value={this.state.email}

@@ -103,7 +103,6 @@ export default class ModalPatient extends React.Component {
         var response = await fetch("/api/patients/", {
             method: "POST",
             headers: {
-                "Accept": "application/json",
                 "Authorization": "Bearer " + token,
                 "Content-Type": "application/json",
             },
