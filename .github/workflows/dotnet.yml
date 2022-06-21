@@ -1,0 +1,33 @@
+name: Build and deploy portal
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 5.0.x
+    - name: Restore dependencies
+      working-directory : Web/PsychoTestWeb
+      run: dotnet restore
+    - name: Build
+      working-directory : Web/PsychoTestWeb
+      run: dotnet publish PsychoTestWeb.sln --no-restore
+    - name: Install SSH Key
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.SSH_PRIVATE_KEY }} 
+        known_hosts: ${{ secrets.KNOWN_HOSTS }}
+    - name: Deploy with rsync
+      working-directory : Web/PsyschoTestWeb/bin/Release/net5.0
+      run: rsync -avz ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:./dist/
