@@ -33,3 +33,5 @@ jobs:
     - name: Deploy with rsync
       working-directory : Web/PsychoTestWeb/PsychoTestWeb/bin/Debug/net5.0/publish/
       run: rsync -avz ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:./dist/
+    - name: Restart service
+      run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} sudo -- "systemctl restart psytest" 
