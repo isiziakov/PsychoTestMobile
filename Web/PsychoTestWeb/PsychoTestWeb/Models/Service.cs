@@ -9,6 +9,8 @@ using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Linq;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Security.Cryptography;
 
 namespace PsychoTestWeb.Models
 {
@@ -143,7 +145,6 @@ namespace PsychoTestWeb.Models
         {
             return await Patients.Find(new BsonDocument("_id", new ObjectId(id))).FirstOrDefaultAsync();
         }
-
         //получаем количество страниц с пациентами, если на странице 10 пациентов
         public async Task<double> GetPatientsPagesCount()
         {
@@ -152,7 +153,6 @@ namespace PsychoTestWeb.Models
             long count = await Patients.CountDocumentsAsync(filter);
             return Math.Ceiling((double)count / 10.0);
         }
-
         //получаем часть пациентов для пагинации
         public async Task<IEnumerable<Patient>> GetPatientsWithCount(int pageNumber)
         {
@@ -200,6 +200,7 @@ namespace PsychoTestWeb.Models
         // добавление пациента
         public async Task CreatePatient(Patient p)
         {
+            p.token = GenerateToken();
             await Patients.InsertOneAsync(p);
         }
         // обновление пациента
@@ -213,8 +214,41 @@ namespace PsychoTestWeb.Models
         {
             await Patients.DeleteOneAsync(new BsonDocument("_id", new ObjectId(id)));
         }
+
         #endregion
 
+        //сесии пациента
+        #region
+
+        // Generate a fixed length token
+        public string GenerateToken(int numberOfBytes = 32)
+        {
+            return WebEncoders.Base64UrlEncode(GenerateRandomBytes(numberOfBytes));
+        }
+        // Generate a cryptographically secure array of bytes with a fixed length
+        private static byte[] GenerateRandomBytes(int numberOfBytes)
+        {
+            using (RNGCryptoServiceProvider provider = new RNGCryptoServiceProvider())
+            {
+                byte[] byteArray = new byte[numberOfBytes];
+                provider.GetBytes(byteArray);
+                return byteArray;
+            }
+        }
+        //получаем пациента по токену аутентификации
+        public async Task<Patient> AuthenticationPatient(string token)
+        {
+            return await Patients.Find(new BsonDocument("token", token)).FirstOrDefaultAsync();
+        }
+
+        //обработка полученных результатов теста
+        public async Task ProcessingResults(TestsResult result)
+        {
+            //идентификация пациента по токену 
+            //обработка полученных результатов
+        }
+
+        #endregion
 
         //Тесты
         #region

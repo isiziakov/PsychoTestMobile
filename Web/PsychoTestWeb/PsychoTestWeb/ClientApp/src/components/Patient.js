@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import { Button, Row, Col, Input, Form, FormGroup, Label, Alert } from 'reactstrap';
+import { Button, Row, Col, Input, Form, FormGroup, Label, Alert, InputGroup, InputGroupAddon } from 'reactstrap';
 
 export default class Patient extends React.Component {
     static displayName = Patient.name;
@@ -17,7 +17,7 @@ export default class Patient extends React.Component {
             arePrescribedTests: "",
             areResults: "",
             isPatient: "",
-            alertVisible: false
+            alertVisible: false,
         };
 
         this.onSubmit = this.onSubmit.bind(this);
@@ -229,6 +229,8 @@ export default class Patient extends React.Component {
                             </Row>
                         </FormGroup>
 
+                        <Url patient={this.state.patient} />
+
                         <hr /><br />
                         <h4>Назначенные теcты</h4>
                         <br />
@@ -302,5 +304,81 @@ export default class Patient extends React.Component {
                 </div>
             );
         else return (<h1>{this.state.isPatient}</h1>);
+    }
+}
+
+class Url extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            url: ""
+        };
+        this.generateUrl = this.generateUrl.bind(this);
+    }
+    componentDidMount() {
+        this.getUrl();
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps.patient !== this.props.patient) {
+            this.getUrl();
+        }
+    }
+
+    async generateUrl() {
+        const token = sessionStorage.getItem('tokenKey');
+        var response = await fetch("api/PatientsSessions/generateUrl/" + this.props.patient.id, {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": "Bearer " + token
+            }
+        });
+        var data = await response.json();
+        if (response.ok === true) {
+            this.setState({ url: window.location.origin + data });
+        }
+        else {
+            console.log("Error: ", response.status);
+        }
+    }
+
+    async getUrl() {
+        const token = sessionStorage.getItem('tokenKey');
+        var response = await fetch("api/PatientsSessions/getUrl/" + this.props.patient.id, {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": "Bearer " + token
+            }
+        });
+        var data = await response.json();
+        if (response.ok === true) {
+            this.setState({ url: window.location.origin + data });
+        }
+        else {
+            console.log("Error: ", response.status);
+        }
+    }
+
+    render() {
+        return (
+            <div>
+                <FormGroup>
+                    <Row>
+                        <Col xs="2"><Label for="url">Ссылка для привязки:</Label></Col>
+                        <Col xs="8">
+                            <InputGroup>
+                                <Input readonly id="url" value={this.state.url} />
+                                <InputGroupAddon addonType="append">
+                                    <Button color="secondary" outline onClick={() => { navigator.clipboard.writeText(this.state.url) }}>Копировать</Button>
+                                </InputGroupAddon>
+                            </InputGroup>
+                        </Col>
+                        <Col><Button color='info' outline onClick={() => { this.generateUrl() }}>Новая ссылка</Button></Col>
+                    </Row>
+                </FormGroup>
+            </div>
+        );
     }
 }
