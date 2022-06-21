@@ -17,6 +17,7 @@ namespace PsychoTestAndroid.Model
     {
         [JsonProperty("question_id")]
         string id;
+        [JsonProperty("answer")]
         string answer;
 
         public Result(Question question)

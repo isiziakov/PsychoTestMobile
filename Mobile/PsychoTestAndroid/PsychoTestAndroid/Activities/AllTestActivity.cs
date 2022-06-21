@@ -51,6 +51,7 @@ namespace PsychoTestAndroid
             ImageButton backHeaderButton = FindViewById<ImageButton>(Resource.Id.headerBack_backButton);
             // установить размер кнопки назад в header
             backHeaderButton.SetMinimumHeight((int)(Resources.DisplayMetrics.HeightPixels * 0.08));
+            backHeaderButton.SetMinimumWidth((int)(Resources.DisplayMetrics.WidthPixels * 0.08));
             backHeaderButton.Click += (sender, e) =>
             {
                 this.Finish();

@@ -34,6 +34,7 @@ namespace PsychoTestAndroid.Model
         // название теста
         [JsonProperty("name")]
         public string Name;
+        public string Title;
         // инструкция к тесту
         [JsonProperty("instruction")]
         public string Instruction;
@@ -48,8 +49,9 @@ namespace PsychoTestAndroid.Model
 
         public Test(JObject data)
         {
-            Id = data["_id"].ToString();
+            Id = data["IR"]["ID"].ToString();
             Name = data["IR"]["Name"]["#text"].ToString();
+            Title = data["IR"]["Title"]?["#text"]?.ToString();
             Instruction = data["Instruction"]["#text"].ToString();
             duration = data["TestTime"].ToString();
             answerOrder = data["OrderOfAnswers"].ToString();

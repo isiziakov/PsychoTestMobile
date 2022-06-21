@@ -16,9 +16,11 @@ namespace PsychoTestAndroid
     public class AllTestsViewHolder : RecyclerView.ViewHolder
     {
         public TextView Name { get; set; }
+        public TextView Title { get; set; }
         public AllTestsViewHolder(View itemview, Action<int> listener) : base(itemview)
         {
             Name = itemview.FindViewById<TextView>(Resource.Id.tests_recycler_name);
+            Title = itemview.FindViewById<TextView>(Resource.Id.tests_recycler_title);
             itemview.Click += (sender, e) => listener(Position);
         }
     }
@@ -39,6 +41,11 @@ namespace PsychoTestAndroid
         {
             AllTestsViewHolder vh = holder as AllTestsViewHolder;
             vh.Name.Text = tests[position].Name;
+            if (tests[position].Title != null && tests[position].Title != "")
+            {
+                vh.Title.Text = tests[position].Title;
+                vh.Title.Visibility = ViewStates.Visible;
+            }
         }
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {

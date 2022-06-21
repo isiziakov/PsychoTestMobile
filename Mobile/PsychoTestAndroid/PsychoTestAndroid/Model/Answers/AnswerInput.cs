@@ -34,13 +34,9 @@ namespace PsychoTestAndroid.Model.Answers
             layout.AddView(editText);
             editText.LayoutParameters.Width = ViewGroup.LayoutParams.MatchParent;
             editText.LayoutParameters.Height = ViewGroup.LayoutParams.WrapContent;
-            if (owner != null && owner.InputeNumber.ToLower() == "true")
+            if (owner != null && owner.InputeNumber?.ToLower() == "true")
             {
                 editText.SetRawInputType(Android.Text.InputTypes.ClassNumber | Android.Text.InputTypes.NumberFlagDecimal);
-                //editText.BeforeTextChanged += (IEnumerable<char>? text, int start, int before, int after) =>
-                //{
-
-                //}
             }
             // обновить состояние поля ввода в зависимости от результата
             UpdateResult(owner.Result);
@@ -67,7 +63,5 @@ namespace PsychoTestAndroid.Model.Answers
             // устанавливаем измененный текст в результат
             owner.SetResult(editText.Text);
         }
-
-        //void 
     }
 }

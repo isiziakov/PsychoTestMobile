@@ -63,6 +63,7 @@ namespace PsychoTestAndroid
             // кнопка назад
             ImageButton backHeaderButton = FindViewById<ImageButton>(Resource.Id.headerBack_backButton);
             backHeaderButton.SetMinimumHeight((int)(Resources.DisplayMetrics.HeightPixels * 0.08));
+            backHeaderButton.SetMinimumWidth((int)(Resources.DisplayMetrics.WidthPixels * 0.08));
             backHeaderButton.Click += InstructionBackButtonClick;
             TextView name = FindViewById<TextView>(Resource.Id.test_name);
             TextView instruction = FindViewById<TextView>(Resource.Id.test_instruction);
@@ -130,12 +131,34 @@ namespace PsychoTestAndroid
                     {
                         // время закончилось останавливаем таймер
                         timer.Stop();
-                        // завершаем тест
-                        EndTest();
+                        timer.Dispose();
                     }
+                };
+                timer.Disposed += (sender, e) =>
+                {
+                    // таймер блокирует поток Ui
+                    RunOnUiThread(() =>
+                    {
+                        // завершаем тест
+                        ShowTimerEnd();
+                    }
+                    );
                 };
             }
         }
+
+        private void ShowTimerEnd()
+        {
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.SetTitle("Закончилось время");
+            alert.SetMessage("Закончилось время, отведенное для ответов на вопросы. Тест будет завершен.");
+            alert.SetPositiveButton("Ок", (senderAlert, args) => {
+                EndTest();
+            });
+            Dialog dialog = alert.Create();
+            dialog.Show();
+        }
+
         // выбор вопроса из списка результатов
         private void EndAnswerItemClick(object sender, int e)
         {
@@ -168,7 +191,17 @@ namespace PsychoTestAndroid
             }
             else
             {
-                Toast.MakeText(Application.Context, GetString(Resource.String.test_result_incomplete), ToastLength.Short).Show();
+                AlertDialog.Builder alert = new AlertDialog.Builder(this);
+                alert.SetTitle("Даны ответы не на все вопросы");
+                alert.SetMessage("Вы не ответили на некоторые вопросы. Завершить тест?");
+                alert.SetPositiveButton("Завершить", (senderAlert, args) => {
+                    EndTest();
+                });
+                alert.SetNegativeButton("Назад", (senderAlert, args) => {
+                    Toast.MakeText(Application.Context, GetString(Resource.String.test_result_incomplete), ToastLength.Short).Show();
+                });
+                Dialog dialog = alert.Create();
+                dialog.Show();
             }
         }
         // перерисовываем страницу с результатами, необходимо, т.к. при изменении ответа последнего вопроса страница результатов не перерисовывается
@@ -194,8 +227,7 @@ namespace PsychoTestAndroid
         {
             if (test.EndTest())
             {
-                var t = Toast.MakeText(Application.Context, GetString(Resource.String.test_result_success), ToastLength.Short);
-                t.Show();
+                Toast.MakeText(Application.Context, GetString(Resource.String.test_result_success), ToastLength.Short).Show();
                 Finish();
             }
             else

@@ -15,6 +15,7 @@ using System.Net.Http.Headers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Android.Graphics;
+using System.Net;
 
 namespace PsychoTestAndroid.Web
 {
@@ -23,14 +24,18 @@ namespace PsychoTestAndroid.Web
     {
         static HttpClient client = new HttpClient();
         // ссылка на апи сервер
-        const string url = "http://192.168.1.71:8081/api"; //https://askdev.ru/q/kak-poluchit-dostup-k-localhost-s-moego-ustroystva-android-3227/?ysclid=l4f7nbioym907025393
+        const string url = "http://192.168.1.71:8081/api/"; //https://askdev.ru/q/kak-poluchit-dostup-k-localhost-s-moego-ustroystva-android-3227/?ysclid=l4f7nbioym907025393
 
         public static async Task<string> Login(string code)
         {
-            client.BaseAddress = new Uri(url + "/user");
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            var result = await client.PostAsync(client.BaseAddress + "?" + code, null);
+            if (client.BaseAddress == null)
+            {
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            }
+            
+            var result = await client.PostAsync(client.BaseAddress + "user?" + code, null);
             if (result != null && result.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 return JObject.Parse(await result.Content.ReadAsStringAsync())["token"].ToString();
@@ -61,11 +66,14 @@ namespace PsychoTestAndroid.Web
         // получить тест
         public static async Task<string> GetTests()
         {
-            client.BaseAddress = new Uri(url);
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            if (client.BaseAddress == null)
+            {
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            }
 
-            var result = await client.GetAsync(client.BaseAddress + "/questions");
+            var result = await client.GetAsync(client.BaseAddress + "questions");
             string info = null;
             if (result != null && result.StatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -76,13 +84,20 @@ namespace PsychoTestAndroid.Web
 
         public static async Task<bool> SendResult(string testResult)
         {
-            return true;
-            client.BaseAddress = new Uri(url);
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            if (client.BaseAddress == null)
+            {
+                client.BaseAddress = new Uri(url);
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            }
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls | SecurityProtocolType.Tls13 | SecurityProtocolType.Ssl3;
             HttpContent content = new StringContent(testResult);
-            var result = await client.PostAsync(client.BaseAddress + "/user", null);
+            var result = await client.PostAsync("http://192.168.1.71:8081/api/user", content);
             return result != null && result.StatusCode == System.Net.HttpStatusCode.OK;
+            //WebClient client = new WebClient();
+            //client.Headers.Add("Content-Type", "application/json");
+            //string HtmlResult = client.UploadString("http://192.168.1.71:8081/api/user", "");
+            //return true;
         }
 
         // получить картинку по имени
