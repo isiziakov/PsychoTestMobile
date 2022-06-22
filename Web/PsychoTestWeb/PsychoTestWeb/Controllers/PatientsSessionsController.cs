@@ -60,7 +60,7 @@ namespace PsychoTestWeb.Controllers
                 p.token = db.GenerateToken();
                 await db.UpdatePatient(p.id, p);
                 var domainName = this.HttpContext.Request.Host;
-                var msg = new { token = token, domainName = "https://" + domainName + "/" };
+                var msg = new { token = p.token, domainName = "https://" + domainName + "/" };
                 return Ok(msg);
             }
             else return null;
