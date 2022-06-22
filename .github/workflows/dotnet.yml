@@ -3,6 +3,8 @@ name: Build and deploy portal
 on:
   push:
     branches: [ "main" ]
+    paths: 
+       - 'Web/**'
   pull_request:
     branches: [ "main" ]
 
