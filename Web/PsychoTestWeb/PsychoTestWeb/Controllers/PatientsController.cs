@@ -88,9 +88,15 @@ namespace PsychoTestWeb.Controllers
         // POST api/<PatientsController>
         [Authorize]
         [HttpPost]
-        public async Task Post([FromBody] Patient value)
+        public async Task<IActionResult> Post([FromBody] Patient value)
         {
-            await db.CreatePatient(value);
+            string token = await db.CreatePatient(value);
+            if (token != null)
+            {
+                var msg = new { message = "/api/PatientsSessions/authentication/" + token };
+                return Ok(msg);
+            }
+            else return null;
         }
 
         // PUT api/<PatientsController>/62a1f08829de97df5563051f

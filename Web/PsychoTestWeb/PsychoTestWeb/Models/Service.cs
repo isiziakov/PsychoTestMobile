@@ -145,6 +145,11 @@ namespace PsychoTestWeb.Models
         {
             return await Patients.Find(new BsonDocument("_id", new ObjectId(id))).FirstOrDefaultAsync();
         }
+        //получаем пациента по токену
+        public async Task<Patient> GetPatientByToken(string token)
+        {
+            return await Patients.Find(new BsonDocument("token", token)).FirstOrDefaultAsync();
+        }
         //получаем количество страниц с пациентами, если на странице 10 пациентов
         public async Task<double> GetPatientsPagesCount()
         {
@@ -198,10 +203,11 @@ namespace PsychoTestWeb.Models
             return page;
         }
         // добавление пациента
-        public async Task CreatePatient(Patient p)
+        public async Task<string> CreatePatient(Patient p)
         {
             p.token = GenerateToken();
             await Patients.InsertOneAsync(p);
+            return p.token;
         }
         // обновление пациента
         public async Task UpdatePatient(string id, Patient p)
@@ -217,7 +223,7 @@ namespace PsychoTestWeb.Models
 
         #endregion
 
-        //сесии пациента
+        //сесcии пациента
         #region
 
         // Generate a fixed length token
@@ -252,14 +258,20 @@ namespace PsychoTestWeb.Models
 
         //Тесты
         #region
-        //получаем краткий список всех тестов в формате id-название
+        //получаем краткий список всех тестов в формате id-название-заголовок-инструкция
         public async Task<IEnumerable<Test>> GetTestsView()
         {
             var documents = await TestsBson.Find(new BsonDocument()).ToListAsync();
             List<Test> tests = new List<Test>();
             foreach (BsonDocument doc in documents)
             {
-                tests.Add(new Test { name = doc["IR"]["Name"]["#text"].AsString, id = doc["_id"].AsObjectId.ToString() });
+                tests.Add(new Test
+                {
+                    name = doc["IR"]["Name"]["#text"].AsString,
+                    id = doc["_id"].AsObjectId.ToString(),
+                    title = doc["IR"]["Title"]["#text"].AsString,
+                    instruction = doc["Instruction"]["#text"].AsString
+                });
             }
             return tests;
         }
@@ -277,6 +289,34 @@ namespace PsychoTestWeb.Models
             var bsonDoc = await TestsBson.Find(new BsonDocument("_id", new ObjectId(id))).FirstOrDefaultAsync();
             var dotNetObj = BsonTypeMapper.MapToDotNetValue(bsonDoc);
             return JsonConvert.SerializeObject(dotNetObj);
+        }
+
+        //получаем все назначенные пациенту тесты 
+        public async Task<IEnumerable<Test>> GetTestsByPatientToken(string token)
+        {
+            Patient patient = await GetPatientByToken(token);
+            List<Test> tests = new List<Test>();
+            var documents = await TestsBson.Find(new BsonDocument()).ToListAsync();
+            if (patient.tests != null)
+            {
+                foreach (string idTest in patient.tests)
+                {
+                    foreach (BsonDocument doc in documents)
+                    {
+                        if (idTest == doc["_id"].AsObjectId.ToString())
+                        {
+                            tests.Add(new Test
+                            {
+                                name = doc["IR"]["Name"]["#text"].AsString,
+                                id = doc["_id"].AsObjectId.ToString(),
+                                title = doc["IR"]["Title"]["#text"].AsString,
+                                instruction = doc["Instruction"]["#text"].AsString
+                            });
+                        }
+                    }
+                }
+            }
+            return tests;
         }
 
         //Импорт теста
