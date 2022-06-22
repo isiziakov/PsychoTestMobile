@@ -51,7 +51,7 @@ namespace PsychoTestWeb.Controllers
         //привязка по ссылке
         // GET api/<PatientsSessionsController>/authentication/{token}
         [HttpGet("authentication/{token}")]
-        public async Task<string> Authentication(string token)
+        public async Task<IActionResult> Authentication(string token)
         {
             Patient p = await db.AuthenticationPatient(token);
             if (p != null)
@@ -59,7 +59,9 @@ namespace PsychoTestWeb.Controllers
                 //перезаписываем токен, тем самым обеспечивая сгорание ссылки
                 p.token = db.GenerateToken();
                 await db.UpdatePatient(p.id, p);
-                return p.token;
+                var domainName = this.HttpContext.Request.Host;
+                var msg = new { token = token, domainName = "https://" + domainName + "/" };
+                return Ok(msg);
             }
             else return null;
         }
