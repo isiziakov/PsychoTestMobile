@@ -379,7 +379,7 @@ namespace PsychoTestWeb.Models
                     question["Question_Choice"] = 1;
                     if (question["Answers"]["item"] is JArray)
                         foreach (var answer in question["Answers"]["item"])
-                            answer["Answer_type"] = 0;
+                            answer["Answer_Type"] = 0;
                     else
                     {
                         JArray arr = new JArray();
