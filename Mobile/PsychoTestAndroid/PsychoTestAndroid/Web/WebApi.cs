@@ -19,17 +19,33 @@ using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using Android.Preferences;
+using Xamarin.Android.Net;
+using System.Threading;
 
 namespace PsychoTestAndroid.Web
 {
     // класс для работы с апи
     public static class WebApi
     {
-        static WebClient client;
         // ссылка на апи сервер
-        static string url = "http://192.168.1.71:8081/api/"; //https://askdev.ru/q/kak-poluchit-dostup-k-localhost-s-moego-ustroystva-android-3227/?ysclid=l4f7nbioym907025393
+        static string url; 
         static ISharedPreferences prefs;
         static ISharedPreferencesEditor editor;
+        private static AndroidClientHandler _socketsHttpHandler;
+        private static AndroidClientHandler SocketsHttpHandler
+        {
+            get
+            {
+                if (_socketsHttpHandler == null)
+                {
+                    _socketsHttpHandler = new AndroidClientHandler()
+                    {
+                        ReadTimeout = TimeSpan.FromSeconds(10)
+                    };
+                }
+                return _socketsHttpHandler;
+            }
+        }
         public static string Token { get; private set; }
         static WebApi()
         {
@@ -43,25 +59,15 @@ namespace PsychoTestAndroid.Web
                 url = context.GetString(Resource.String.base_url);
             }
             Token = prefs.GetString("token", null);
-
-            client = new WebClient();
-            ServicePointManager.ServerCertificateValidationCallback += (
-            object sender,
-            X509Certificate certificate,
-            X509Chain chain,
-            SslPolicyErrors sslPolicyErrors) =>
-            {
-                return sslPolicyErrors == SslPolicyErrors.None;
-            };
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls | SecurityProtocolType.Tls13 | SecurityProtocolType.Ssl3;
         }
 
-        public static bool Login(string url)
+        public static async Task<bool> Login(string url)
         {
-            string result = client.DownloadString(url);
-            if (result != null && result != "")
+            var client = new HttpClient(SocketsHttpHandler);
+            var result = await client.GetAsync(url.Replace("ptest://", ""));
+            if (result != null && result.StatusCode == HttpStatusCode.OK)
             {
-                JObject data = JObject.Parse(result);
+                JObject data = JObject.Parse(await result.Content.ReadAsStringAsync());
                 var newUrl = data["domainName"].ToString();
                 var newToken = data["token"].ToString();
                 if (newUrl == null || newToken == null)
@@ -78,12 +84,13 @@ namespace PsychoTestAndroid.Web
             return false;
         }
 
-        public static Test GetTest(string id)
+        public static async Task<Test> GetTest(string id)
         {
-            string result = client.DownloadString(url + "api/tests/" + id);
-            if (result != null && result != "")
+            var client = new HttpClient(SocketsHttpHandler);
+            var result = await client.GetAsync(url + "api/tests/" + id);
+            if (result != null && result.StatusCode == HttpStatusCode.OK)
             {
-                JObject data = JObject.Parse(result);
+                JObject data = JObject.Parse(await result.Content.ReadAsStringAsync());
                 var test = new Test(data);
                 test.SetQuestions(data);
                 return test;
@@ -92,19 +99,26 @@ namespace PsychoTestAndroid.Web
         }
 
         // получить список доступных тестов
-        public static List<Test> GetTests()
+        public static async Task<List<Test>> GetTests()
         {
+            var client = new HttpClient(SocketsHttpHandler);
             var tests = new List<Test>();
-            string result = client.DownloadString(url + "api/Tests/patient/" + Token);
-            if (result != null && result != "")
+            HttpRequestMessage request = new HttpRequestMessage();
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            request.Headers.Add("Authorization", Token);
+            //request.Headers.Authorization = new AuthenticationHeaderValue(Token);
+            request.RequestUri = new Uri(url + "api/tests/");
+            request.Method = HttpMethod.Get;
+            var result = await client.SendAsync(request, CancellationToken.None);
+            if (result != null && result.StatusCode == HttpStatusCode.OK)
             {
-                tests = JsonConvert.DeserializeObject<List<Test>>(result);
+                tests = JsonConvert.DeserializeObject<List<Test>>(await result.Content.ReadAsStringAsync());
                 return tests;
             }
             return null;
         }
 
-        public static async Task<bool> SendResult(string testResult)
+        public static bool SendResult(string testResult)
         {
             //if (client.BaseAddress == null)
             //{
@@ -125,6 +139,13 @@ namespace PsychoTestAndroid.Web
         public static async Task<Bitmap> GetImage(string imageSrc)
         {
             return null;
+        }
+
+        public static void RemoveToken()
+        {
+            WebApi.Token = "";
+            editor.PutString("token", "");
+            editor.Apply();
         }
     }
 }

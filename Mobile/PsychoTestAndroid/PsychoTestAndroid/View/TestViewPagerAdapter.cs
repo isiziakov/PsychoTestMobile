@@ -79,6 +79,7 @@ namespace PsychoTestAndroid
             return new Java.Lang.String(title);
         }
 
+        [Obsolete]
         public override void DestroyItem(View container, int position, Java.Lang.Object view)
         {
             var viewPager = container.JavaCast<ViewPager>();

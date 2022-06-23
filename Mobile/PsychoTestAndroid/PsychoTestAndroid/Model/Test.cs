@@ -63,7 +63,7 @@ namespace PsychoTestAndroid.Model
         public string StartTimer()
         {
             // время задано
-            if (duration != "" || duration != "0")
+            if (duration != "" && duration != "0")
             {
                 // получаем оставшееся время в секундах
                 currentDuration = Int32.Parse(duration);
@@ -71,7 +71,7 @@ namespace PsychoTestAndroid.Model
                 return GetDuration();
             }
             // возвращаем время
-            return duration;
+            return "";
         }
 
         // обработка тика таймера (1 секунда)
@@ -122,7 +122,7 @@ namespace PsychoTestAndroid.Model
         public bool EndTest()
         {
             TestResult result = new TestResult(this);
-            return WebApi.SendResult(JsonConvert.SerializeObject(result)).GetAwaiter().GetResult();
+            return WebApi.SendResult(JsonConvert.SerializeObject(result));
         }
         // подготовка теста к запуску
         public void StartTest()

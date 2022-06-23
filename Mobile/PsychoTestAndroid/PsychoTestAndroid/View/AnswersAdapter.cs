@@ -17,6 +17,8 @@ namespace PsychoTestAndroid
     public class AnswersViewHolder : RecyclerView.ViewHolder
     {
         public LinearLayout Layout { get; set; }
+
+        [Obsolete]
         public AnswersViewHolder(View itemview, Action<int> listener) : base(itemview)
         {
             this.IsRecyclable = false;
@@ -65,6 +67,8 @@ namespace PsychoTestAndroid
                 }
             }
         }
+
+        [Obsolete]
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
             View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.answers_recycler_item, parent, false);

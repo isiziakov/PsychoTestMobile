@@ -23,6 +23,7 @@ namespace PsychoTestAndroid
     [Activity(Label = "TestActivity")]
     public class TestActivity : Activity
     {
+        Timer timer;
         // viewPager для отображения вопросов теста
         ViewPager viewPager;
         // тест
@@ -70,9 +71,9 @@ namespace PsychoTestAndroid
             instruction.Text = test.Instruction;
             // кнопка начать тест
             Button startButton = FindViewById<Button>(Resource.Id.start_test);
-            startButton.Click += (sender, args) =>
+            startButton.Click += async (sender, args) =>
             {
-                test = WebApi.GetTest(test.Id);
+                test = await WebApi.GetTest(test.Id);
                 if (test != null)
                 {
                     InitializeTestContent();
@@ -118,7 +119,7 @@ namespace PsychoTestAndroid
                 // отображаем время
                 testTimer.Text = duration;
                 // создаем таймер
-                Timer timer = new Timer();
+                timer = new Timer();
                 // событие таймера каждую секунду
                 timer.Interval = 1000;
                 timer.Enabled = true;
@@ -188,6 +189,10 @@ namespace PsychoTestAndroid
 
         private void EndTestButtonClick(object sender, EventArgs e)
         {
+            if (timer != null)
+            {
+                timer.Stop();
+            }
             if (test.CheckResults())
             {
                 EndTest();
@@ -202,6 +207,10 @@ namespace PsychoTestAndroid
                 });
                 alert.SetNegativeButton("Назад", (senderAlert, args) => {
                     Toast.MakeText(Application.Context, GetString(Resource.String.test_result_incomplete), ToastLength.Short).Show();
+                    if (timer != null)
+                    {
+                        timer.Start();
+                    }
                 });
                 Dialog dialog = alert.Create();
                 dialog.Show();
