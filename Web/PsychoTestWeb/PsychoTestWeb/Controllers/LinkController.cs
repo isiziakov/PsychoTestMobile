@@ -63,14 +63,7 @@ namespace PsychoTestWeb.Controllers
                 var msg = new { token = p.token, domainName = "https://" + domainName + "/" };
                 return Ok(msg);
             }
-            else return null;
-        }
-
-        // POST api/<LinkController>
-        [HttpPost]
-        public async Task Post([FromBody] TestsResult value)
-        {
-            await db.ProcessingResults(value);
+            else return NoContent();
         }
     }
 }

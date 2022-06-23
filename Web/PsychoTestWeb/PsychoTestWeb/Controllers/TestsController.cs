@@ -30,19 +30,13 @@ namespace PsychoTestWeb.Controllers
         // GET: api/<TestsController>/view
         [Route("view")]
         [Authorize]
-        public async Task<IEnumerable<Test>> Get()
+        public async Task<IActionResult> Get()
         {
-            return await db.GetTestsView();
+            IEnumerable<Test> list = await db.GetTestsView();
+            if (list != null)
+                return Ok(list);
+            else return NoContent();
         }
-
-        ////получение всех тестов
-        //// GET: api/<TestsController>
-        //[HttpGet]
-        //[Authorize(Roles = "admin")]
-        //public async Task<string> GetTests()
-        //{
-        //    return JsonConvert.SerializeObject(await db.GetTests());
-        //}
 
         //получение теста по id
         // GET api/<TestsController>/62a2ee61e5ab646eb9231448
@@ -64,6 +58,7 @@ namespace PsychoTestWeb.Controllers
             if (this.HttpContext.Request.Headers["Authorization"].ToString() == null)
                 return Unauthorized();
             else
+
             {
                 token = this.HttpContext.Request.Headers["Authorization"].ToString();
                 Patient patient = await db.GetPatientByToken(token);
@@ -77,7 +72,7 @@ namespace PsychoTestWeb.Controllers
         // POST api/<TestsController>
         [Authorize(Roles = "admin")]
         [HttpPost]
-        public async Task Post([FromForm] IFormFile value)
+        public async Task<IActionResult> Post([FromForm] IFormFile value)
         {
             if (value != null)
             {
@@ -88,15 +83,9 @@ namespace PsychoTestWeb.Controllers
                         result.AppendLine(r.ReadLine());
                 }
                 await db.ImportFile(result.ToString());
+                return Ok();
             }
-
-        }
-
-        // PUT api/<TestsController>/62a2ee61e5ab646eb9231448
-        [Authorize(Roles = "admin")]
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
+            else return BadRequest();
         }
 
         // DELETE api/<TestsController>/62a2ee61e5ab646eb9231448
