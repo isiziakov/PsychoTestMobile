@@ -93,7 +93,7 @@ namespace PsychoTestWeb.Controllers
             string token = await db.CreatePatient(value);
             if (token != null)
             {
-                var msg = new { message = "/api/PatientsSessions/authentication/" + token };
+                var msg = new { message = "https://ptest://" + this.HttpContext.Request.Host + "/api/link/t=" + token };
                 return Ok(msg);
             }
             else return null;

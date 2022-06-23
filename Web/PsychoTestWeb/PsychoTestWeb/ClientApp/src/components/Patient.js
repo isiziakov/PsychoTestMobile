@@ -324,7 +324,7 @@ class Url extends Component {
 
     async generateUrl() {
         const token = sessionStorage.getItem('tokenKey');
-        var response = await fetch("api/PatientsSessions/generateUrl/" + this.props.patient.id, {
+        var response = await fetch("api/link/generateUrl/" + this.props.patient.id, {
             method: "GET",
             headers: {
                 "Accept": "application/json",
@@ -333,7 +333,7 @@ class Url extends Component {
         });
         var data = await response.json();
         if (response.ok === true) {
-            this.setState({ url: window.location.origin + data });
+            this.setState({ url: data });
         }
         else {
             console.log("Error: ", response.status);
@@ -342,7 +342,7 @@ class Url extends Component {
 
     async getUrl() {
         const token = sessionStorage.getItem('tokenKey');
-        var response = await fetch("api/PatientsSessions/getUrl/" + this.props.patient.id, {
+        var response = await fetch("api/link/getUrl/" + this.props.patient.id, {
             method: "GET",
             headers: {
                 "Accept": "application/json",
@@ -351,7 +351,7 @@ class Url extends Component {
         });
         var data = await response.json();
         if (response.ok === true) {
-            this.setState({ url: window.location.origin + data });
+            this.setState({ url: data });
         }
         else {
             console.log("Error: ", response.status);
