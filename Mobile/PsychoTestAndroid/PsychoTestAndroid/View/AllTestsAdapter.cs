@@ -17,6 +17,8 @@ namespace PsychoTestAndroid
     {
         public TextView Name { get; set; }
         public TextView Title { get; set; }
+
+        [Obsolete]
         public AllTestsViewHolder(View itemview, Action<int> listener) : base(itemview)
         {
             Name = itemview.FindViewById<TextView>(Resource.Id.tests_recycler_name);
@@ -47,6 +49,8 @@ namespace PsychoTestAndroid
                 vh.Title.Visibility = ViewStates.Visible;
             }
         }
+
+        [Obsolete]
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
             View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.tests_recycler_item, parent, false);

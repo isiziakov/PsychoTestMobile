@@ -18,6 +18,8 @@ namespace PsychoTestAndroid
     public class EndTestViewHolder : RecyclerView.ViewHolder
     {
         public LinearLayout Layout { get; set; }
+
+        [Obsolete]
         public EndTestViewHolder(View itemview, Action<int> listener) : base(itemview)
         {
             Layout = itemview.FindViewById<LinearLayout>(Resource.Id.answers_recycler_item);
@@ -48,17 +50,19 @@ namespace PsychoTestAndroid
             tx.LayoutParameters.Width = ViewGroup.LayoutParams.MatchParent;
             tx.LayoutParameters.Height = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, tx.TextSize * 0.6f, tx.Context.Resources.DisplayMetrics);
             tx.SetMaxHeight(tx.LayoutParameters.Height);
-            // учесть вариант, когда ответ - нет ответа
             if (test.Questions[position].Result != null && test.Questions[position].Result != "")
             {
-                tx.Text += test.Questions[position].Result;
+                //tx.Text += test.Questions[position].Result;
+                tx.Text += "есть ответ";
+                tx.SetTextColor(Android.Graphics.Color.Green);
             }
             else
             {
-                tx.SetTextColor(Android.Graphics.Color.Red);
                 tx.Text += "нет ответа";
             }
         }
+
+        [Obsolete]
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
             View itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.answers_recycler_item, parent, false);

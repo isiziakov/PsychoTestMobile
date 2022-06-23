@@ -42,16 +42,16 @@ namespace PsychoTestAndroid
             Button enterButton = FindViewById<Button>(Resource.Id.main_enter_button);
             if (enterButton != null)
             {
-                enterButton.Click += enterClickAsync;
+                enterButton.Click += enterClick;
             }
         }
 
-        private async void enterClickAsync(object sender, EventArgs e)
+        private async void enterClick(object sender, EventArgs e)
         {
-            if (code != null)
+            if (code != null && code.Text != "")
             {
                 // вход для пациента
-                if (WebApi.Login(code.Text))
+                if (await WebApi.Login(code.Text))
                 {
                     // переход на активность с тестами
                     GoToTests();

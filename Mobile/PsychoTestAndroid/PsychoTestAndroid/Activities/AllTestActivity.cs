@@ -48,14 +48,20 @@ namespace PsychoTestAndroid
             backHeaderButton.SetMinimumWidth((int)(Resources.DisplayMetrics.WidthPixels * 0.08));
             backHeaderButton.Click += (sender, e) =>
             {
-                this.Finish();
+                AlertDialog.Builder alert = new AlertDialog.Builder(this);
+                alert.SetTitle("Выход из аккаунта");
+                alert.SetMessage("Для возвращения в аккаунт вам будет нужна новая ссылка, также сохраненные результаты" +
+                    "будут удалены. Вы уверены, что хотите выйти?");
+                alert.SetPositiveButton("Да", (senderAlert, args) => {
+                    WebApi.RemoveToken();
+                    Intent intent = new Intent(this, typeof(MainActivity));
+                    this.StartActivity(intent);
+                    this.Finish();
+                });
+                alert.SetNegativeButton("Нет", (senderAlert, args) => {});
+                Dialog dialog = alert.Create();
+                dialog.Show();
             };
-            recycleView = FindViewById<RecyclerView>(Resource.Id.testsRecylcerView);
-            var mLayoutManager = new LinearLayoutManager(this);
-            recycleView.SetLayoutManager(mLayoutManager);
-            var adapter = new AllTestsAdapter(tests);
-            adapter.ItemClick += MAdapter_ItemClick;
-            recycleView.SetAdapter(adapter);
         }
         // обработка нажатия на элемент из списка тестов
         private void MAdapter_ItemClick(object sender, int e)
@@ -66,19 +72,27 @@ namespace PsychoTestAndroid
             this.StartActivity(intent);
         }
 
-        private void GetTests()
+        private async void GetTests()
         {
             if (WebApi.Token == null || WebApi.Token == "")
             {
-                Finish();
+                Intent intent = new Intent(this, typeof(MainActivity));
+                this.StartActivity(intent);
+                this.Finish();
             }
             else
             {
-                tests = WebApi.GetTests();
+                tests = await WebApi.GetTests();
                 if (tests == null)
                 {
                     tests = new List<Test>();
                 }
+                recycleView = FindViewById<RecyclerView>(Resource.Id.testsRecylcerView);
+                var mLayoutManager = new LinearLayoutManager(this);
+                recycleView.SetLayoutManager(mLayoutManager);
+                var adapter = new AllTestsAdapter(tests);
+                adapter.ItemClick += MAdapter_ItemClick;
+                recycleView.SetAdapter(adapter);
             }
         }
     }
