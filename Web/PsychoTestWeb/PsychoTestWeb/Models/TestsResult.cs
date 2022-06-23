@@ -8,6 +8,7 @@ namespace PsychoTestWeb.Models
     public class TestsResult
     {
         public string id { get; set; }
+        public string patientsToken { get; set; }
         public List<Answer> answers { get; set; }
 
         public class Answer

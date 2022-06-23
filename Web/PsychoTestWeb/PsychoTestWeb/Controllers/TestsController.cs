@@ -35,29 +35,43 @@ namespace PsychoTestWeb.Controllers
             return await db.GetTestsView();
         }
 
-        //получение всех тестов
-        // GET: api/<TestsController>
-        [HttpGet]
-        [Authorize(Roles = "admin")]
-        public async Task<string> GetTests()
-        {
-            return JsonConvert.SerializeObject(await db.GetTests());
-        }
+        ////получение всех тестов
+        //// GET: api/<TestsController>
+        //[HttpGet]
+        //[Authorize(Roles = "admin")]
+        //public async Task<string> GetTests()
+        //{
+        //    return JsonConvert.SerializeObject(await db.GetTests());
+        //}
 
         //получение теста по id
         // GET api/<TestsController>/62a2ee61e5ab646eb9231448
         [HttpGet("{id}")]
-        public async Task<string> Get(string id)
+        public async Task<IActionResult> Get(string id)
         {
-            return await db.GetTestById(id);
+            string test = await db.GetTestById(id);
+            if (test != null)
+                return Ok(test);
+            else return NoContent();
         }
 
         //получение всех тестов пациента в формате id-название-заголовок-инструкция
-        // GET api/<TestsController>/patient/e6tpm5eFvntJKtu1Eg1hm6hTpRi5cK0A70GgN7DEQaE
-        [HttpGet("patient/{token}")]
-        public async Task<IEnumerable<Test>> GetTestsByPatientId(string token)
+        // GET api/<TestsController>/
+        [HttpGet]
+        public async Task<IActionResult> GetTestsByPatientId()
         {
-            return await db.GetTestsByPatientToken(token);
+            string token;
+            if (this.HttpContext.Request.Headers["Authorization"].ToString() == null)
+                return Unauthorized();
+            else
+            {
+                token = this.HttpContext.Request.Headers["Authorization"].ToString();
+                Patient patient = await db.GetPatientByToken(token);
+                if (patient == null)
+                    return Forbid();
+                else
+                    return Ok(await db.GetTestsByPatientToken(patient));
+            }
         }
 
         // POST api/<TestsController>

@@ -138,7 +138,7 @@ export default class ModalPatient extends React.Component {
             }
             else {
                 this.onChangeSuccessAlert(true);
-                this.setState({ url: window.location.origin + data.message, isSave: true });
+                this.setState({ url: data.message, isSave: true });
             }
         }
         else {
