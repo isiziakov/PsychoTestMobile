@@ -70,7 +70,7 @@ namespace PsychoTestWeb.Controllers
         [HttpPost]
         public async Task Post([FromBody] TestsResult value)
         {
-            //await db.ProcessingResults(value);
+            await db.ProcessingResults(value);
         }
     }
 }

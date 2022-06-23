@@ -334,9 +334,8 @@ namespace PsychoTestWeb.Models
         }
 
         //получаем все назначенные пациенту тесты 
-        public async Task<IEnumerable<Test>> GetTestsByPatientToken(string token)
+        public async Task<IEnumerable<Test>> GetTestsByPatientToken(Patient patient)
         {
-            Patient patient = await GetPatientByToken(token);
             List<Test> tests = new List<Test>();
             var documents = await TestsBson.Find(new BsonDocument()).ToListAsync();
             if (patient.tests != null)
