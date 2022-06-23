@@ -26,6 +26,10 @@ namespace PsychoTestAndroid
         {
             base.OnCreate(savedInstanceState);
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
+            if (WebApi.Token != null && WebApi.Token != "")
+            {
+                GoToTests();
+            }
             SetContentView(Resource.Layout.activity_main);
             InitializeComponents();
         }
@@ -46,14 +50,11 @@ namespace PsychoTestAndroid
         {
             if (code != null)
             {
-                // получение всех доступных тестов
-                string tests = await WebApi.GetTests();
-                if (tests != null)
+                // вход для пациента
+                if (WebApi.Login(code.Text))
                 {
                     // переход на активность с тестами
-                    Intent intent = new Intent(this, typeof(AllTestActivity));
-                    intent.PutExtra("Tests", tests);
-                    this.StartActivity(intent);
+                    GoToTests();
                 }
                 else
                 {
@@ -64,6 +65,13 @@ namespace PsychoTestAndroid
                     }
                 }
             }
+        }
+        // переход на активность с тестами
+        private void GoToTests()
+        {
+            Intent intent = new Intent(this, typeof(AllTestActivity));
+            this.StartActivity(intent);
+            this.Finish();
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)

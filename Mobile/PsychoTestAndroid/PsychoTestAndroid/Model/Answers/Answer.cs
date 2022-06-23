@@ -35,7 +35,7 @@ namespace PsychoTestAndroid.Model.Answers
         public Answer(JObject data)
         {
             Id = data["Answer_id"].ToString();
-            Type = data["Answer_type"].ToString();
+            Type = data["Answer_Type"].ToString();
             decorator = DecoratorHelper.GetDecorator(Type, data);
         }
 
