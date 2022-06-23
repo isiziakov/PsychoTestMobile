@@ -8,6 +8,7 @@ using AndroidX.RecyclerView.Widget;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PsychoTestAndroid.Model;
+using PsychoTestAndroid.Web;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,8 +20,6 @@ namespace PsychoTestAndroid
     [Activity(Label = "AllTestActivity")]
     public class AllTestActivity : Activity
     {
-        // массив тестов в json формате
-        JArray jTests;
         // лист тестов
         List<Test> tests = new List<Test>();
         // recycleView для отображения тестов
@@ -32,12 +31,7 @@ namespace PsychoTestAndroid
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.activity_allTests);
             // получить массив тестов
-            jTests = JArray.Parse(Intent.GetStringExtra("Tests"));
-            // преобразовать тесты из JObject в Test
-            foreach (JObject test in jTests)
-            {
-                tests.Add(new Test(test));
-            }
+            GetTests();
 
             InitializeComponents();
         }
@@ -68,8 +62,24 @@ namespace PsychoTestAndroid
         {
             // открыть выбранный тест
             Intent intent = new Intent(this, typeof(TestActivity));
-            intent.PutExtra("Test", jTests[e].ToString());
+            intent.PutExtra("Test", JsonConvert.SerializeObject(tests[e]));
             this.StartActivity(intent);
+        }
+
+        private void GetTests()
+        {
+            if (WebApi.Token == null || WebApi.Token == "")
+            {
+                Finish();
+            }
+            else
+            {
+                tests = WebApi.GetTests();
+                if (tests == null)
+                {
+                    tests = new List<Test>();
+                }
+            }
         }
     }
 }

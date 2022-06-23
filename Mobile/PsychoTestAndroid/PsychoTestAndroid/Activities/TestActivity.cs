@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PsychoTestAndroid.Model;
 using PsychoTestAndroid.Model.Questions;
+using PsychoTestAndroid.Web;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,9 +36,7 @@ namespace PsychoTestAndroid
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.instruction);
             // считать тест
-            test = new Test(JObject.Parse(Intent.GetStringExtra("Test")));
-            // установить вопросы
-            test.SetQuestions(JObject.Parse(Intent.GetStringExtra("Test")));
+            test = JsonConvert.DeserializeObject<Test>(Intent.GetStringExtra("Test"));
             // тест пуст
             if (test == null)
             {
@@ -73,7 +72,11 @@ namespace PsychoTestAndroid
             Button startButton = FindViewById<Button>(Resource.Id.start_test);
             startButton.Click += (sender, args) =>
             {
-                InitializeTestContent();
+                test = WebApi.GetTest(test.Id);
+                if (test != null)
+                {
+                    InitializeTestContent();
+                }
             };
         }
         // инициализация визуальных элементов теста
