@@ -12,7 +12,8 @@ namespace PsychoTestWeb.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public string id { get; set; }
         public string name { get; set; }
+        public string token { get; set; }
         public List<string> tests { get; set; }
-        public List<Result>? results { get; set; }
+        public List<PatientsResult>? results { get; set; }
     }
 }

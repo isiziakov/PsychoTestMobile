@@ -1,5 +1,7 @@
 ﻿import React, { Component } from 'react';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Row, Col, Input, Form, FormGroup, Label } from 'reactstrap';
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Row, Col, Input, Form, FormGroup, Label, InputGroup, InputGroupAddon, Alert, Collapse } from 'reactstrap';
+import { useHistory } from "react-router-dom";
+
 
 export default class ModalPatient extends React.Component {
     static displayName = ModalPatient.name;
@@ -12,7 +14,11 @@ export default class ModalPatient extends React.Component {
             availableTests: [],
             name: "",
             addedTest: 0,
-            isPrescribedTests: ""
+            isPrescribedTests: "",
+            url: "",
+            successAlertVisible: false,
+            dangerAlertVisible: false,
+            isSave: false
         };
 
         this.toggle = this.toggle.bind(this);
@@ -20,19 +26,31 @@ export default class ModalPatient extends React.Component {
         this.onChangeName = this.onChangeName.bind(this);
         this.onTestChange = this.onTestChange.bind(this);
         this.onChangeCheckbox = this.onChangeCheckbox.bind(this);
+        this.onChangeSuccessAlert = this.onChangeSuccessAlert.bind(this);
+        this.onChangeDangerAlert = this.onChangeDangerAlert.bind(this);
     }
 
     componentDidMount() {
         this.getTests();
+    }
+    onChangeSuccessAlert(value) {
+        this.setState({ successAlertVisible: value });
+    }
+    onChangeDangerAlert(value) {
+        this.setState({ dangerAlertVisible: value });
     }
     toggle() {
         this.setState({
             modal: !this.state.modal,
             name: "",
             isPrescribedTests: "Тестов пока нет!",
-            prescribedTests: []
+            prescribedTests: [],
+            availableTests: this.state.tests,
+            isSave: false,
+            successAlertVisible: false,
+            dangerAlertVisible: false
         });
-        this.getTests();
+        this.props.onClose("/api/patients/page/1");
     }
     onChangeName(e) {
         this.setState({ name: e.target.value });
@@ -94,31 +112,39 @@ export default class ModalPatient extends React.Component {
 
     async onSubmit(event) {
         event.preventDefault();
-        const token = sessionStorage.getItem('tokenKey');
-        var tests = [];
-        this.state.prescribedTests.map((test) => {
-            if (test.isChecked === true)
-                tests.push(test.id);
-        });
-        var response = await fetch("/api/patients/", {
-            method: "POST",
-            headers: {
-                "Accept": "application/json",
-                "Authorization": "Bearer " + token,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                name: this.state.name,
-                tests: tests,
-                results: []
-            })
-        });
-        if (response.ok !== true) {
-            console.log("Error: ", response.status);
+        if (this.state.isSave === false) {
+            this.setState({ isSave: true });
+            const token = sessionStorage.getItem('tokenKey');
+            var tests = [];
+            this.state.prescribedTests.map((test) => {
+                if (test.isChecked === true)
+                    tests.push(test.id);
+            });
+            var response = await fetch("/api/patients/", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name: this.state.name,
+                    tests: tests,
+                    results: []
+                })
+            });
+            var data = await response.json();
+            if (response.ok !== true) {
+                console.log("Error: ", response.status);
+            }
+            else {
+                this.onChangeSuccessAlert(true);
+                this.setState({ url: window.location.origin + data.message, isSave: true });
+            }
         }
-        this.setState({ availableTests: this.state.tests, prescribedTests: [], isPrescribedTests: "Тестов пока нет!", name: "" });
-        this.props.onClose("/api/patients/page/1");
-        this.toggle();
+        else {
+            this.onChangeSuccessAlert(false);
+            this.onChangeDangerAlert(true);
+        }
     }
 
     render() {
@@ -128,6 +154,8 @@ export default class ModalPatient extends React.Component {
                 <Modal size="lg" isOpen={this.state.modal}>
                     <Form onSubmit={this.onSubmit}>
                         <ModalHeader toggle={() => { this.toggle() }}>Новый пациент</ModalHeader>
+                        <Alert color="success" isOpen={this.state.successAlertVisible} toggle={() => { this.onChangeSuccessAlert(false) }} fade={false}>Пациент успешно добавлен!</Alert >
+                        <Alert color="danger" isOpen={this.state.dangerAlertVisible} toggle={() => { this.onChangeDangerAlert(false) }} fade={false}>Данный пациент уже добавлен!</Alert >
                         <ModalBody>
                             <FormGroup>
                                 <Label for="name">Имя:</Label>
@@ -172,9 +200,25 @@ export default class ModalPatient extends React.Component {
                                 </div>
                             </FormGroup>
 
+                            <br />
+                            <Collapse isOpen={this.state.isSave}>
+                                <FormGroup>
+                                    <Row>
+                                        <Col xs="2"><Label for="url">Ссылка для привязки:</Label></Col>
+                                        <Col xs="10">
+                                            <InputGroup>
+                                                <Input readOnly id="url" value={this.state.url} />
+                                                <InputGroupAddon addonType="append">
+                                                    <Button color="secondary" outline onClick={() => { navigator.clipboard.writeText(this.state.url) }}>Копировать</Button>
+                                                </InputGroupAddon>
+                                            </InputGroup>
+                                        </Col>
+                                    </Row>
+                                </FormGroup>
+                            </Collapse>
                         </ModalBody>
                         <ModalFooter>
-                            <Button color="danger" onClick={() => this.toggle()}>Отмена</Button>
+                            <Button color="danger" onClick={() => this.toggle()}>Закрыть</Button>
                             <input type="submit" value="Сохранить" className="btn btn-info" />
                         </ModalFooter>
                     </Form>

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Alert, InputGroup, InputGroupAddon } from 'reactstrap';
 import '../custom.css'
 
 export class Authorisation extends Component {
@@ -8,12 +9,14 @@ export class Authorisation extends Component {
         super(props);
         this.state = {
             email: "",
-            password: ""
+            password: "",
+            alertVisible: false
         };
 
         this.onSubmit = this.onSubmit.bind(this);
         this.onEmailChange = this.onEmailChange.bind(this);
         this.onPasswordChange = this.onPasswordChange.bind(this);
+        this.onChangeAlert = this.onChangeAlert.bind(this);
     }
 
     onEmailChange(e) {
@@ -21,6 +24,9 @@ export class Authorisation extends Component {
     }
     onPasswordChange(e) {
         this.setState({ password: e.target.value });
+    }
+    onChangeAlert(value) {
+        this.setState({ alertVisible: value });
     }
 
     // Вход
@@ -48,6 +54,8 @@ export class Authorisation extends Component {
         }
         else {
             console.log("Error: ", response.status, data.errorText);
+            if (data.errorText === "Invalid username or password.")
+                this.setState({ alertVisible: true });
         }
     }
 
@@ -57,11 +65,13 @@ export class Authorisation extends Component {
             <div>
                 <div className="loginBody" >
                     <form onSubmit={this.onSubmit} className="form shadow-lg bg-white">
+                        <Alert color="danger" isOpen={this.state.alertVisible} toggle={() => { this.onChangeAlert(false) }} fade={false}>Неверный логин или пароль!</Alert >
                         <h2>Вход</h2>
                         <br />
                         <div className="row mt-2">
                             <label className="control-label col-6">Email:</label>
-                            <input type="text"
+                            <input type="email"
+                                required
                                 className="form-control col-6"
                                 placeholder="example@gmail.com"
                                 value={this.state.email}
@@ -70,6 +80,7 @@ export class Authorisation extends Component {
                         <div className="row mt-2">
                             <label className="control-label col-6">Пароль:</label>
                             <input type="password"
+                                required
                                 className="form-control col-6"
                                 placeholder="Пароль"
                                 value={this.state.password}
@@ -81,6 +92,7 @@ export class Authorisation extends Component {
                         </div>
                     </form>
                 </div>
+                <br />
             </div>
         );
     }

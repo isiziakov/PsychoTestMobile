@@ -7,7 +7,7 @@ using MongoDB.Bson;
 
 namespace PsychoTestWeb.Models
 {
-    public class Result
+    public class PatientsResult
     {
         public string test { get; set; }
         public int result { get; set; }

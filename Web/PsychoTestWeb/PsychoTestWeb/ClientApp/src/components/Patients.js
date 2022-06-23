@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import { Button, Row, Col, Input, InputGroup, InputGroupAddon, Pagination } from 'reactstrap';
+import { Button, Row, Col, Input, InputGroup, InputGroupAddon } from 'reactstrap';
 import ModalPatient from './ModalPatient';
 import { useHistory } from "react-router-dom";
 import { CustomPagination } from './Pagination';
