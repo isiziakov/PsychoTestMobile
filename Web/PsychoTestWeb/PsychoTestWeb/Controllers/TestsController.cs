@@ -113,6 +113,24 @@ namespace PsychoTestWeb.Controllers
             else return BadRequest();
         }
 
+        //получение норм
+        // GET api/<TestsController>/norms
+        [Route("norms")]
+        [HttpGet]
+        public async Task<IActionResult> GetNorms()
+        {
+            IEnumerable<string> list = await db.GetNorms();
+            if (list != null)
+                return Ok(list);
+            else return NoContent();
+        }
+        // DELETE api/<TestsController>/norms/62a2ee61e5ab646eb9231448
+        [HttpDelete("norms/{id}")]
+        public async Task DeleteNorm(string id)
+        {
+            await db.RemoveNorm(id);
+        }
+
         // DELETE api/<TestsController>/62a2ee61e5ab646eb9231448
         [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
@@ -120,5 +138,6 @@ namespace PsychoTestWeb.Controllers
         {
             await db.RemoveTest(id);
         }
+
     }
 }

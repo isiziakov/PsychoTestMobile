@@ -496,6 +496,24 @@ namespace PsychoTestWeb.Models
             }
             else return jObj["main"]["groups"]["item"]["id"].ToString();
         }
+
+        //получаем список id всех норм
+        public async Task<IEnumerable<string>> GetNorms()
+        {
+            var documents = await NormsBson.Find(new BsonDocument()).ToListAsync();
+            List<string> norms = new List<string>();
+            foreach (BsonDocument doc in documents)
+            {
+                norms.Add(doc["_id"].AsObjectId.ToString());
+            }
+            return norms;
+        }
+        // удаление норм
+        public async Task RemoveNorm(string id)
+        {
+            await NormsBson.DeleteOneAsync(new BsonDocument("_id", new ObjectId(id)));
+        }
+
         // удаление теста
         public async Task RemoveTest(string id)
         {

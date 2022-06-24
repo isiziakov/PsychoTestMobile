@@ -153,7 +153,7 @@ class ModalImportTest extends React.Component {
                     console.log("Error: ", response.status);
                     if (response.status === 500)
                         {
-                            this.setState({dangerAlertText: "Файлы не были сохранены, проверьте их правильность!"});
+                            this.setState({dangerAlertText: "Файлы не были сохранены, проверьте их правильность!", normFiles: [], files: []});
                             this.onChangeDangerAlert(true);
                         }
                     var data = await response.json();
@@ -179,7 +179,7 @@ class ModalImportTest extends React.Component {
                     console.log("Error: ", response.status);
                     if (response.status === 500)
                         {
-                            this.setState({dangerAlertText: "Файлы не были сохранены, проверьте их правильность!"});
+                            this.setState({dangerAlertText: "Файлы не были сохранены, проверьте их правильность!", normFiles: [], files: []});
                             this.onChangeDangerAlert(true);
                         }
                     var data = await response.json();
@@ -197,6 +197,7 @@ class ModalImportTest extends React.Component {
                 this.setState({dangerAlertText: s});
                 this.onChangeDangerAlert(true);
             }
+            this.setState({ normFiles: [], files: [] });
         });
     }
 
