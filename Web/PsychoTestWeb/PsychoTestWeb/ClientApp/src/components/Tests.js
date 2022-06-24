@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import { Button, Input, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, FormText, Row, Col, InputGroup, InputGroupAddon } from 'reactstrap';
+import { Button, Input, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, FormText, Row, Col, Alert } from 'reactstrap';
 import { CustomPagination } from './Pagination';
 
 
@@ -39,16 +39,16 @@ export class Tests extends Component {
     render() {
         return (
             <div>
-                <br />
+                <br/>
                 <Row>
                     <Col xs="8"><h2>Список тестов:</h2></Col>
-                    <Col xs="auto"><ModalImportTest getTests={this.getTests} /></Col>
+                    <Col xs="auto"><ModalImportTest getTests={this.getTests}/></Col>
                 </Row>
                 <hr />
                 <div>
                     {
                         this.state.tests.map((test) => {
-                            return <Test test={test} key={test.id} getTests={this.getTests} />
+                            return <Test test={test} key={test.id} getTests={this.getTests}/>
                         })
                     }
                 </div>
@@ -57,6 +57,7 @@ export class Tests extends Component {
     }
 }
 
+
 class Test extends React.Component {
     static displayName = Test.name;
     constructor(props) {
@@ -64,7 +65,7 @@ class Test extends React.Component {
         this.state = {};
         this.remove = this.remove.bind(this);
     }
-
+    
     async remove() {
         if (window.confirm("Вы уверены что хотите удалить этот тест?")) {
             const token = sessionStorage.getItem('tokenKey');
@@ -90,7 +91,7 @@ class Test extends React.Component {
                     <Col xs="8">{this.props.test.name}</Col>
                     <Col xs="auto"><Button color='danger' outline onClick={this.remove}>Удалить</Button></Col>
                 </Row>
-                <br />
+                <br/>
             </div>
         );
     }
@@ -103,12 +104,19 @@ class ModalImportTest extends React.Component {
         super(props);
         this.state = {
             modal: false,
-            files: []
+            files: [],
+            normFiles: [],
+            successAlertVisible: false,
+            dangerAlertVisible: false,
+            dangerAlertText: ""
         };
 
         this.toggle = this.toggle.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
         this.uploadFile = this.uploadFile.bind(this);
+        this.uploadNormFile = this.uploadNormFile.bind(this);
+        this.onChangeSuccessAlert = this.onChangeSuccessAlert.bind(this);
+        this.onChangeDangerAlert = this.onChangeDangerAlert.bind(this);
     }
     componentDidMount() {
     }
@@ -116,37 +124,87 @@ class ModalImportTest extends React.Component {
         this.setState({
             modal: !this.state.modal
         });
+        this.props.getTests("/api/tests/view");
+    }
+    onChangeSuccessAlert(value) {
+        this.setState({ successAlertVisible: value });
+    }
+    onChangeDangerAlert(value) {
+        this.setState({ dangerAlertVisible: value });
     }
 
     async onSubmit(e) {
         e.preventDefault();
-        var save = 0;
-        for (var i = 0; i < this.state.files.length; i++) {
-            var formData = new FormData();
-            formData.append('value', this.state.files[i]);
+        this.setState({dangerAlertText: ""}, async () => {
+            var save = 0;
+            for (var i = 0; i < this.state.files.length; i++) {
+                var formData = new FormData();
+                formData.append('testFile', this.state.files[i]);
 
-            const token = sessionStorage.getItem('tokenKey');
-            var response = await fetch("/api/tests/", {
-                method: "POST",
-                headers: {
-                    "Authorization": "Bearer " + token
-                },
-                body: formData
-            });
-            if (response.ok !== true) {
-                console.log("Error: ", response.status);
+                const token = sessionStorage.getItem('tokenKey');
+                var response = await fetch("/api/tests/importTests", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    },
+                    body: formData
+                });
+                if (response.ok !== true) {
+                    console.log("Error: ", response.status);
+                    if (response.status === 500)
+                        {
+                            this.setState({dangerAlertText: "Файлы не были сохранены, проверьте их правильность!"});
+                            this.onChangeDangerAlert(true);
+                        }
+                    var data = await response.json();
+                    data.errorText = this.state.dangerAlertText + "\n" +  data.errorText;
+                    this.setState({dangerAlertText: data.errorText});
+                }
+                else save++;
             }
-            else save++;
-        }
-        if (save === this.state.files.length) {
-            this.toggle();
-            this.props.getTests("/api/tests/view");
-        }
+
+            for (var i = 0; i < this.state.normFiles.length; i++) {
+                var formData = new FormData();
+                formData.append('normFile', this.state.normFiles[i]);
+
+                const token = sessionStorage.getItem('tokenKey');
+                var response = await fetch("/api/tests/importNorms", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    },
+                    body: formData
+                });
+                if (response.ok !== true) {
+                    console.log("Error: ", response.status);
+                    if (response.status === 500)
+                        {
+                            this.setState({dangerAlertText: "Файлы не были сохранены, проверьте их правильность!"});
+                            this.onChangeDangerAlert(true);
+                        }
+                    var data = await response.json();
+                    data.errorText = this.state.dangerAlertText + "\n" +  data.errorText;
+                    this.setState({dangerAlertText: data.errorText});
+                }
+                else save++;
+            }
+
+            if (save === this.state.normFiles.length + this.state.files.length) {
+                this.onChangeSuccessAlert(true);
+            }
+            else {
+                var s = "Часть файлов не сохранена!\n" + this.state.dangerAlertText;
+                this.setState({dangerAlertText: s});
+                this.onChangeDangerAlert(true);
+            }
+        });
     }
 
     uploadFile(e) {
-        this.setState({ files: [] });
         this.setState({ files: e.target.files });
+    }
+    uploadNormFile(e) {
+        this.setState({ normFiles: e.target.files });
     }
 
     render() {
@@ -155,13 +213,22 @@ class ModalImportTest extends React.Component {
                 <Button color="info" onClick={this.toggle}>Импортировать</Button>
                 <Modal isOpen={this.state.modal}>
                     <Form onSubmit={(e) => { this.onSubmit(e) }} encType="multipart/form-data">
-                        <ModalHeader toggle={this.toggle}>Импорт нового теста</ModalHeader>
+                        <ModalHeader toggle={this.toggle}>Импорт тестов и норм</ModalHeader>
+                        <Alert color="success" isOpen={this.state.successAlertVisible} toggle={() => { this.onChangeSuccessAlert(false) }} fade={false}>Файлы успешно сохранены!</Alert >
+                        <Alert color="danger" isOpen={this.state.dangerAlertVisible} toggle={() => { this.onChangeDangerAlert(false) }} fade={false}>{this.state.dangerAlertText}</Alert >
                         <ModalBody>
                             <FormGroup>
-                                <Label for="file">Файл:</Label>
+                                <Label for="file">Тесты:</Label>
                                 <Input type="file" name="file" accept=".xml" id="file" multiple onChange={this.uploadFile} />
                                 <FormText color="muted">
-                                    Прикрепите один или несколько файлов с тестом в формате xml.
+                                    Прикрепите файлы тестов в формате xml.
+                                </FormText>
+                            </FormGroup>
+                            <FormGroup>
+                                <Label for="normFile">Нормы:</Label>
+                                <Input type="file" name="normFile" accept=".xml" id="normFile" multiple onChange={this.uploadNormFile} />
+                                <FormText color="muted">
+                                    Прикрепите файлы норм в формате xml.
                                 </FormText>
                             </FormGroup>
                         </ModalBody>

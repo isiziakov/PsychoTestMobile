@@ -69,21 +69,46 @@ namespace PsychoTestWeb.Controllers
             }
         }
 
-        // POST api/<TestsController>
+        // POST api/<TestsController>/importTests
         [Authorize(Roles = "admin")]
+        [Route("importTests")]
         [HttpPost]
-        public async Task<IActionResult> Post([FromForm] IFormFile value)
+        public async Task<IActionResult> PostTest([FromForm] IFormFile testFile)
         {
-            if (value != null)
+            if (testFile != null)
             {
-                var result = new StringBuilder();
-                using (var r = new StreamReader(value.OpenReadStream()))
+                var testRresult = new StringBuilder();
+                using (var r = new StreamReader(testFile.OpenReadStream()))
                 {
                     while (r.Peek() >= 0)
-                        result.AppendLine(r.ReadLine());
+                        testRresult.AppendLine(r.ReadLine());
                 }
-                await db.ImportFile(result.ToString());
-                return Ok();
+                string nameUnsavedTest = await db.ImportTestFile(testRresult.ToString());
+                if (nameUnsavedTest == null)
+                    return Ok();
+                else return BadRequest(new { errorText = "Тест ID: " + nameUnsavedTest + " уже добавлен!" });
+            }
+            else return BadRequest();
+        }
+
+        // POST api/<TestsController>/importNorms
+        [Authorize(Roles = "admin")]
+        [Route("importNorms")]
+        [HttpPost]
+        public async Task<IActionResult> PostNorm([FromForm] IFormFile normFile)
+        {
+            if (normFile != null)
+            {
+                var normRresult = new StringBuilder();
+                using (var r = new StreamReader(normFile.OpenReadStream()))
+                {
+                    while (r.Peek() >= 0)
+                        normRresult.AppendLine(r.ReadLine());
+                }
+                string nameUnsavedNorm = await db.ImportNormFile(normRresult.ToString());
+                if (nameUnsavedNorm == null)
+                    return Ok();
+                else return BadRequest(new { errorText = "Норма ID: " + nameUnsavedNorm + " уже добавлена!" });
             }
             else return BadRequest();
         }

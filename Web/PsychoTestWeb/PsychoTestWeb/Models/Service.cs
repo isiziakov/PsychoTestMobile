@@ -20,6 +20,8 @@ namespace PsychoTestWeb.Models
         IMongoCollection<Patient> Patients;
         IMongoCollection<Test> Tests;
         IMongoCollection<BsonDocument> TestsBson;
+        IMongoCollection<BsonDocument> NormsBson;
+
         IMongoDatabase database;
         public Service()
         {
@@ -34,6 +36,7 @@ namespace PsychoTestWeb.Models
             Patients = database.GetCollection<Patient>("Patients");
             Tests = database.GetCollection<Test>("Tests");
             TestsBson = database.GetCollection<BsonDocument>("Tests");
+            NormsBson = database.GetCollection<BsonDocument>("Norms");
         }
 
         //пользователи
@@ -308,11 +311,12 @@ namespace PsychoTestWeb.Models
                                     scales[ans["Weights"]["item"]["ScID"].ToString()] = Int32.Parse(ans["Weights"]["item"]["Weights"].ToString());
                             }
                         }
-                } 
+                }
             }
         }
 
         #endregion
+
         //Тесты
         #region
         //получаем краткий список всех тестов в формате id-название-заголовок-инструкция
@@ -376,44 +380,61 @@ namespace PsychoTestWeb.Models
         }
 
         //Импорт теста
-        public async Task ImportFile(string file)
+        public async Task<string> ImportTestFile(string file)
         {
-
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(file);
             var json = JsonConvert.SerializeXmlNode(xmlDoc, Newtonsoft.Json.Formatting.None, true);
-
             var jObj = JObject.Parse(json);
-            int i = 0;
-            foreach (var question in jObj["Questions"]["item"])
+
+            var test =  await TestsBson.Find(new BsonDocument("IR.ID", jObj["IR"]["ID"].ToString())).FirstOrDefaultAsync();
+            if (test == null)
             {
-                question["Question_id"] = i;
-                i++;
-
-                //если вопрос только с текстом — Question_Type = 0, если с изображением Question_Type = 1
-                if (question["ImageFileName"] != null)
-                    question["Question_Type"] = 1;
-                else
-                    question["Question_Type"] = 0;
-
-                //если вопрос c выбором одного отета — Question_Choice = 1, если с вводом своего — Question_Choice = 0
-                if (question["TypeQPanel"] != null)
+                int i = 0;
+                foreach (var question in jObj["Questions"]["item"])
                 {
-                    if (question["TypeQPanel"].ToString() == "2" || question["AnsString_Num"] != null ||
-                                question["AnsString_ExanineAnsMethod"] != null || question["Ans_CheckUpperCase"] != null)
+                    question["Question_id"] = i;
+                    i++;
+
+                    //если вопрос только с текстом — Question_Type = 0, если с изображением Question_Type = 1
+                    if (question["ImageFileName"] != null)
+                        question["Question_Type"] = 1;
+                    else
+                        question["Question_Type"] = 0;
+
+                    //если вопрос c выбором одного отета — Question_Choice = 1, если с вводом своего — Question_Choice = 0
+                    if (question["TypeQPanel"] != null)
                     {
-                        question["Question_Choice"] = 0;
-                        if (question["Answers"]["item"] is JArray)
-                            foreach (var answer in question["Answers"]["item"])
-                                answer["Answer_Type"] = 1;
+                        if (question["TypeQPanel"].ToString() == "2" || question["AnsString_Num"] != null ||
+                                    question["AnsString_ExanineAnsMethod"] != null || question["Ans_CheckUpperCase"] != null)
+                        {
+                            question["Question_Choice"] = 0;
+                            if (question["Answers"]["item"] is JArray)
+                                foreach (var answer in question["Answers"]["item"])
+                                    answer["Answer_Type"] = 1;
+                            else
+                            {
+                                JArray arr = new JArray();
+                                question["Answers"]["item"]["Answer_Type"] = 1;
+                                arr.Add(question["Answers"]["item"]);
+                                question["Answers"]["item"] = arr;
+                            }
+
+                        }
                         else
                         {
-                            JArray arr = new JArray();
-                            question["Answers"]["item"]["Answer_Type"] = 1;
-                            arr.Add(question["Answers"]["item"]);
-                            question["Answers"]["item"] = arr;
+                            question["Question_Choice"] = 1;
+                            if (question["Answers"]["item"] is JArray)
+                                foreach (var answer in question["Answers"]["item"])
+                                    answer["Answer_Type"] = 0;
+                            else
+                            {
+                                JArray arr = new JArray();
+                                question["Answers"]["item"]["Answer_Type"] = 0;
+                                arr.Add(question["Answers"]["item"]);
+                                question["Answers"]["item"] = arr;
+                            }
                         }
-
                     }
                     else
                     {
@@ -429,43 +450,51 @@ namespace PsychoTestWeb.Models
                             question["Answers"]["item"] = arr;
                         }
                     }
-                }
-                else
-                {
-                    question["Question_Choice"] = 1;
+                    int j = 0;
                     if (question["Answers"]["item"] is JArray)
                         foreach (var answer in question["Answers"]["item"])
-                            answer["Answer_Type"] = 0;
+                        {
+                            answer["Answer_id"] = j;
+                            j++;
+                            //если ответ это текст — Answer_Type = 0, если это поле для ввода — Answer_Type = 1, если изображение — Answer_Type = 2;
+                            if (answer["ImageFileName"] != null)
+                                answer["Answer_Type"] = 2;
+                        }
                     else
                     {
                         JArray arr = new JArray();
-                        question["Answers"]["item"]["Answer_Type"] = 0;
+                        question["Answers"]["item"]["Answer_id"] = 0;
+                        if (question["Answers"]["item"]["ImageFileName"] != null)
+                            question["Answers"]["item"]["Answer_Type"] = 2;
                         arr.Add(question["Answers"]["item"]);
                         question["Answers"]["item"] = arr;
                     }
                 }
-                int j = 0;
-                if (question["Answers"]["item"] is JArray)
-                    foreach (var answer in question["Answers"]["item"])
-                    {
-                        answer["Answer_id"] = j;
-                        j++;
-                        //если ответ это текст — Answer_Type = 0, если это поле для ввода — Answer_Type = 1, если изображение — Answer_Type = 2;
-                        if (answer["ImageFileName"] != null)
-                            answer["Answer_Type"] = 2;
-                    }
-                else
-                {
-                    JArray arr = new JArray();
-                    question["Answers"]["item"]["Answer_id"] = 0;
-                    if (question["Answers"]["item"]["ImageFileName"] != null)
-                        question["Answers"]["item"]["Answer_Type"] = 2;
-                    arr.Add(question["Answers"]["item"]);
-                    question["Answers"]["item"] = arr;
-                }
+                var document = BsonDocument.Parse(Newtonsoft.Json.JsonConvert.SerializeObject(jObj));
+                await TestsBson.InsertOneAsync(document);
+                return null;
             }
-            var document = BsonDocument.Parse(Newtonsoft.Json.JsonConvert.SerializeObject(jObj));
-            await TestsBson.InsertOneAsync(document);
+            else return jObj["IR"]["ID"].ToString();
+        }
+
+        //Импорт норм
+        public async Task<string> ImportNormFile(string file)
+        {
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(file);
+            var json = JsonConvert.SerializeXmlNode(xmlDoc);
+            var jObj = JObject.Parse(json);
+            BsonDocument norm = null;
+            if (jObj["main"]["groups"]["item"]["id"] != null)
+                norm = await NormsBson.Find(new BsonDocument("main.groups.item.id", jObj["main"]["groups"]["item"]["id"].ToString())).FirstOrDefaultAsync();
+            if (norm == null)
+            {
+                var document = BsonDocument.Parse(Newtonsoft.Json.JsonConvert.SerializeObject(jObj));
+                //BsonDocument document = BsonDocument.Parse(json);
+                await NormsBson.InsertOneAsync(document);
+                return null;
+            }
+            else return jObj["main"]["groups"]["item"]["id"].ToString();
         }
         // удаление теста
         public async Task RemoveTest(string id)
