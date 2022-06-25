@@ -21,6 +21,7 @@ using System.Security.Cryptography.X509Certificates;
 using Android.Preferences;
 using Xamarin.Android.Net;
 using System.Threading;
+using PsychoTestAndroid.DataBase.Entity;
 
 namespace PsychoTestAndroid.Web
 {
@@ -40,7 +41,7 @@ namespace PsychoTestAndroid.Web
                 {
                     _socketsHttpHandler = new AndroidClientHandler()
                     {
-                        ReadTimeout = TimeSpan.FromSeconds(10)
+                        ReadTimeout = TimeSpan.FromSeconds(5)
                     };
                 }
                 return _socketsHttpHandler;
@@ -84,35 +85,47 @@ namespace PsychoTestAndroid.Web
             return false;
         }
 
-        public static async Task<Test> GetTest(string id)
+        public static async Task<string> GetTest(string id)
         {
             var client = new HttpClient(SocketsHttpHandler);
-            var result = await client.GetAsync(url + "api/tests/" + id);
+            HttpResponseMessage result;
+            try
+            {
+                result = await client.GetAsync(url + "api/tests/" + id);
+            }
+            catch
+            {
+                return null;
+            }
             if (result != null && result.StatusCode == HttpStatusCode.OK)
             {
-                JObject data = JObject.Parse(await result.Content.ReadAsStringAsync());
-                var test = new Test(data);
-                test.SetQuestions(data);
-                return test;
+                return await result.Content.ReadAsStringAsync();
             }
             return null;
         }
 
         // получить список доступных тестов
-        public static async Task<List<Test>> GetTests()
+        public static async Task<List<DbTest>> GetTests()
         {
             var client = new HttpClient(SocketsHttpHandler);
-            var tests = new List<Test>();
+            var tests = new List<DbTest>();
             HttpRequestMessage request = new HttpRequestMessage();
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            request.Headers.Add("Authorization", Token);
-            //request.Headers.Authorization = new AuthenticationHeaderValue(Token);
+            request.Headers.Authorization = new AuthenticationHeaderValue(Token);
             request.RequestUri = new Uri(url + "api/tests/");
             request.Method = HttpMethod.Get;
-            var result = await client.SendAsync(request, CancellationToken.None);
+            HttpResponseMessage result;
+            try
+            {
+                result = await client.SendAsync(request, CancellationToken.None);
+            }
+            catch
+            {
+                return null;
+            }
             if (result != null && result.StatusCode == HttpStatusCode.OK)
             {
-                tests = JsonConvert.DeserializeObject<List<Test>>(await result.Content.ReadAsStringAsync());
+                tests = JsonConvert.DeserializeObject<List<DbTest>>(await result.Content.ReadAsStringAsync());
                 return tests;
             }
             return null;

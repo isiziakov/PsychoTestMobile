@@ -71,6 +71,12 @@
     <Compile Include="Activities\AllTestActivity.cs" />
     <Compile Include="Activities\MainActivity.cs" />
     <Compile Include="Activities\TestActivity.cs" />
+    <Compile Include="DataBase\DbOperations.cs" />
+    <Compile Include="DataBase\Entity\DbTest.cs" />
+    <Compile Include="DataBase\Interfaces\IDbRepos.cs" />
+    <Compile Include="DataBase\Interfaces\IRepository.cs" />
+    <Compile Include="DataBase\Repository\SQLite\DBRepos.cs" />
+    <Compile Include="DataBase\Repository\SQLite\TestRepos.cs" />
     <Compile Include="Model\Answers\Answer.cs" />
     <Compile Include="Model\Answers\AnswerHelper.cs" />
     <Compile Include="Model\Answers\AnswerInput.cs" />
@@ -131,6 +137,9 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json">
       <Version>13.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="sqlite-net-pcl">
+      <Version>1.8.116</Version>
     </PackageReference>
     <PackageReference Include="System.Net.Http">
       <Version>4.3.4</Version>

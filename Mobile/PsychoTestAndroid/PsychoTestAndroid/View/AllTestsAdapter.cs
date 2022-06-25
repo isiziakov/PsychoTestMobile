@@ -5,6 +5,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using AndroidX.RecyclerView.Widget;
+using PsychoTestAndroid.DataBase.Entity;
 using PsychoTestAndroid.Model;
 using System;
 using System.Collections.Generic;
@@ -17,12 +18,14 @@ namespace PsychoTestAndroid
     {
         public TextView Name { get; set; }
         public TextView Title { get; set; }
+        public TextView Status { get; set; }
 
         [Obsolete]
         public AllTestsViewHolder(View itemview, Action<int> listener) : base(itemview)
         {
             Name = itemview.FindViewById<TextView>(Resource.Id.tests_recycler_name);
             Title = itemview.FindViewById<TextView>(Resource.Id.tests_recycler_title);
+            Status = itemview.FindViewById<TextView>(Resource.Id.tests_recycler_status);
             itemview.Click += (sender, e) => listener(Position);
         }
     }
@@ -30,8 +33,8 @@ namespace PsychoTestAndroid
     public class AllTestsAdapter : RecyclerView.Adapter
     {
         public event EventHandler<int> ItemClick;
-        List<Test> tests;
-        public AllTestsAdapter(List<Test> tests)
+        List<DbTest> tests;
+        public AllTestsAdapter(List<DbTest> tests)
         {
             this.tests = tests;
         }
@@ -43,6 +46,7 @@ namespace PsychoTestAndroid
         {
             AllTestsViewHolder vh = holder as AllTestsViewHolder;
             vh.Name.Text = tests[position].Name;
+            vh.Status.Text = tests[position].Status;
             if (tests[position].Title != null && tests[position].Title != "")
             {
                 vh.Title.Text = tests[position].Title;

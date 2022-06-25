@@ -8,6 +8,7 @@ using Android.Widget;
 using AndroidX.ViewPager.Widget;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using PsychoTestAndroid.DataBase.Entity;
 using PsychoTestAndroid.Model;
 using PsychoTestAndroid.Model.Questions;
 using PsychoTestAndroid.Web;
@@ -37,7 +38,8 @@ namespace PsychoTestAndroid
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.instruction);
             // считать тест
-            test = JsonConvert.DeserializeObject<Test>(Intent.GetStringExtra("Test"));
+            var dbTest = JsonConvert.DeserializeObject<DbTest>(Intent.GetStringExtra("Test"));
+            test = new Test(dbTest);
             // тест пуст
             if (test == null)
             {
@@ -73,7 +75,6 @@ namespace PsychoTestAndroid
             Button startButton = FindViewById<Button>(Resource.Id.start_test);
             startButton.Click += async (sender, args) =>
             {
-                test = await WebApi.GetTest(test.Id);
                 if (test != null)
                 {
                     InitializeTestContent();
