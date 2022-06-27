@@ -271,7 +271,9 @@ namespace PsychoTestWeb.Models
 
                 //обработка результатов
                 ProcessingResults processingResults = new ProcessingResults(test, result, norm);
-                processingResults.patientResult.date = DateTime.Now;
+                DateTime now = DateTime.Now;
+                processingResults.patientResult.date = now.ToString("g");
+                processingResults.patientResult.comment = "";
                 processingResults.patientResult.test = result.id;
 
                 //добавление в бд

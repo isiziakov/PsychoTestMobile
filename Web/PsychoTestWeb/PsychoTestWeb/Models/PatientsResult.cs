@@ -10,10 +10,9 @@ namespace PsychoTestWeb.Models
     public class PatientsResult
     {
         public string test { get; set; }
-        public DateTime date { get; set; }
+        public string date { get; set; }
         public List<Scale> scales { get; set; }
         public string comment { get; set; }
-        public int result { get; set; } //убрать
         public PatientsResult()
         {
             scales = new List<Scale>();

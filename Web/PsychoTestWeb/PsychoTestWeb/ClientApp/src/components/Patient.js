@@ -277,17 +277,25 @@ export default class Patient extends React.Component {
                             this.state.patientResults.map((result, index) => {
                                 return (
                                     <FormGroup key={index}>
-                                        <strong>{result.name}</strong>
-                                        <br />
-                                        <>Результат: {result.result}</>
-                                        <br />
+                                        <h5>{result.name}</h5>
+                                        <p>Дата прохождения: {result.date}</p>
+                                        <ul>
+                                            {
+                                                result.scales.map((scale) => {
+                                                        return (
+                                                            <li style={{textAlign: 'justify'}} key={scale.idTestScale}>Результат: {scale.scores} — {scale.name}. {scale.interpretation}</li>
+                                                        );
+                                                    })
+                                            }
+                                        </ul>
                                         <Label for="comment">Комментарий:</Label>
                                         <Input type="textarea" name="text" id="comment" value={result.comment} onChange={(e) => { this.onCommentChange(e, index) }} />
+                                        <br/>
                                     </FormGroup>
                                 );
-                                <br />
                             })
                         }
+                        <br/>
                         <br />
                         <FormGroup>
                             <div className="row">

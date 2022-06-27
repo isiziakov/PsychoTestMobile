@@ -181,7 +181,7 @@ namespace PsychoTestWeb.Models
                                 //если слева -inf, справа число
                                 if (grad["lowerformula"]["ftext"].ToString() == "-inf" && grad["upperformula"]["ftext"].ToString() != "+inf")
                                 {
-                                    if (result.scores < Int32.Parse(grad["upperformula"]["ftext"].ToString()))
+                                    if (result.scores <= Int32.Parse(grad["upperformula"]["ftext"].ToString()))
                                     {
                                         if (grad["comment"]["#text"] != null)
                                             result.interpretation = grad["comment"]["#text"].ToString();
@@ -192,7 +192,7 @@ namespace PsychoTestWeb.Models
                                 //если справа +inf, слева число
                                 if (grad["lowerformula"]["ftext"].ToString() != "-inf" && grad["upperformula"]["ftext"].ToString() == "+inf")
                                 {
-                                    if (result.scores >= Int32.Parse(grad["lowerformula"]["ftext"].ToString()))
+                                    if (result.scores > Int32.Parse(grad["lowerformula"]["ftext"].ToString()))
                                     {
                                         if (grad["comment"]["#text"] != null)
                                             result.interpretation = grad["comment"]["#text"].ToString();
@@ -203,7 +203,7 @@ namespace PsychoTestWeb.Models
                                 //c обеих сторон числа
                                 if (grad["lowerformula"]["ftext"].ToString() != "-inf" && grad["upperformula"]["ftext"].ToString() != "+inf")
                                 {
-                                    if (result.scores >= Int32.Parse(grad["lowerformula"]["ftext"].ToString()) && result.scores < Int32.Parse(grad["upperformula"]["ftext"].ToString()))
+                                    if (result.scores > Int32.Parse(grad["lowerformula"]["ftext"].ToString()) && result.scores <= Int32.Parse(grad["upperformula"]["ftext"].ToString()))
                                     {
                                         if (grad["comment"]["#text"] != null)
                                             result.interpretation = grad["comment"]["#text"].ToString();

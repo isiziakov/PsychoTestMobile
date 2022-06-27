@@ -227,19 +227,19 @@ class ModalImportTest extends React.Component {
                 <Button color="info" onClick={this.toggle}>Импортировать</Button>
                 <Modal isOpen={this.state.modal}>
                     <Form onSubmit={(e) => { this.onSubmit(e) }} encType="multipart/form-data">
-                        <ModalHeader toggle={this.toggle}>Импорт тестов</ModalHeader>
+                        <ModalHeader toggle={this.toggle}>Импорт теста</ModalHeader>
                         <Alert color="success" isOpen={this.state.successAlertVisible} toggle={() => { this.onChangeSuccessAlert(false) }} fade={false}>Файлы успешно сохранены!</Alert >
                         <Alert color="danger" isOpen={this.state.dangerAlertVisible} toggle={() => { this.onChangeDangerAlert(false) }} fade={false}>{this.state.dangerAlertText}</Alert >
                         <ModalBody>
                             <FormGroup>
-                                <Label for="file">Тесты:</Label>
+                                <Label for="file">Тест:</Label>
                                 <Input type="file" name="file" accept=".xml" id="file" required onChange={this.uploadFile} />
                                 <FormText color="muted">
                                     Прикрепите файл тестa в формате xml.
                                 </FormText>
                             </FormGroup>
                             <FormGroup>
-                                <Label for="normFile">Нормы:</Label>
+                                <Label for="normFile">Норма:</Label>
                                 <Input type="file" name="normFile" accept=".xml" id="normFile" required onChange={this.uploadNormFile} />
                                 <FormText color="muted">
                                     Прикрепите файл норм в формате xml.
