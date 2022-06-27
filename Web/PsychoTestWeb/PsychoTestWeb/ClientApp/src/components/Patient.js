@@ -7,6 +7,7 @@ export default class Patient extends React.Component {
         super(props);
         this.state = {
             patientId: props.match.params.id,
+            patientToken: "",
             patient: [],
             name: "",
             allTests: [],
@@ -43,7 +44,7 @@ export default class Patient extends React.Component {
         });
         var data = await response.json();
         if (response.ok === true) {
-            this.setState({ patient: data, patientResults: data.results, name: data.name }, () => {
+            this.setState({ patient: data, patientResults: data.results, name: data.name, patientToken: data.token }, () => {
                 this.getTests();
             });
         }
@@ -180,7 +181,8 @@ export default class Patient extends React.Component {
                 name: this.state.name,
                 id: this.state.patientId,
                 tests: tests,
-                results: this.state.patientResults
+                results: this.state.patientResults,
+                token: this.state.patientToken
             })
         });
 
