@@ -5,6 +5,8 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using AndroidX.AppCompat.App;
+using AndroidX.Work;
+using Java.Util.Concurrent;
 using Newtonsoft.Json;
 using PsychoTestAndroid.Model;
 using PsychoTestAndroid.Web;
@@ -69,6 +71,11 @@ namespace PsychoTestAndroid
         // переход на активность с тестами
         private void GoToTests()
         {
+            var tag = GetString(Resource.String.notification_channel_id);
+            Constraints constraints = new Constraints.Builder().SetRequiredNetworkType(NetworkType.NotRoaming).Build();
+            PeriodicWorkRequest myWorkRequest = new PeriodicWorkRequest.Builder(typeof(TestWorker), 15, TimeUnit.Minutes).AddTag(tag).SetConstraints(constraints).Build();
+            WorkManager.GetInstance(this).CancelAllWorkByTag(tag);
+            WorkManager.GetInstance(this).Enqueue(myWorkRequest);
             Intent intent = new Intent(this, typeof(AllTestActivity));
             this.StartActivity(intent);
             this.Finish();

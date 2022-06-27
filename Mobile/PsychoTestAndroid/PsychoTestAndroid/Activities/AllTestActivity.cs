@@ -34,14 +34,15 @@ namespace PsychoTestAndroid
 
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.activity_allTests);
-            // получить массив тестов
-            GetTests();
+            
 
             InitializeComponents();
         }
         protected override void OnResume()
         {
             base.OnResume();
+            // получить массив тестов
+            GetTests();
         }
         // инициализировать визуальные элементы
         private void InitializeComponents()
@@ -120,6 +121,7 @@ namespace PsychoTestAndroid
 
         private async void LoadTests()
         {
+            List<int> removed = new List<int>();
             for (int i = 0; i < tests.Count; i++)
             {
                 if (tests[i].Questions == null || tests[i].Questions == "")
@@ -140,6 +142,30 @@ namespace PsychoTestAndroid
                     }
                     adapter.NotifyItemChanged(i);
                 }
+                else
+                {
+                    if (tests[i].Results != null || tests[i].Results != "")
+                    {
+                        if (tests[i].Results != null && tests[i].Results != "")
+                        {
+                            var result = await WebApi.SendResult(tests[i].Results);
+                            if (result)
+                            {
+                                removed.Add(i);
+                            }
+                            else
+                            {
+                                tests[i].Status = "Ошибка отправки";
+                                adapter.NotifyItemChanged(i);
+                            }
+                        }
+                    }
+                }
+            }
+            foreach (int i in removed)
+            {
+                DbOperations.DeleteTest(tests[i]);
+                adapter.NotifyItemRemoved(i);
             }
         }
     }

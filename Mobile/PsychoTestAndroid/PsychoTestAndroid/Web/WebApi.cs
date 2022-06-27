@@ -131,7 +131,7 @@ namespace PsychoTestAndroid.Web
             return null;
         }
 
-        public static bool SendResult(string testResult)
+        public static async Task<bool> SendResult(string testResult)
         {
             //if (client.BaseAddress == null)
             //{
