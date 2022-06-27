@@ -7,6 +7,8 @@ using Android.Widget;
 using AndroidX.RecyclerView.Widget;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using PsychoTestAndroid.DataBase;
+using PsychoTestAndroid.DataBase.Entity;
 using PsychoTestAndroid.Model;
 using PsychoTestAndroid.Web;
 using System;
@@ -21,9 +23,11 @@ namespace PsychoTestAndroid
     public class AllTestActivity : Activity
     {
         // лист тестов
-        List<Test> tests = new List<Test>();
+        List<DbTest> tests = new List<DbTest>();
+        List<DbTest> newTests = new List<DbTest>();
         // recycleView для отображения тестов
         RecyclerView recycleView;
+        AllTestsAdapter adapter;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -50,13 +54,11 @@ namespace PsychoTestAndroid
             {
                 AlertDialog.Builder alert = new AlertDialog.Builder(this);
                 alert.SetTitle("Выход из аккаунта");
-                alert.SetMessage("Для возвращения в аккаунт вам будет нужна новая ссылка, также сохраненные результаты" +
+                alert.SetMessage("Для возвращения в аккаунт вам будет нужна новая ссылка, также сохраненные данные " +
                     "будут удалены. Вы уверены, что хотите выйти?");
                 alert.SetPositiveButton("Да", (senderAlert, args) => {
                     WebApi.RemoveToken();
-                    Intent intent = new Intent(this, typeof(MainActivity));
-                    this.StartActivity(intent);
-                    this.Finish();
+                    ToLogin();
                 });
                 alert.SetNegativeButton("Нет", (senderAlert, args) => {});
                 Dialog dialog = alert.Create();
@@ -67,32 +69,77 @@ namespace PsychoTestAndroid
         private void MAdapter_ItemClick(object sender, int e)
         {
             // открыть выбранный тест
-            Intent intent = new Intent(this, typeof(TestActivity));
-            intent.PutExtra("Test", JsonConvert.SerializeObject(tests[e]));
-            this.StartActivity(intent);
+            if (tests[e].Questions != null && tests[e].Questions != "")
+            {
+                Intent intent = new Intent(this, typeof(TestActivity));
+                intent.PutExtra("Test", JsonConvert.SerializeObject(tests[e]));
+                this.StartActivity(intent);
+            }
+            else
+            {
+                Toast.MakeText(this, "Тест не загружен", ToastLength.Short).Show();
+            }
         }
 
         private async void GetTests()
         {
+            tests = DbOperations.GetTests();
             if (WebApi.Token == null || WebApi.Token == "")
             {
-                Intent intent = new Intent(this, typeof(MainActivity));
-                this.StartActivity(intent);
-                this.Finish();
+                ToLogin();
             }
             else
             {
-                tests = await WebApi.GetTests();
-                if (tests == null)
+                newTests = await WebApi.GetTests();
+                if (newTests != null)
                 {
-                    tests = new List<Test>();
+                    newTests = newTests.Where(i => tests.FirstOrDefault(p => p.Id == i.Id) == null).ToList();
+                    foreach (var test in newTests)
+                    {
+                        DbOperations.CreateTest(test);
+                        tests.Add(test);
+                    }
                 }
                 recycleView = FindViewById<RecyclerView>(Resource.Id.testsRecylcerView);
                 var mLayoutManager = new LinearLayoutManager(this);
                 recycleView.SetLayoutManager(mLayoutManager);
-                var adapter = new AllTestsAdapter(tests);
+                adapter = new AllTestsAdapter(tests);
                 adapter.ItemClick += MAdapter_ItemClick;
                 recycleView.SetAdapter(adapter);
+                LoadTests();
+            }
+        }
+
+        private void ToLogin()
+        {
+            Intent intent = new Intent(this, typeof(MainActivity));
+            DbOperations.DeleteAll();
+            this.StartActivity(intent);
+            this.Finish();
+        }
+
+        private async void LoadTests()
+        {
+            for (int i = 0; i < tests.Count; i++)
+            {
+                if (tests[i].Questions == null || tests[i].Questions == "")
+                {
+                    var result = await WebApi.GetTest(tests[i].Id);
+                    if (result != null)
+                    {
+                        tests[i].SetTestInfo(JObject.Parse(result));
+                    }
+                    if (tests[i].Questions != null && tests[i].Questions != "")
+                    {
+                        tests[i].Status = "Загружен";
+                        DbOperations.UpdateTest(tests[i]);
+                    }
+                    else
+                    {
+                        tests[i].Status = "Ошибка загрузки";
+                    }
+                    adapter.NotifyItemChanged(i);
+                }
             }
         }
     }

@@ -6,6 +6,7 @@ using Android.Views;
 using Android.Widget;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using PsychoTestAndroid.DataBase.Entity;
 using PsychoTestAndroid.Model.Questions;
 using PsychoTestAndroid.Web;
 using System;
@@ -46,6 +47,21 @@ namespace PsychoTestAndroid.Model
         public Test()
         {
 
+        }
+
+        public Test(DbTest test)
+        {
+            Id = test.Id;
+            Name = test.Name;
+            Title = test.Title;
+            Instruction = test.Instruction;
+            duration = test.Duration;
+            answerOrder = test.AnswerOrder;
+            questionOrder = test.QuestionOrder;
+            if (test.Questions != null && test.Questions != "")
+            {
+                SetQuestions(JArray.Parse(test.Questions));
+            }
         }
 
         public Test(JObject data)
@@ -102,10 +118,8 @@ namespace PsychoTestAndroid.Model
         }
 
         // заполнить вопросы из json объекта теста
-        public void SetQuestions(JObject data)
+        public void SetQuestions(JArray questions)
         {
-            // получаем массив вопросов
-            JArray questions = JArray.Parse(data["Questions"]["item"].ToString());
             // записываем каждый вопрос
             foreach (JObject question in questions)
             {
