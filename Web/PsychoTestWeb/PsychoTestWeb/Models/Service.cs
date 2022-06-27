@@ -250,71 +250,38 @@ namespace PsychoTestWeb.Models
             return await Patients.Find(new BsonDocument("token", token)).FirstOrDefaultAsync();
         }
 
+
         //обработка полученных результатов теста
         public async Task ProcessingResults(TestsResult result, Patient patient)
         {
-            var doc = await TestsBson.Find(new BsonDocument("_id", new ObjectId(result.id))).FirstOrDefaultAsync();
-            var dotNetObj = BsonTypeMapper.MapToDotNetValue(doc);
-            var json = JsonConvert.SerializeObject(dotNetObj);
-            var test = JObject.Parse(json);
+            //сразу удаляем тест из доступных
+            patient.tests.Remove(result.id);
+            await UpdatePatient(patient.id, patient);
 
-            //id шкалы - сумма по шкале 
-            Dictionary<string, int> scales = new Dictionary<string, int>();
-            foreach (var answer in result.answers)
+            var doc = await TestsBson.Find(new BsonDocument("_id", new ObjectId(result.id))).FirstOrDefaultAsync();
+            if (doc != null)
             {
-                //Если вопрос с выбором одного из вариантов ответа
-                if (Int32.Parse(test["Questions"]["item"][answer.question_id]["Question_Choice"].ToString()) == 1)
-                {
-                    if (test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"] != null)
-                        if (test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"].ToString() != "")
-                        {
-                            //id шкалы
-                            string scale = "";
-                            if (test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"]["item"] is JArray)
-                                foreach (var s in test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"]["item"])
-                                {
-                                    scale = s["ScID"].ToString();
-                                    if (scales.ContainsKey(scale))
-                                        scales[scale] += Int32.Parse(s["Weights"].ToString());
-                                    else
-                                        scales[scale] = Int32.Parse(s["Weights"].ToString());
-                                }
-                            else
-                            {
-                                scale = test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"]["item"]["ScID"].ToString();
-                                if (scales.ContainsKey(scale))
-                                    scales[scale] += Int32.Parse(test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"]["item"]["Weights"].ToString());
-                                else
-                                    scales[scale] = Int32.Parse(test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"]["item"]["Weights"].ToString());
-                            }
-                        }
-                }
-                //Если вопрос с вводом своего ответа
-                else foreach (var ans in test["Questions"]["item"][answer.question_id]["Answers"]["item"])
-                {
-                    if (answer.answer == ans["Name"]["#text"].ToString())
-                        if (ans["Weights"] != null)
-                        {
-                            if (ans["Weights"]["item"] is JArray)
-                            {
-                                foreach (var i in ans["Weights"]["item"])
-                                    if (scales.ContainsKey(i["ScID"].ToString()))
-                                        scales[i["ScID"].ToString()] += Int32.Parse(i["Weights"].ToString());
-                                    else
-                                        scales[i["ScID"].ToString()] = Int32.Parse(i["Weights"].ToString());
-                            }
-                            else
-                            {
-                                if (scales.ContainsKey(ans["Weights"]["item"]["ScID"].ToString()))
-                                    scales[ans["Weights"]["item"]["ScID"].ToString()] += Int32.Parse(ans["Weights"]["item"]["Weights"].ToString());
-                                else
-                                    scales[ans["Weights"]["item"]["ScID"].ToString()] = Int32.Parse(ans["Weights"]["item"]["Weights"].ToString());
-                            }
-                        }
-                }
+                var dotNetObj = BsonTypeMapper.MapToDotNetValue(doc);
+                var json = JsonConvert.SerializeObject(dotNetObj);
+
+                //пройденный тест
+                var test = JObject.Parse(json);
+                //норма для данного теста
+                var norm = await NormsBson.Find(new BsonDocument("main.groups.item.id", test["IR"]["ID"].ToString())).FirstOrDefaultAsync();
+
+                //обработка результатов
+                ProcessingResults processingResults = new ProcessingResults(test, result, norm);
+                processingResults.patientResult.date = DateTime.Now;
+                processingResults.patientResult.test = result.id;
+
+                //добавление в бд
+                patient.results.Add(processingResults.patientResult);
+                await UpdatePatient(patient.id, patient);
             }
         }
 
+
+        
         #endregion
 
         //Тесты
@@ -337,13 +304,15 @@ namespace PsychoTestWeb.Models
             return tests;
         }
 
-        // получаем все тесты
-        public async Task<List<object>> GetTests()
-        {
-            var documents = await TestsBson.Find(new BsonDocument()).ToListAsync();
-            var dotNetObjList = documents.ConvertAll(BsonTypeMapper.MapToDotNetValue);
-            return dotNetObjList;
-        }
+        //// получаем все тесты
+        //public async Task<List<object>> GetTests()
+        //{
+        //    var documents = await TestsBson.Find(new BsonDocument()).ToListAsync();
+        //    var dotNetObjList = documents.ConvertAll(BsonTypeMapper.MapToDotNetValue);
+        //    return dotNetObjList;
+        //}
+
+
         //получаем тест по id
         public async Task<string> GetTestById(string id)
         {
@@ -472,29 +441,21 @@ namespace PsychoTestWeb.Models
                 }
                 var document = BsonDocument.Parse(Newtonsoft.Json.JsonConvert.SerializeObject(jObj));
                 await TestsBson.InsertOneAsync(document);
-                return null;
+                return jObj["IR"]["ID"].ToString();
             }
-            else return jObj["IR"]["ID"].ToString();
+            else return null;
         }
 
         //Импорт норм
-        public async Task<string> ImportNormFile(string file)
+        public async Task ImportNormFile(string file, string testId)
         {
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(file);
             var json = JsonConvert.SerializeXmlNode(xmlDoc);
             var jObj = JObject.Parse(json);
-            BsonDocument norm = null;
-            if (jObj["main"]["groups"]["item"]["id"] != null)
-                norm = await NormsBson.Find(new BsonDocument("main.groups.item.id", jObj["main"]["groups"]["item"]["id"].ToString())).FirstOrDefaultAsync();
-            if (norm == null)
-            {
-                var document = BsonDocument.Parse(Newtonsoft.Json.JsonConvert.SerializeObject(jObj));
-                //BsonDocument document = BsonDocument.Parse(json);
-                await NormsBson.InsertOneAsync(document);
-                return null;
-            }
-            else return jObj["main"]["groups"]["item"]["id"].ToString();
+            jObj["main"]["groups"]["item"]["id"] = testId;
+            var document = BsonDocument.Parse(Newtonsoft.Json.JsonConvert.SerializeObject(jObj));
+            await NormsBson.InsertOneAsync(document);
         }
 
         //получаем список id всех норм
@@ -508,15 +469,17 @@ namespace PsychoTestWeb.Models
             }
             return norms;
         }
+
         // удаление норм
         public async Task RemoveNorm(string id)
         {
             await NormsBson.DeleteOneAsync(new BsonDocument("_id", new ObjectId(id)));
         }
-
-        // удаление теста
+        // удаление теста вместе с нормой
         public async Task RemoveTest(string id)
         {
+            var test = await TestsBson.Find(new BsonDocument("_id", new ObjectId(id))).FirstOrDefaultAsync();
+            await NormsBson.DeleteOneAsync(new BsonDocument("main.groups.item.id", test["IR"]["ID"].AsString));
             await Tests.DeleteOneAsync(new BsonDocument("_id", new ObjectId(id)));
         }
         #endregion

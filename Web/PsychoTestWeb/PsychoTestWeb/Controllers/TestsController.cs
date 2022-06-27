@@ -73,9 +73,9 @@ namespace PsychoTestWeb.Controllers
         [Authorize(Roles = "admin")]
         [Route("importTests")]
         [HttpPost]
-        public async Task<IActionResult> PostTest([FromForm] IFormFile testFile)
+        public async Task<IActionResult> PostTest([FromForm] IFormFile testFile, IFormFile normFile)
         {
-            if (testFile != null)
+            if (testFile != null && normFile != null)
             {
                 var testRresult = new StringBuilder();
                 using (var r = new StreamReader(testFile.OpenReadStream()))
@@ -83,35 +83,47 @@ namespace PsychoTestWeb.Controllers
                     while (r.Peek() >= 0)
                         testRresult.AppendLine(r.ReadLine());
                 }
-                string nameUnsavedTest = await db.ImportTestFile(testRresult.ToString());
-                if (nameUnsavedTest == null)
+                string testId = await db.ImportTestFile(testRresult.ToString());
+                if (testId == null)
+                {
+                    return BadRequest(new { errorText = "Данный тест уже добавлен! \n" });
+                }
+                else
+                {
+                    var normRresult = new StringBuilder();
+                    using (var r = new StreamReader(normFile.OpenReadStream()))
+                    {
+                        while (r.Peek() >= 0)
+                            normRresult.AppendLine(r.ReadLine());
+                    }
+                    await db.ImportNormFile(normRresult.ToString(), testId);
                     return Ok();
-                else return BadRequest(new { errorText = "Тест ID: " + nameUnsavedTest + " уже добавлен!" });
+                }
             }
-            else return BadRequest();
+            return BadRequest();
         }
 
-        // POST api/<TestsController>/importNorms
-        [Authorize(Roles = "admin")]
-        [Route("importNorms")]
-        [HttpPost]
-        public async Task<IActionResult> PostNorm([FromForm] IFormFile normFile)
-        {
-            if (normFile != null)
-            {
-                var normRresult = new StringBuilder();
-                using (var r = new StreamReader(normFile.OpenReadStream()))
-                {
-                    while (r.Peek() >= 0)
-                        normRresult.AppendLine(r.ReadLine());
-                }
-                string nameUnsavedNorm = await db.ImportNormFile(normRresult.ToString());
-                if (nameUnsavedNorm == null)
-                    return Ok();
-                else return BadRequest(new { errorText = "Норма ID: " + nameUnsavedNorm + " уже добавлена!" });
-            }
-            else return BadRequest();
-        }
+        //// POST api/<TestsController>/importNorms
+        //[Authorize(Roles = "admin")]
+        //[Route("importNorms")]
+        //[HttpPost]
+        //public async Task<IActionResult> PostNorm([FromForm] IFormFile normFile)
+        //{
+        //    if (normFile != null)
+        //    {
+        //        var normRresult = new StringBuilder();
+        //        using (var r = new StreamReader(normFile.OpenReadStream()))
+        //        {
+        //            while (r.Peek() >= 0)
+        //                normRresult.AppendLine(r.ReadLine());
+        //        }
+        //        string nameUnsavedNorm = await db.ImportNormFile(normRresult.ToString());
+        //        if (nameUnsavedNorm == null)
+        //            return Ok();
+        //        else return BadRequest(new { errorText = "Норма ID: " + nameUnsavedNorm + " уже добавлена!" });
+        //    }
+        //    else return BadRequest();
+        //}
 
         //получение норм
         // GET api/<TestsController>/norms

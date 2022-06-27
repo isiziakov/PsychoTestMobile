@@ -36,11 +36,11 @@ namespace PsychoTestWeb.Controllers
                     return Forbid();
                 else
                 {
-                    //Рассчет баллов
+                    //Расчет баллов
                     await db.ProcessingResults(value, patient);
 
-                    //расшифровка 
-                    //...
+
+                    
                 }
             }
 

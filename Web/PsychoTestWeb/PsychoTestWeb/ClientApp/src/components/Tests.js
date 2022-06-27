@@ -122,7 +122,12 @@ class ModalImportTest extends React.Component {
     }
     toggle() {
         this.setState({
-            modal: !this.state.modal
+            modal: !this.state.modal,
+            dangerAlertText: "",
+            dangerAlertVisible: false,
+            successAlertVisible: false,
+            files: [],
+            normFiles: []
         });
         this.props.getTests("/api/tests/view");
     }
@@ -136,10 +141,12 @@ class ModalImportTest extends React.Component {
     async onSubmit(e) {
         e.preventDefault();
         this.setState({dangerAlertText: ""}, async () => {
-            var save = 0;
-            for (var i = 0; i < this.state.files.length; i++) {
+            //var save = 0;
+            //for (var i = 0; i < this.state.files.length; i++) {
                 var formData = new FormData();
-                formData.append('testFile', this.state.files[i]);
+                formData.append('testFile', this.state.files[0]);
+                formData.append('normFile', this.state.normFiles[0]);
+
 
                 const token = sessionStorage.getItem('tokenKey');
                 var response = await fetch("/api/tests/importTests", {
@@ -157,13 +164,18 @@ class ModalImportTest extends React.Component {
                             this.onChangeDangerAlert(true);
                         }
                     var data = await response.json();
-                    data.errorText = this.state.dangerAlertText + "\n" +  data.errorText;
+                    //data.errorText = this.state.dangerAlertText + "\n" +  data.errorText;
                     this.setState({dangerAlertText: data.errorText});
+                    this.onChangeSuccessAlert(false);
+                    this.onChangeDangerAlert(true);
                 }
-                else save++;
-            }
+                else {
+                    this.onChangeDangerAlert(false);
+                    this.onChangeSuccessAlert(true);
+                }
+            //}
 
-            for (var i = 0; i < this.state.normFiles.length; i++) {
+            /*for (var i = 0; i < this.state.normFiles.length; i++) {
                 var formData = new FormData();
                 formData.append('normFile', this.state.normFiles[i]);
 
@@ -189,15 +201,16 @@ class ModalImportTest extends React.Component {
                 else save++;
             }
 
-            if (save === this.state.normFiles.length + this.state.files.length) {
-                this.onChangeSuccessAlert(true);
-            }
-            else {
-                var s = "Часть файлов не сохранена!\n" + this.state.dangerAlertText;
-                this.setState({dangerAlertText: s});
-                this.onChangeDangerAlert(true);
-            }
-            this.setState({ normFiles: [], files: [] });
+            if (this.state.normFiles.length + this.state.files.length != 0) {
+                if (save === this.state.normFiles.length + this.state.files.length) {
+                    this.onChangeSuccessAlert(true);
+                }
+                else {
+                    var s = "Часть файлов не сохранена!\n" + this.state.dangerAlertText;
+                    this.setState({dangerAlertText: s});
+                    this.onChangeDangerAlert(true);
+                }
+            }*/
         });
     }
 
@@ -214,22 +227,22 @@ class ModalImportTest extends React.Component {
                 <Button color="info" onClick={this.toggle}>Импортировать</Button>
                 <Modal isOpen={this.state.modal}>
                     <Form onSubmit={(e) => { this.onSubmit(e) }} encType="multipart/form-data">
-                        <ModalHeader toggle={this.toggle}>Импорт тестов и норм</ModalHeader>
+                        <ModalHeader toggle={this.toggle}>Импорт тестов</ModalHeader>
                         <Alert color="success" isOpen={this.state.successAlertVisible} toggle={() => { this.onChangeSuccessAlert(false) }} fade={false}>Файлы успешно сохранены!</Alert >
                         <Alert color="danger" isOpen={this.state.dangerAlertVisible} toggle={() => { this.onChangeDangerAlert(false) }} fade={false}>{this.state.dangerAlertText}</Alert >
                         <ModalBody>
                             <FormGroup>
                                 <Label for="file">Тесты:</Label>
-                                <Input type="file" name="file" accept=".xml" id="file" multiple onChange={this.uploadFile} />
+                                <Input type="file" name="file" accept=".xml" id="file" required onChange={this.uploadFile} />
                                 <FormText color="muted">
-                                    Прикрепите файлы тестов в формате xml.
+                                    Прикрепите файл тестa в формате xml.
                                 </FormText>
                             </FormGroup>
                             <FormGroup>
                                 <Label for="normFile">Нормы:</Label>
-                                <Input type="file" name="normFile" accept=".xml" id="normFile" multiple onChange={this.uploadNormFile} />
+                                <Input type="file" name="normFile" accept=".xml" id="normFile" required onChange={this.uploadNormFile} />
                                 <FormText color="muted">
-                                    Прикрепите файлы норм в формате xml.
+                                    Прикрепите файл норм в формате xml.
                                 </FormText>
                             </FormGroup>
                         </ModalBody>
