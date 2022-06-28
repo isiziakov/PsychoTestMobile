@@ -11,4 +11,12 @@
 	<string name="test_result_success">Тест завершен</string>
 	<string name="test_result_failure">Произошла ошибка при отправке результатов</string>
 	<string name="test_result_incomplete">Пожалуйста, ответьте на все вопросы</string>
+	
+	<!--Notifications-->
+	<string name="notification_channel_id">PsychoTestMobile</string>
+	<string name="notification_channel_name">PsychoTestMobile Notification Channel</string>
+	<string name="notification_channel_descritption">PsychoTestMobile Notification Channel</string>
+		<!--Have new test notification-->
+		<string name="notification_new_name">Новые тесты</string>
+		<string name="notification_new_description">Доступны новые тесты</string>
 </resources>

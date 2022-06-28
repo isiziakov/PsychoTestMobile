@@ -8,6 +8,7 @@ using Android.Widget;
 using AndroidX.ViewPager.Widget;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using PsychoTestAndroid.DataBase;
 using PsychoTestAndroid.DataBase.Entity;
 using PsychoTestAndroid.Model;
 using PsychoTestAndroid.Model.Questions;
@@ -29,6 +30,7 @@ namespace PsychoTestAndroid
         ViewPager viewPager;
         // тест
         Test test;
+        DbTest dbTest;
         // таймер для теста
         TextView testTimer;
         protected override void OnCreate(Bundle savedInstanceState)
@@ -38,7 +40,7 @@ namespace PsychoTestAndroid
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.instruction);
             // считать тест
-            var dbTest = JsonConvert.DeserializeObject<DbTest>(Intent.GetStringExtra("Test"));
+            dbTest = JsonConvert.DeserializeObject<DbTest>(Intent.GetStringExtra("Test"));
             test = new Test(dbTest);
             // тест пуст
             if (test == null)
@@ -236,16 +238,21 @@ namespace PsychoTestAndroid
             inputMethodManager.HideSoftInputFromWindow(this.viewPager.WindowToken, HideSoftInputFlags.None);
         }
         // завершение теста
-        private void EndTest()
+        private async void EndTest()
         {
-            if (test.EndTest())
+            TestResult result = new TestResult(test);
+            if (await WebApi.SendResult(JsonConvert.SerializeObject(result)))
             {
                 Toast.MakeText(Application.Context, GetString(Resource.String.test_result_success), ToastLength.Short).Show();
+                DbOperations.DeleteTest(dbTest);
                 Finish();
             }
             else
             {
                 Toast.MakeText(Application.Context, GetString(Resource.String.test_result_failure), ToastLength.Short).Show();
+                dbTest.Results = JsonConvert.SerializeObject(dbTest).ToString();
+                DbOperations.UpdateTest(dbTest);
+                Finish();
             }
         }
     }

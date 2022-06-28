@@ -8,7 +8,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PsychoTestAndroid.DataBase.Entity;
 using PsychoTestAndroid.Model.Questions;
-using PsychoTestAndroid.Web;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -132,12 +131,7 @@ namespace PsychoTestAndroid.Model
                 }
             }
         }
-        // завершение теста
-        public bool EndTest()
-        {
-            TestResult result = new TestResult(this);
-            return WebApi.SendResult(JsonConvert.SerializeObject(result));
-        }
+        
         // подготовка теста к запуску
         public void StartTest()
         {

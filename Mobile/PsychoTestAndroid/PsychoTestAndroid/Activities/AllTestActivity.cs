@@ -34,14 +34,19 @@ namespace PsychoTestAndroid
 
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.activity_allTests);
-            // получить массив тестов
-            GetTests();
+
+            if (WebApi.Token == null || WebApi.Token == "")
+            {
+                ToLogin();
+            }
 
             InitializeComponents();
         }
         protected override void OnResume()
         {
             base.OnResume();
+            // получить массив тестов
+            GetTests();
         }
         // инициализировать визуальные элементы
         private void InitializeComponents()
@@ -84,30 +89,23 @@ namespace PsychoTestAndroid
         private async void GetTests()
         {
             tests = DbOperations.GetTests();
-            if (WebApi.Token == null || WebApi.Token == "")
+            newTests = await WebApi.GetTests();
+            if (newTests != null)
             {
-                ToLogin();
-            }
-            else
-            {
-                newTests = await WebApi.GetTests();
-                if (newTests != null)
+                newTests = newTests.Where(i => tests.FirstOrDefault(p => p.Id == i.Id) == null).ToList();
+                foreach (var test in newTests)
                 {
-                    newTests = newTests.Where(i => tests.FirstOrDefault(p => p.Id == i.Id) == null).ToList();
-                    foreach (var test in newTests)
-                    {
-                        DbOperations.CreateTest(test);
-                        tests.Add(test);
-                    }
+                    DbOperations.CreateTest(test);
+                    tests.Add(test);
                 }
-                recycleView = FindViewById<RecyclerView>(Resource.Id.testsRecylcerView);
-                var mLayoutManager = new LinearLayoutManager(this);
-                recycleView.SetLayoutManager(mLayoutManager);
-                adapter = new AllTestsAdapter(tests);
-                adapter.ItemClick += MAdapter_ItemClick;
-                recycleView.SetAdapter(adapter);
-                LoadTests();
             }
+            recycleView = FindViewById<RecyclerView>(Resource.Id.testsRecylcerView);
+            var mLayoutManager = new LinearLayoutManager(this);
+            recycleView.SetLayoutManager(mLayoutManager);
+            adapter = new AllTestsAdapter(tests);
+            adapter.ItemClick += MAdapter_ItemClick;
+            recycleView.SetAdapter(adapter);
+            LoadTests();
         }
 
         private void ToLogin()
@@ -120,6 +118,7 @@ namespace PsychoTestAndroid
 
         private async void LoadTests()
         {
+            List<int> removed = new List<int>();
             for (int i = 0; i < tests.Count; i++)
             {
                 if (tests[i].Questions == null || tests[i].Questions == "")
@@ -140,6 +139,30 @@ namespace PsychoTestAndroid
                     }
                     adapter.NotifyItemChanged(i);
                 }
+                else
+                {
+                    if (tests[i].Results != null || tests[i].Results != "")
+                    {
+                        if (tests[i].Results != null && tests[i].Results != "")
+                        {
+                            var result = await WebApi.SendResult(tests[i].Results);
+                            if (result)
+                            {
+                                removed.Add(i);
+                            }
+                            else
+                            {
+                                tests[i].Status = "Ошибка отправки";
+                                adapter.NotifyItemChanged(i);
+                            }
+                        }
+                    }
+                }
+            }
+            foreach (int i in removed)
+            {
+                DbOperations.DeleteTest(tests[i]);
+                adapter.NotifyItemRemoved(i);
             }
         }
     }

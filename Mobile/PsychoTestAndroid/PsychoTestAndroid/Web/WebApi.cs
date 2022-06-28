@@ -30,8 +30,6 @@ namespace PsychoTestAndroid.Web
     {
         // ссылка на апи сервер
         static string url; 
-        static ISharedPreferences prefs;
-        static ISharedPreferencesEditor editor;
         private static AndroidClientHandler _socketsHttpHandler;
         private static AndroidClientHandler SocketsHttpHandler
         {
@@ -51,15 +49,13 @@ namespace PsychoTestAndroid.Web
         static WebApi()
         {
             var context = Application.Context;
-            prefs = context.GetSharedPreferences(context.GetString(Resource.String.app_name), FileCreationMode.Private);
-            editor = prefs.Edit();
 
-            url = prefs.GetString("url", null);
+            url = PreferencesHelper.GetString("url", null);
             if (url == null)
             {
                 url = context.GetString(Resource.String.base_url);
             }
-            Token = prefs.GetString("token", null);
+            Token = PreferencesHelper.GetString("token", null);
         }
 
         public static async Task<bool> Login(string url)
@@ -77,9 +73,8 @@ namespace PsychoTestAndroid.Web
                 }
                 Token = newToken;
                 url = newUrl;
-                editor.PutString("url", url);
-                editor.PutString("token", Token);
-                editor.Apply();
+                PreferencesHelper.PutString("url", url);
+                PreferencesHelper.PutString("token", Token);
                 return true;
             }
             return false;
@@ -131,7 +126,7 @@ namespace PsychoTestAndroid.Web
             return null;
         }
 
-        public static bool SendResult(string testResult)
+        public static async Task<bool> SendResult(string testResult)
         {
             //if (client.BaseAddress == null)
             //{
@@ -157,8 +152,7 @@ namespace PsychoTestAndroid.Web
         public static void RemoveToken()
         {
             WebApi.Token = "";
-            editor.PutString("token", "");
-            editor.Apply();
+            PreferencesHelper.PutString("token", "");
         }
     }
 }
