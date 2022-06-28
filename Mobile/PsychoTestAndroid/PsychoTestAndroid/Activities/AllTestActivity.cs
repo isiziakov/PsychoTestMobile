@@ -34,7 +34,11 @@ namespace PsychoTestAndroid
 
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.activity_allTests);
-            
+
+            if (WebApi.Token == null || WebApi.Token == "")
+            {
+                ToLogin();
+            }
 
             InitializeComponents();
         }
@@ -85,30 +89,23 @@ namespace PsychoTestAndroid
         private async void GetTests()
         {
             tests = DbOperations.GetTests();
-            if (WebApi.Token == null || WebApi.Token == "")
+            newTests = await WebApi.GetTests();
+            if (newTests != null)
             {
-                ToLogin();
-            }
-            else
-            {
-                newTests = await WebApi.GetTests();
-                if (newTests != null)
+                newTests = newTests.Where(i => tests.FirstOrDefault(p => p.Id == i.Id) == null).ToList();
+                foreach (var test in newTests)
                 {
-                    newTests = newTests.Where(i => tests.FirstOrDefault(p => p.Id == i.Id) == null).ToList();
-                    foreach (var test in newTests)
-                    {
-                        DbOperations.CreateTest(test);
-                        tests.Add(test);
-                    }
+                    DbOperations.CreateTest(test);
+                    tests.Add(test);
                 }
-                recycleView = FindViewById<RecyclerView>(Resource.Id.testsRecylcerView);
-                var mLayoutManager = new LinearLayoutManager(this);
-                recycleView.SetLayoutManager(mLayoutManager);
-                adapter = new AllTestsAdapter(tests);
-                adapter.ItemClick += MAdapter_ItemClick;
-                recycleView.SetAdapter(adapter);
-                LoadTests();
             }
+            recycleView = FindViewById<RecyclerView>(Resource.Id.testsRecylcerView);
+            var mLayoutManager = new LinearLayoutManager(this);
+            recycleView.SetLayoutManager(mLayoutManager);
+            adapter = new AllTestsAdapter(tests);
+            adapter.ItemClick += MAdapter_ItemClick;
+            recycleView.SetAdapter(adapter);
+            LoadTests();
         }
 
         private void ToLogin()

@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Android.App.ActivityManager;
 
 namespace PsychoTestAndroid.Web
 {
@@ -36,6 +37,7 @@ namespace PsychoTestAndroid.Web
 
         async Task<bool> DoWorkAsync()
         {
+            NotifyHelper.ShowNewTestsNotification();
             if (WebApi.Token == null || WebApi.Token == "")
             {
                 return false;
@@ -52,7 +54,7 @@ namespace PsychoTestAndroid.Web
                         DbOperations.CreateTest(test);
                         tests.Add(test);
                     }
-                    NotifyHelper.ShowNewTestsNotification();
+                    //NotifyHelper.ShowNewTestsNotification();
                 }
             }
             await LoadTests(tests);

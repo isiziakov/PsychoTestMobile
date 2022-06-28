@@ -99,6 +99,7 @@
     <Compile Include="View\EndTestAdapter.cs" />
     <Compile Include="View\TestViewPagerAdapter.cs" />
     <Compile Include="Web\NotifyHelper.cs" />
+    <Compile Include="Web\PreferencesHelper.cs" />
     <Compile Include="Web\TestWorker.cs" />
     <Compile Include="Web\WebApi.cs" />
   </ItemGroup>

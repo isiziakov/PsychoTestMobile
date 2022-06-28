@@ -50,21 +50,17 @@ namespace PsychoTestAndroid
 
         private async void enterClick(object sender, EventArgs e)
         {
-            if (code != null && code.Text != "")
+            if (code != null && code.Text != "" && await WebApi.Login(code.Text))
             {
-                // вход для пациента
-                if (await WebApi.Login(code.Text))
+                // переход на активность с тестами
+                GoToTests();
+            }
+            else
+            {
+                // отобразить ошибку
+                if (error != null)
                 {
-                    // переход на активность с тестами
-                    GoToTests();
-                }
-                else
-                {
-                    // отобразить ошибку
-                    if (error != null)
-                    {
-                        error.Visibility = ViewStates.Visible;
-                    }
+                    error.Visibility = ViewStates.Visible;
                 }
             }
         }
@@ -72,10 +68,14 @@ namespace PsychoTestAndroid
         private void GoToTests()
         {
             var tag = GetString(Resource.String.notification_channel_id);
-            Constraints constraints = new Constraints.Builder().SetRequiredNetworkType(NetworkType.NotRoaming).Build();
-            PeriodicWorkRequest myWorkRequest = new PeriodicWorkRequest.Builder(typeof(TestWorker), 15, TimeUnit.Minutes).AddTag(tag).SetConstraints(constraints).Build();
-            WorkManager.GetInstance(this).CancelAllWorkByTag(tag);
-            WorkManager.GetInstance(this).Enqueue(myWorkRequest);
+            if (PreferencesHelper.GetString("worker", null) == null)
+            {
+                Constraints constraints = new Constraints.Builder().SetRequiredNetworkType(NetworkType.NotRoaming).Build();
+                PeriodicWorkRequest myWorkRequest = new PeriodicWorkRequest.Builder(typeof(TestWorker), 15, TimeUnit.Minutes).AddTag(tag).SetConstraints(constraints).Build();
+                WorkManager.GetInstance(this).CancelAllWorkByTag(tag);
+                WorkManager.GetInstance(this).Enqueue(myWorkRequest);
+                PreferencesHelper.PutString("worker", "1");
+            }
             Intent intent = new Intent(this, typeof(AllTestActivity));
             this.StartActivity(intent);
             this.Finish();
