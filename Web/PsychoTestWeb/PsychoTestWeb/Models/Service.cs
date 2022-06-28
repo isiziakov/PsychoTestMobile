@@ -11,6 +11,7 @@ using Newtonsoft.Json.Linq;
 using System.Linq;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Security.Cryptography;
+using MongoDB.Driver.GridFS;
 
 namespace PsychoTestWeb.Models
 {
@@ -21,6 +22,7 @@ namespace PsychoTestWeb.Models
         IMongoCollection<Test> Tests;
         IMongoCollection<BsonDocument> TestsBson;
         IMongoCollection<BsonDocument> NormsBson;
+        IGridFSBucket gridFS;   // файловое хранилище
 
         IMongoDatabase database;
         public Service()
@@ -31,6 +33,8 @@ namespace PsychoTestWeb.Models
             MongoClient client = new MongoClient(connectionString);
             // получаем доступ к самой базе данных
             database = client.GetDatabase(connection.DatabaseName);
+            // получаем доступ к файловому хранилищу
+            gridFS = new GridFSBucket(database);
             // обращаемся к коллекциям
             Users = database.GetCollection<User>("Users");
             Patients = database.GetCollection<Patient>("Patients");
@@ -216,6 +220,9 @@ namespace PsychoTestWeb.Models
         public async Task UpdatePatient(string id, Patient p)
         {
             BsonDocument doc = new BsonDocument("_id", new ObjectId(id));
+            Patient patient = await Patients.Find(new BsonDocument("_id", new ObjectId(id))).FirstOrDefaultAsync();
+            if (p.token == null)
+                p.token = patient.token;
             await Patients.ReplaceOneAsync(doc, p);
         }
         // удаление пациента
@@ -484,6 +491,8 @@ namespace PsychoTestWeb.Models
             await NormsBson.DeleteOneAsync(new BsonDocument("main.groups.item.id", test["IR"]["ID"].AsString));
             await Tests.DeleteOneAsync(new BsonDocument("_id", new ObjectId(id)));
         }
+
+
         #endregion
     }
 

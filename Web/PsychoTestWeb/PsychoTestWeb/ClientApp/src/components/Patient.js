@@ -181,8 +181,7 @@ export default class Patient extends React.Component {
                 name: this.state.name,
                 id: this.state.patientId,
                 tests: tests,
-                results: this.state.patientResults,
-                token: this.state.patientToken
+                results: this.state.patientResults
             })
         });
 
@@ -276,7 +275,7 @@ export default class Patient extends React.Component {
                         <br />
                         <p>{this.state.areResults}</p>
                         {
-                            this.state.patientResults.map((result, index) => {
+                            this.state.patientResults.slice(0).reverse().map((result, index) => {
                                 return (
                                     <FormGroup key={index}>
                                         <h5>{result.name}</h5>
@@ -351,20 +350,22 @@ class Url extends Component {
     }
 
     async getUrl() {
-        const token = sessionStorage.getItem('tokenKey');
-        var response = await fetch("api/link/getUrl/" + this.props.patient.id, {
-            method: "GET",
-            headers: {
-                "Accept": "application/json",
-                "Authorization": "Bearer " + token
+        if (this.props.patient.id !== undefined) {
+            const token = sessionStorage.getItem('tokenKey');
+            var response = await fetch("api/link/getUrl/" + this.props.patient.id, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                    "Authorization": "Bearer " + token
+                }
+            });
+            var data = await response.json();
+            if (response.ok === true) {
+                this.setState({ url: data });
             }
-        });
-        var data = await response.json();
-        if (response.ok === true) {
-            this.setState({ url: data });
-        }
-        else {
-            console.log("Error: ", response.status);
+            else {
+                console.log("Error: ", response.status);
+            }
         }
     }
 
