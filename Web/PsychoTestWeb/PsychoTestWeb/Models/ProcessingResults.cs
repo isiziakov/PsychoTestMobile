@@ -44,33 +44,34 @@ namespace PsychoTestWeb.Models
                 //Если вопрос с выбором одного из вариантов ответа
                 if (Int32.Parse(test["Questions"]["item"][answer.question_id]["Question_Choice"].ToString()) == 1)
                 {
-                    if (test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"] != null)
-                        if (test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"].ToString() != "")
-                        {
-                            //id шкалы
-                            string scale = "";
-                            if (test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"]["item"] is JArray)
-                                foreach (var s in test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"]["item"])
-                                {
-                                    scale = s["ScID"].ToString();
-                                    if (scales.ContainsKey(scale))
-                                        scales[scale] += Int32.Parse(s["Weights"].ToString());
-                                    else
-                                    {
-                                        scales[scale] = Int32.Parse(s["Weights"].ToString());
-                                    }
-                                }
-                            else
+                    if (answer.answer != "")
+                        if (test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"] != null)
+                            if (test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"].ToString() != "")
                             {
-                                scale = test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"]["item"]["ScID"].ToString();
-                                if (scales.ContainsKey(scale))
-                                    scales[scale] += Int32.Parse(test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"]["item"]["Weights"].ToString());
+                                //id шкалы
+                                string scale = "";
+                                if (test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"]["item"] is JArray)
+                                    foreach (var s in test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"]["item"])
+                                    {
+                                        scale = s["ScID"].ToString();
+                                        if (scales.ContainsKey(scale))
+                                            scales[scale] += Int32.Parse(s["Weights"].ToString());
+                                        else
+                                        {
+                                            scales[scale] = Int32.Parse(s["Weights"].ToString());
+                                        }
+                                    }
                                 else
                                 {
-                                    scales[scale] = Int32.Parse(test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"]["item"]["Weights"].ToString());
+                                    scale = test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"]["item"]["ScID"].ToString();
+                                    if (scales.ContainsKey(scale))
+                                        scales[scale] += Int32.Parse(test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"]["item"]["Weights"].ToString());
+                                    else
+                                    {
+                                        scales[scale] = Int32.Parse(test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"]["item"]["Weights"].ToString());
+                                    }
                                 }
                             }
-                        }
                 }
                 //Если вопрос с вводом своего ответа
                 else foreach (var ans in test["Questions"]["item"][answer.question_id]["Answers"]["item"])
