@@ -73,7 +73,7 @@ namespace PsychoTestWeb.Controllers
         [Authorize(Roles = "admin")]
         [Route("importTests")]
         [HttpPost]
-        public async Task<IActionResult> PostTest([FromForm] IFormFile testFile, IFormFile normFile)
+        public async Task<IActionResult> PostTest([FromForm] IFormFile testFile, IFormFile normFile, List<IFormFile> images)
         {
             if (testFile != null && normFile != null)
             {
@@ -97,50 +97,41 @@ namespace PsychoTestWeb.Controllers
                             normRresult.AppendLine(r.ReadLine());
                     }
                     await db.ImportNormFile(normRresult.ToString(), testId);
+
+                    foreach (IFormFile image in images)
+                    {
+                        using (Stream fs = image.OpenReadStream())
+                        {
+                            await db.ImportImage(fs, image.FileName);
+                        }
+                    }
+
                     return Ok();
                 }
             }
             return BadRequest();
         }
 
-        //// POST api/<TestsController>/importNorms
-        //[Authorize(Roles = "admin")]
-        //[Route("importNorms")]
-        //[HttpPost]
-        //public async Task<IActionResult> PostNorm([FromForm] IFormFile normFile)
-        //{
-        //    if (normFile != null)
-        //    {
-        //        var normRresult = new StringBuilder();
-        //        using (var r = new StreamReader(normFile.OpenReadStream()))
-        //        {
-        //            while (r.Peek() >= 0)
-        //                normRresult.AppendLine(r.ReadLine());
-        //        }
-        //        string nameUnsavedNorm = await db.ImportNormFile(normRresult.ToString());
-        //        if (nameUnsavedNorm == null)
-        //            return Ok();
-        //        else return BadRequest(new { errorText = "Норма ID: " + nameUnsavedNorm + " уже добавлена!" });
-        //    }
-        //    else return BadRequest();
-        //}
+        //УБРАТЬ!!!
+        // POST api/<TestsController>/importImage
+        [Route("importImage")]
+        [HttpPost]
+        public async Task<IActionResult> PostImages([FromForm] List<IFormFile> images)
+        {
+            if (images != null)
+            { 
+                foreach (IFormFile image in images)
+                {
+                    using (Stream fs = image.OpenReadStream())
+                    {
+                        await db.ImportImage(fs, image.FileName);
+                    }
+                }
 
-        //получение норм
-        // GET api/<TestsController>/norms
-        [Route("norms")]
-        [HttpGet]
-        public async Task<IActionResult> GetNorms()
-        {
-            IEnumerable<string> list = await db.GetNorms();
-            if (list != null)
-                return Ok(list);
-            else return NoContent();
-        }
-        // DELETE api/<TestsController>/norms/62a2ee61e5ab646eb9231448
-        [HttpDelete("norms/{id}")]
-        public async Task DeleteNorm(string id)
-        {
-            await db.RemoveNorm(id);
+                return Ok();
+            }
+            else
+                return BadRequest();
         }
 
         // DELETE api/<TestsController>/62a2ee61e5ab646eb9231448

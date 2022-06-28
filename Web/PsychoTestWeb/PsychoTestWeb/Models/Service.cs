@@ -313,21 +313,31 @@ namespace PsychoTestWeb.Models
             return tests;
         }
 
-        //// получаем все тесты
-        //public async Task<List<object>> GetTests()
-        //{
-        //    var documents = await TestsBson.Find(new BsonDocument()).ToListAsync();
-        //    var dotNetObjList = documents.ConvertAll(BsonTypeMapper.MapToDotNetValue);
-        //    return dotNetObjList;
-        //}
-
 
         //получаем тест по id
         public async Task<string> GetTestById(string id)
         {
             var bsonDoc = await TestsBson.Find(new BsonDocument("_id", new ObjectId(id))).FirstOrDefaultAsync();
             var dotNetObj = BsonTypeMapper.MapToDotNetValue(bsonDoc);
-            return JsonConvert.SerializeObject(dotNetObj);
+            var json = JsonConvert.SerializeObject(dotNetObj);
+            var jObj = JObject.Parse(json);
+            foreach (var question in jObj["Questions"]["item"])
+            {
+                if (question["Question_Type"].ToString() == "1" && question["ImageFileName"] != null)
+                {
+                    string imageName = question["ImageFileName"].ToString();
+                    byte[] image = await gridFS.DownloadAsBytesByNameAsync(imageName);
+                    question["Image"] = "data:image/" + Path.GetExtension(imageName).Replace(".", "") + ";base64," + Convert.ToBase64String(image);
+                }
+                foreach (var answer in question["Answers"]["item"])
+                    if (answer["Answer_Type"].ToString() == "2")
+                    {
+                        string imageName = answer["ImageFileName"].ToString();
+                        byte[] image = await gridFS.DownloadAsBytesByNameAsync(imageName); 
+                        answer["Image"] = "data:image/" + Path.GetExtension(imageName).Replace(".", "") + ";base64," + Convert.ToBase64String(image);
+                    }
+            }
+            return JsonConvert.SerializeObject(jObj);
         }
 
         //получаем все назначенные пациенту тесты 
@@ -479,17 +489,45 @@ namespace PsychoTestWeb.Models
             return norms;
         }
 
-        // удаление норм
-        public async Task RemoveNorm(string id)
-        {
-            await NormsBson.DeleteOneAsync(new BsonDocument("_id", new ObjectId(id)));
-        }
-        // удаление теста вместе с нормой
+        // удаление теста вместе с нормой и изображениями
         public async Task RemoveTest(string id)
         {
             var test = await TestsBson.Find(new BsonDocument("_id", new ObjectId(id))).FirstOrDefaultAsync();
+            //удаляем норму
             await NormsBson.DeleteOneAsync(new BsonDocument("main.groups.item.id", test["IR"]["ID"].AsString));
+            //удаляем тест
             await Tests.DeleteOneAsync(new BsonDocument("_id", new ObjectId(id)));
+
+            //удаляем изображения
+            var dotNetObj = BsonTypeMapper.MapToDotNetValue(test);
+            var json = JsonConvert.SerializeObject(dotNetObj);
+            var jObj = JObject.Parse(json);
+            foreach (var question in jObj["Questions"]["item"])
+            {
+                if (question["Question_Type"].ToString() == "1" && question["ImageFileName"] != null)
+                {
+                    var builder = new FilterDefinitionBuilder<GridFSFileInfo>();
+                    var filter = Builders<GridFSFileInfo>.Filter.Eq<string>(info => info.Filename, question["ImageFileName"].ToString());
+                    var fileInfo = await gridFS.Find(filter).FirstOrDefaultAsync();
+                    if (fileInfo != null)
+                        await gridFS.DeleteAsync(fileInfo.Id);
+                }
+                foreach (var answer in question["Answers"]["item"])
+                    if (answer["Answer_Type"].ToString() == "2")
+                    {
+                        var builder = new FilterDefinitionBuilder<GridFSFileInfo>();
+                        var filter = Builders<GridFSFileInfo>.Filter.Eq<string>(info => info.Filename, answer["ImageFileName"].ToString());
+                        var fileInfo = await gridFS.Find(filter).FirstOrDefaultAsync();
+                        if (fileInfo != null)
+                            await gridFS.DeleteAsync(fileInfo.Id);
+                    }
+            }
+        }
+
+        // сохранение изображения
+        public async Task ImportImage(Stream imageStream, string imageName)
+        {
+            await gridFS.UploadFromStreamAsync(imageName, imageStream);
         }
 
 

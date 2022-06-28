@@ -106,6 +106,7 @@ class ModalImportTest extends React.Component {
             modal: false,
             files: [],
             normFiles: [],
+            images: [],
             successAlertVisible: false,
             dangerAlertVisible: false,
             dangerAlertText: ""
@@ -115,6 +116,7 @@ class ModalImportTest extends React.Component {
         this.onSubmit = this.onSubmit.bind(this);
         this.uploadFile = this.uploadFile.bind(this);
         this.uploadNormFile = this.uploadNormFile.bind(this);
+        this.uploadImages = this.uploadImages.bind(this);
         this.onChangeSuccessAlert = this.onChangeSuccessAlert.bind(this);
         this.onChangeDangerAlert = this.onChangeDangerAlert.bind(this);
     }
@@ -127,7 +129,8 @@ class ModalImportTest extends React.Component {
             dangerAlertVisible: false,
             successAlertVisible: false,
             files: [],
-            normFiles: []
+            normFiles: [],
+            images: []
         });
         this.props.getTests("/api/tests/view");
     }
@@ -146,7 +149,9 @@ class ModalImportTest extends React.Component {
                 var formData = new FormData();
                 formData.append('testFile', this.state.files[0]);
                 formData.append('normFile', this.state.normFiles[0]);
-
+                for (var i = 0; i < this.state.images.length; i++) {
+                    formData.append('images', this.state.images[i]);
+                }
 
                 const token = sessionStorage.getItem('tokenKey');
                 var response = await fetch("/api/tests/importTests", {
@@ -164,7 +169,6 @@ class ModalImportTest extends React.Component {
                             this.onChangeDangerAlert(true);
                         }
                     var data = await response.json();
-                    //data.errorText = this.state.dangerAlertText + "\n" +  data.errorText;
                     this.setState({dangerAlertText: data.errorText});
                     this.onChangeSuccessAlert(false);
                     this.onChangeDangerAlert(true);
@@ -220,6 +224,9 @@ class ModalImportTest extends React.Component {
     uploadNormFile(e) {
         this.setState({ normFiles: e.target.files });
     }
+    uploadImages(e) {
+        this.setState({ images: e.target.files });
+    }
 
     render() {
         return (
@@ -245,9 +252,16 @@ class ModalImportTest extends React.Component {
                                     Прикрепите файл норм в формате xml.
                                 </FormText>
                             </FormGroup>
+                            <FormGroup>
+                                <Label for="images">Изображения:</Label>
+                                <Input type="file" name="images" accept="image/*" id="images" multiple onChange={this.uploadImages} />
+                                <FormText color="muted">
+                                    Прикрепите изображения.
+                                </FormText>
+                            </FormGroup>
                         </ModalBody>
                         <ModalFooter>
-                            <Button color="danger" onClick={this.toggle}>Отмена</Button>
+                            <Button color="danger" onClick={this.toggle}>Закрыть</Button>
                             <input type="submit" value="Сохранить" className="btn btn-info" />
                         </ModalFooter>
                     </Form>

@@ -61,7 +61,8 @@ export default class Patient extends React.Component {
     }
     onCommentChange(e, resultIndex) {
         var tmp = this.state.patientResults;
-        tmp[resultIndex].comment = e.target.value;
+        var length = tmp.length;
+        tmp[length - resultIndex - 1].comment = e.target.value;
         this.setState({ patient: tmp });
     }
     onChangeAlert(value) {

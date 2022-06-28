@@ -38,12 +38,8 @@ namespace PsychoTestWeb.Controllers
                 {
                     //Расчет баллов
                     await db.ProcessingResults(value, patient);
-
-
-                    
                 }
             }
-
             return Ok();
         }
     }
