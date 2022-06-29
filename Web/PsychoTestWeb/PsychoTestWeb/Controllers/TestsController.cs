@@ -112,47 +112,6 @@ namespace PsychoTestWeb.Controllers
             return BadRequest();
         }
 
-        //УБРАТЬ!!!
-        // POST api/<TestsController>/importImage
-        [Route("importImage")]
-        [HttpPost]
-        public async Task<IActionResult> PostImages([FromForm] List<IFormFile> images)
-        {
-            if (images != null)
-            { 
-                foreach (IFormFile image in images)
-                {
-                    using (Stream fs = image.OpenReadStream())
-                    {
-                        await db.ImportImage(fs, image.FileName);
-                    }
-                }
-
-                return Ok();
-            }
-            else
-                return BadRequest();
-        }
-        //УБРАТЬ!!!
-        // DELETE api/<TestsController>/removeImages/All
-        [Route("removeImages/All")]
-        [HttpDelete]
-        public async Task Delete()
-        {
-            await db.RemoveImages();
-        }
-        //УБРАТЬ!!!
-        //получение теста по id без изображений
-        // GET api/<TestsController>/WithoutImages/62a2ee61e5ab646eb9231448
-        [HttpGet("WithoutImages/{id}")]
-        public async Task<IActionResult> GetWithoutImages(string id)
-        {
-            string test = await db.GetTestByIdWithoutImages(id);
-            if (test != null)
-                return Ok(test);
-            else return NoContent();
-        }
-
         // DELETE api/<TestsController>/62a2ee61e5ab646eb9231448
         [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]

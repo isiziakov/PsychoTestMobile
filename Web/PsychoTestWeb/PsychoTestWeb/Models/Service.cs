@@ -15,6 +15,7 @@ using MongoDB.Driver.GridFS;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System.Text;
 using PsychoTestWeb.Authorisation;
+using Microsoft.AspNetCore.Identity;
 
 namespace PsychoTestWeb.Models
 {
@@ -64,24 +65,22 @@ namespace PsychoTestWeb.Models
             var filter = builder.Empty;
             var people = Users.Find(filter).ToList();
 
-            //// Arrange  
-            //var salt = Salt.Create();
-            //var hash = Hash.Create(password, salt);
 
-            //// Act  
-            //var match = Hash.Validate(password, salt, hash);
+            var passwordHasher = new PasswordHasher<User>();
+            bool verified = false;
+            
 
-
-            //// Arrange  
-
-            //var salt1 = Salt.Create();
-            //var hash1 = "blahblahblah";
-
-            //// Act  
-            //var match1 = Hash.Validate(password, salt1, hash1);
-
-
-            return people.FirstOrDefault(x => x.login == username && x.password == password);
+            foreach (var user in people)
+                if (username == user.login)
+                {
+                    var result = passwordHasher.VerifyHashedPassword(user, user.password, password);
+                    if (result == PasswordVerificationResult.Success) verified = true;
+                    else if (result == PasswordVerificationResult.SuccessRehashNeeded) verified = true;
+                    else if (result == PasswordVerificationResult.Failed) verified = false;
+                    if (verified) 
+                        return user;
+                }       
+            return null;
         }
         //получаем количество страниц с пользователями, если на странице 10 пользователей
         public async Task<double> GetUsersPagesCount()
@@ -144,10 +143,9 @@ namespace PsychoTestWeb.Models
         // добавление пользователя
         public async Task CreateUser(User u)
         {
-            // Arrange  
-            //var salt = Salt.Create();
-            //var hash = Hash.Create(u.password, salt);
-            //u.password = hash;
+            var passwordHasher = new PasswordHasher<User>();
+            var hashedPassword = passwordHasher.HashPassword(u, u.password);
+            u.password = hashedPassword;
 
             await Users.InsertOneAsync(u);
         }
@@ -161,6 +159,22 @@ namespace PsychoTestWeb.Models
         public async Task RemoveUser(string id)
         {
             await Users.DeleteOneAsync(new BsonDocument("_id", new ObjectId(id)));
+        }
+
+        //УБРАТЬ!!!
+        public async Task AllPasswordToHash ()
+        {
+            var builder = new FilterDefinitionBuilder<User>();
+            var filter = builder.Empty;
+            var people = Users.Find(filter).ToList();
+            foreach(var user in people)
+            {
+                var passwordHasher = new PasswordHasher<User>();
+                var hashedPassword = passwordHasher.HashPassword(user, user.password);
+
+                user.password = hashedPassword;
+                await UpdateUser(user.id, user);
+            }
         }
         #endregion
 
@@ -563,17 +577,6 @@ namespace PsychoTestWeb.Models
         public async Task ImportImage(Stream imageStream, string imageName)
         {
             await gridFS.UploadFromStreamAsync(imageName, imageStream);
-        }
-
-        //УБРАТЬ!!!
-        // удаление всех изображений
-        public async Task RemoveImages()
-        {
-            var builder = new FilterDefinitionBuilder<GridFSFileInfo>();
-            var filter = builder.Empty;
-            var allImages = await gridFS.Find(filter).ToListAsync();
-            foreach (var image in allImages)
-                await gridFS.DeleteAsync(image.Id);
         }
 
         #endregion

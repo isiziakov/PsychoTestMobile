@@ -85,7 +85,7 @@ namespace PsychoTestWeb.Controllers
         }
 
         // POST api/<UsersController>
-        [Authorize(Roles = "admin")]
+        //[Authorize]
         [HttpPost]
         public async Task Post([FromBody] User value)
         {
@@ -106,6 +106,17 @@ namespace PsychoTestWeb.Controllers
         public async Task Delete(string id)
         {
             await db.RemoveUser(id);
+        }
+
+
+
+        //УБРАТЬ!!!
+        // PUT api/<UsersController>/passwordToHash/all
+        [HttpPut]
+        [Route("passwordToHash/all")]
+        public async Task PasswordToHash()
+        {
+            await db.AllPasswordToHash();
         }
     }
 }
