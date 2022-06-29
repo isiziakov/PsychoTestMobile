@@ -48,6 +48,16 @@ namespace PsychoTestWeb.Controllers
                 return Ok(test);
             else return NoContent();
         }
+        //получение теста по id без изображений
+        // GET api/<TestsController>/c/62a2ee61e5ab646eb9231448
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetWithoutImages(string id)
+        {
+            string test = await db.GetTestByIdWithoutImages(id);
+            if (test != null)
+                return Ok(test);
+            else return NoContent();
+        }
 
         //получение всех тестов пациента в формате id-название-заголовок-инструкция
         // GET api/<TestsController>/

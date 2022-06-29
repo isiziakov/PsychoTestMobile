@@ -12,6 +12,9 @@ using System.Linq;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Security.Cryptography;
 using MongoDB.Driver.GridFS;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using System.Text;
+using PsychoTestWeb.Authorisation;
 
 namespace PsychoTestWeb.Models
 {
@@ -60,6 +63,24 @@ namespace PsychoTestWeb.Models
             var builder = new FilterDefinitionBuilder<User>();
             var filter = builder.Empty;
             var people = Users.Find(filter).ToList();
+
+            // Arrange  
+            var salt = Salt.Create();
+            var hash = Hash.Create(password, salt);
+
+            // Act  
+            var match = Hash.Validate(password, salt, hash);
+
+
+            // Arrange  
+
+            var salt1 = Salt.Create();
+            var hash1 = "blahblahblah";
+
+            // Act  
+            var match1 = Hash.Validate(password, salt1, hash1);
+
+
             return people.FirstOrDefault(x => x.login == username && x.password == password);
         }
         //получаем количество страниц с пользователями, если на странице 10 пользователей
@@ -123,6 +144,11 @@ namespace PsychoTestWeb.Models
         // добавление пользователя
         public async Task CreateUser(User u)
         {
+            // Arrange  
+            var salt = Salt.Create();
+            var hash = Hash.Create(u.password, salt);
+            u.password = hash;
+
             await Users.InsertOneAsync(u);
         }
         // обновление пользователя
@@ -340,6 +366,15 @@ namespace PsychoTestWeb.Models
             return JsonConvert.SerializeObject(jObj);
         }
 
+        //получаем тест по id
+        public async Task<string> GetTestByIdWithoutImages(string id)
+        {
+            var bsonDoc = await TestsBson.Find(new BsonDocument("_id", new ObjectId(id))).FirstOrDefaultAsync();
+            var dotNetObj = BsonTypeMapper.MapToDotNetValue(bsonDoc);
+            var json = JsonConvert.SerializeObject(dotNetObj);
+            return json;
+        }
+
         //получаем все назначенные пациенту тесты 
         public async Task<IEnumerable<Test>> GetTestsByPatientToken(Patient patient)
         {
@@ -533,5 +568,4 @@ namespace PsychoTestWeb.Models
 
         #endregion
     }
-
 }
