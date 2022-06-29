@@ -64,21 +64,21 @@ namespace PsychoTestWeb.Models
             var filter = builder.Empty;
             var people = Users.Find(filter).ToList();
 
-            // Arrange  
-            var salt = Salt.Create();
-            var hash = Hash.Create(password, salt);
+            //// Arrange  
+            //var salt = Salt.Create();
+            //var hash = Hash.Create(password, salt);
 
-            // Act  
-            var match = Hash.Validate(password, salt, hash);
+            //// Act  
+            //var match = Hash.Validate(password, salt, hash);
 
 
-            // Arrange  
+            //// Arrange  
 
-            var salt1 = Salt.Create();
-            var hash1 = "blahblahblah";
+            //var salt1 = Salt.Create();
+            //var hash1 = "blahblahblah";
 
-            // Act  
-            var match1 = Hash.Validate(password, salt1, hash1);
+            //// Act  
+            //var match1 = Hash.Validate(password, salt1, hash1);
 
 
             return people.FirstOrDefault(x => x.login == username && x.password == password);
@@ -145,9 +145,9 @@ namespace PsychoTestWeb.Models
         public async Task CreateUser(User u)
         {
             // Arrange  
-            var salt = Salt.Create();
-            var hash = Hash.Create(u.password, salt);
-            u.password = hash;
+            //var salt = Salt.Create();
+            //var hash = Hash.Create(u.password, salt);
+            //u.password = hash;
 
             await Users.InsertOneAsync(u);
         }
@@ -565,6 +565,16 @@ namespace PsychoTestWeb.Models
             await gridFS.UploadFromStreamAsync(imageName, imageStream);
         }
 
+        //УБРАТЬ!!!
+        // удаление всех изображений
+        public async Task RemoveImages()
+        {
+            var builder = new FilterDefinitionBuilder<GridFSFileInfo>();
+            var filter = builder.Empty;
+            var allImages = await gridFS.Find(filter).ToListAsync();
+            foreach (var image in allImages)
+                await gridFS.DeleteAsync(image.Id);
+        }
 
         #endregion
     }

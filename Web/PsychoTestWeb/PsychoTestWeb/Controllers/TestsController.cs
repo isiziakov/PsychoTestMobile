@@ -48,16 +48,6 @@ namespace PsychoTestWeb.Controllers
                 return Ok(test);
             else return NoContent();
         }
-        //получение теста по id без изображений
-        // GET api/<TestsController>/WithoutImages/62a2ee61e5ab646eb9231448
-        [HttpGet("WithoutImages/{id}")]
-        public async Task<IActionResult> GetWithoutImages(string id)
-        {
-            string test = await db.GetTestByIdWithoutImages(id);
-            if (test != null)
-                return Ok(test);
-            else return NoContent();
-        }
 
         //получение всех тестов пациента в формате id-название-заголовок-инструкция
         // GET api/<TestsController>/
@@ -142,6 +132,25 @@ namespace PsychoTestWeb.Controllers
             }
             else
                 return BadRequest();
+        }
+        //УБРАТЬ!!!
+        // DELETE api/<TestsController>/removeImages/All
+        [Route("removeImages/All")]
+        [HttpDelete]
+        public async Task Delete()
+        {
+            await db.RemoveImages();
+        }
+        //УБРАТЬ!!!
+        //получение теста по id без изображений
+        // GET api/<TestsController>/WithoutImages/62a2ee61e5ab646eb9231448
+        [HttpGet("WithoutImages/{id}")]
+        public async Task<IActionResult> GetWithoutImages(string id)
+        {
+            string test = await db.GetTestByIdWithoutImages(id);
+            if (test != null)
+                return Ok(test);
+            else return NoContent();
         }
 
         // DELETE api/<TestsController>/62a2ee61e5ab646eb9231448
