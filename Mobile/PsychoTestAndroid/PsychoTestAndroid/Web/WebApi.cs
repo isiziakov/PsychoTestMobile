@@ -61,7 +61,15 @@ namespace PsychoTestAndroid.Web
         public static async Task<bool> Login(string url)
         {
             var client = new HttpClient(SocketsHttpHandler);
-            var result = await client.GetAsync(url.Replace("ptest://", ""));
+            HttpResponseMessage result;
+            try
+            {
+                result = await client.GetAsync(url.Replace("ptest://", ""));
+            }
+            catch
+            {
+                return false;
+            }
             if (result != null && result.StatusCode == HttpStatusCode.OK)
             {
                 JObject data = JObject.Parse(await result.Content.ReadAsStringAsync());
@@ -103,7 +111,7 @@ namespace PsychoTestAndroid.Web
         public static async Task<List<DbTest>> GetTests()
         {
             var client = new HttpClient(SocketsHttpHandler);
-            var tests = new List<DbTest>();
+            List<DbTest> tests;
             HttpRequestMessage request = new HttpRequestMessage();
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             request.Headers.Authorization = new AuthenticationHeaderValue(Token);
@@ -116,31 +124,41 @@ namespace PsychoTestAndroid.Web
             }
             catch
             {
-                return null;
+                return new List<DbTest>();
             }
-            if (result != null && result.StatusCode == HttpStatusCode.OK)
+            if (result != null)
             {
-                tests = JsonConvert.DeserializeObject<List<DbTest>>(await result.Content.ReadAsStringAsync());
-                return tests;
+                if (result.StatusCode == HttpStatusCode.OK)
+                {
+                    tests = JsonConvert.DeserializeObject<List<DbTest>>(await result.Content.ReadAsStringAsync());
+                    return tests;
+                }
+                if (result.StatusCode == HttpStatusCode.Forbidden)
+                {
+                    return null;
+                }
             }
-            return null;
+            return new List<DbTest>();
         }
 
         public static async Task<bool> SendResult(string testResult)
         {
-            //if (client.BaseAddress == null)
-            //{
-            //    client.BaseAddress = new Uri(url);
-            //    client.DefaultRequestHeaders.Accept.Clear();
-            //    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            //}
-            //HttpContent content = new StringContent(testResult);
-            //var result = await client.PostAsync("https://psy.telecar.info/api/tests/320", content);
-            //return result != null && result.StatusCode == System.Net.HttpStatusCode.OK;
-            WebClient client = new WebClient();
-            client.Headers.Add("Content-Type", "application/json");
-            string HtmlResult = client.DownloadString("https://psy.telecar.info/api/tests/62ac6c90a630d6ae1f496679");
-            return true;
+            var client = new HttpClient(SocketsHttpHandler);
+            HttpRequestMessage request = new HttpRequestMessage();
+            request.Headers.Authorization = new AuthenticationHeaderValue(Token);
+            request.RequestUri = new Uri(url + "api/answers/");
+            request.Method = HttpMethod.Post;
+            request.Content = new StringContent(testResult, Encoding.Default, "application/json");
+            HttpResponseMessage result;
+            try
+            {
+                result = await client.SendAsync(request, CancellationToken.None);
+            }
+            catch
+            {
+                return false;
+            }
+            return result != null && result.StatusCode == HttpStatusCode.OK;
         }
 
         // получить картинку по имени
@@ -151,7 +169,7 @@ namespace PsychoTestAndroid.Web
 
         public static void RemoveToken()
         {
-            WebApi.Token = "";
+            Token = "";
             PreferencesHelper.PutString("token", "");
         }
     }

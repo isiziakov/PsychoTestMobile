@@ -31,13 +31,15 @@ namespace PsychoTestAndroid.Web
 
         public override Result DoWork()
         {
-            DoWorkAsync().GetAwaiter().GetResult();
+            if (PreferencesHelper.GetString("AllTestStatus", "false") != "true")
+            {
+                DoWorkAsync().GetAwaiter().GetResult();
+            }
             return Result.InvokeSuccess();
         }
 
         async Task<bool> DoWorkAsync()
         {
-            NotifyHelper.ShowNewTestsNotification();
             if (WebApi.Token == null || WebApi.Token == "")
             {
                 return false;
@@ -54,7 +56,7 @@ namespace PsychoTestAndroid.Web
                         DbOperations.CreateTest(test);
                         tests.Add(test);
                     }
-                    //NotifyHelper.ShowNewTestsNotification();
+                    NotifyHelper.ShowNewTestsNotification();
                 }
             }
             await LoadTests(tests);
@@ -74,6 +76,7 @@ namespace PsychoTestAndroid.Web
                     }
                     if (tests[i].Questions != null && tests[i].Questions != "")
                     {
+                        tests[i].Status = "Загружен";
                         DbOperations.UpdateTest(tests[i]);
                     }
                 }

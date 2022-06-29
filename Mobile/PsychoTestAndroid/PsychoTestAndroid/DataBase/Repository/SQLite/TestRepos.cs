@@ -45,7 +45,7 @@ namespace PsychoTestAndroid.DataBase.Repository.SQLite
 
         public void Delete(DbTest item)
         {
-            db.Delete<DbTest>(item);
+            db.Delete(item);
         }
 
         public int Save()

@@ -250,7 +250,7 @@ namespace PsychoTestAndroid
             else
             {
                 Toast.MakeText(Application.Context, GetString(Resource.String.test_result_failure), ToastLength.Short).Show();
-                dbTest.Results = JsonConvert.SerializeObject(dbTest).ToString();
+                dbTest.Results = JsonConvert.SerializeObject(result).ToString();
                 DbOperations.UpdateTest(dbTest);
                 Finish();
             }
