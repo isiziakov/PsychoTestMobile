@@ -45,8 +45,15 @@ namespace PsychoTestAndroid
         protected override void OnResume()
         {
             base.OnResume();
+            PreferencesHelper.PutString("AllTestStatus", "true");
             // получить массив тестов
             GetTests();
+        }
+
+        protected override void OnStop()
+        {
+            PreferencesHelper.PutString("AllTestStatus", "false");
+            base.OnStop();
         }
         // инициализировать визуальные элементы
         private void InitializeComponents()
@@ -62,7 +69,6 @@ namespace PsychoTestAndroid
                 alert.SetMessage("Для возвращения в аккаунт вам будет нужна новая ссылка, также сохраненные данные " +
                     "будут удалены. Вы уверены, что хотите выйти?");
                 alert.SetPositiveButton("Да", (senderAlert, args) => {
-                    WebApi.RemoveToken();
                     ToLogin();
                 });
                 alert.SetNegativeButton("Нет", (senderAlert, args) => {});
@@ -73,16 +79,23 @@ namespace PsychoTestAndroid
         // обработка нажатия на элемент из списка тестов
         private void MAdapter_ItemClick(object sender, int e)
         {
-            // открыть выбранный тест
-            if (tests[e].Questions != null && tests[e].Questions != "")
+            if (tests[e].Questions == null || tests[e].Questions == "")
             {
-                Intent intent = new Intent(this, typeof(TestActivity));
-                intent.PutExtra("Test", JsonConvert.SerializeObject(tests[e]));
-                this.StartActivity(intent);
+                Toast.MakeText(this, "Тест не загружен", ToastLength.Short).Show();
             }
             else
             {
-                Toast.MakeText(this, "Тест не загружен", ToastLength.Short).Show();
+                if (tests[e].Results != null && tests[e].Results != "")
+                {
+                    Toast.MakeText(this, "Тест не загружен", ToastLength.Short).Show();
+                }
+                else
+                {
+                    // открыть выбранный тест
+                    Intent intent = new Intent(this, typeof(TestActivity));
+                    intent.PutExtra("Test", JsonConvert.SerializeObject(tests[e]));
+                    this.StartActivity(intent);
+                }
             }
         }
 
@@ -99,6 +112,11 @@ namespace PsychoTestAndroid
                     tests.Add(test);
                 }
             }
+            else
+            {
+                Toast.MakeText(this, "Код для входа был изменен", ToastLength.Short).Show();
+                ToLogin();
+            }
             recycleView = FindViewById<RecyclerView>(Resource.Id.testsRecylcerView);
             var mLayoutManager = new LinearLayoutManager(this);
             recycleView.SetLayoutManager(mLayoutManager);
@@ -110,6 +128,7 @@ namespace PsychoTestAndroid
 
         private void ToLogin()
         {
+            WebApi.RemoveToken();
             Intent intent = new Intent(this, typeof(MainActivity));
             DbOperations.DeleteAll();
             this.StartActivity(intent);
