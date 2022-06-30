@@ -1,5 +1,5 @@
-﻿import React, { Component } from 'react';
-import { Button, Row, Col, Input, Form, FormGroup, Label, Alert, InputGroup, InputGroupAddon } from 'reactstrap';
+﻿import React, { Component, useReducer } from 'react';
+import { Button, Row, Col, Input, Form, FormGroup, Label, Alert, InputGroup, InputGroupAddon, Collapse, Modal, ModalHeader, ModalBody, ModalFooter, Table  } from 'reactstrap';
 
 export default class Patient extends React.Component {
     static displayName = Patient.name;
@@ -13,29 +13,34 @@ export default class Patient extends React.Component {
             allTests: [],
             prescribedTests: [],
             availableTests: [],
-            patientResults: [],
+            patientResults: [ { scales: [ {name: "", scores: "" } ] }],
+            passedTests: [],
             addedTest: 0,
+            compareTest: 0,
             arePrescribedTests: "",
             areResults: "",
             isPatient: "",
-            alertVisible: false
+            alertVisible: false,
+            filtering: false
         };
 
         this.onSubmit = this.onSubmit.bind(this);
         this.onChangeName = this.onChangeName.bind(this);
         this.onTestChange = this.onTestChange.bind(this);
+        this.onCompareChange = this.onCompareChange.bind(this);
         this.onCommentChange = this.onCommentChange.bind(this);
         this.onChangeCheckbox = this.onChangeCheckbox.bind(this);
         this.remove = this.remove.bind(this);
         this.onChangeAlert = this.onChangeAlert.bind(this);
+        this.onSearchStringChange = this.onSearchStringChange.bind(this);
     }
 
     componentDidMount() {
-        this.getPatient(this.state.id);
+        this.getPatient("/api/patients/" + this.state.patientId);
     }
-    async getPatient() {
+    async getPatient(url) {
         const token = sessionStorage.getItem('tokenKey');
-        var response = await fetch("/api/patients/" + this.state.patientId, {
+        var response = await fetch(url, {
             method: "GET",
             headers: {
                 "Accept": "application/json",
@@ -44,7 +49,7 @@ export default class Patient extends React.Component {
         });
         var data = await response.json();
         if (response.ok === true) {
-            this.setState({ patient: data, patientResults: data.results, name: data.name, patientToken: data.token }, () => {
+            this.setState({ patient: data, patientResults: data.results, name: data.name, patientToken: data.token }, () => {  
                 this.getTests();
             });
         }
@@ -59,6 +64,9 @@ export default class Patient extends React.Component {
     onTestChange(e) {
         this.setState({ addedTest: e.target.value });
     }
+    onCompareChange(e) {
+        this.setState({ compareTest: e.target.value });
+    }
     onCommentChange(e, resultIndex) {
         var tmp = this.state.patientResults;
         var length = tmp.length;
@@ -67,6 +75,9 @@ export default class Patient extends React.Component {
     }
     onChangeAlert(value) {
         this.setState({ alertVisible: value });
+    }
+    onSearchStringChange(e) {
+        this.setState({ searchString: e.target.value });
     }
     async getTests() {
         const token = sessionStorage.getItem('tokenKey');
@@ -82,6 +93,8 @@ export default class Patient extends React.Component {
             this.setState({ allTests: data }, () => {
                 this.addPrescribedTests();
                 this.addNameTestsForResults();
+                if (this.state.filtering === false)
+                    this.addPassedTests();
             });
         }
         else {
@@ -153,6 +166,20 @@ export default class Patient extends React.Component {
             this.setState({ areResults: "Ни один тест еще не пройден!" });
     }
 
+    addPassedTests() {
+        var passedTests = [];
+        this.state.patientResults.map((result) => {
+            var t = passedTests.find(x => x.id === result.test);
+            if (t === undefined) {
+                this.state.allTests.map((test) => {
+                    if (result.test === test.id)
+                        passedTests.push({ name: test.name, id: test.id });
+                });
+            }
+        });
+        this.setState({ passedTests: passedTests });
+    }
+
     onChangeCheckbox(testId, value) {
         var tmp = this.state.prescribedTests;
         for (var i = 0; i < tmp.length; i++) {
@@ -161,6 +188,12 @@ export default class Patient extends React.Component {
             }
         }
         this.setState({ prescribedTests: tmp });
+    }
+
+    compareTests() {
+        this.setState({filtering: true}, () => {
+            this.getPatient("/api/patients/results/" + this.state.patientId + "/" + this.state.compareTest);
+        });
     }
 
     async onSubmit(event) {
@@ -248,8 +281,8 @@ export default class Patient extends React.Component {
                                         }
                                     </Input>
                                 </Col>
-                                <Col xs="auto">
-                                    <Button color="info" outline onClick={() => this.addTest()}>Назначить</Button>
+                                <Col xs="2">
+                                    <Button color="info" className="col-12" outline onClick={() => this.addTest()}>Назначить</Button>
                                 </Col>
                             </Row>
                         </FormGroup>
@@ -274,6 +307,41 @@ export default class Patient extends React.Component {
                         <hr /><br />
                         <h4>Пройденные тесты</h4>
                         <br />
+                        <Row>
+                            <Col xs="2"><Label for="selectCompare">Сравнить результаты:</Label></Col>
+                            <Col xs="8">
+                                <InputGroup>
+                                    <Input type="select" name="selectCompare" defaultValue={'0'} onChange={this.onCompareChange} id="selectCompare">
+                                        <option value="0" disabled>Выберите тест для сравнения</option>
+                                        {
+                                            this.state.passedTests.map((test) => {
+                                                return (
+                                                    <option key={test.id} value={test.id}>{test.name}</option>
+                                                );
+                                            })
+                                        }
+                                    </Input>
+                                    <InputGroupAddon addonType="append">
+                                        <Button color="secondary" outline onClick={() => { this.getPatient("/api/patients/" + this.state.patientId); this.setState({ filtering: false }); }}>&#215;</Button>
+                                    </InputGroupAddon>
+                                </InputGroup>
+                            </Col>
+                            <Col xs="2">
+                                <Button color="info" className="col-12" outline onClick={() => this.compareTests()}>Сравнить</Button>
+                            </Col>
+                        </Row>    
+                        <br/>
+                        <Collapse isOpen={this.state.filtering}>
+                            <Row>
+                                <Col xs="10"></Col>
+                                <Col xs="2">
+                                    <ModalTable results={this.state.patientResults.slice(0).reverse()} filtering={this.state.filtering}/>
+                                </Col>
+                            </Row>
+                        </Collapse>
+
+
+                        <br/>
                         <p>{this.state.areResults}</p>
                         {
                             this.state.patientResults.slice(0).reverse().map((result, index) => {
@@ -384,9 +452,87 @@ class Url extends Component {
                                 </InputGroupAddon>
                             </InputGroup>
                         </Col>
-                        <Col><Button color='info' outline onClick={() => { this.generateUrl() }}>Новая ссылка</Button></Col>
+                        <Col xs="2"><Button color='info' className="col-12" outline onClick={() => { this.generateUrl() }}>Новая ссылка</Button></Col>
                     </Row>
                 </FormGroup>
+            </div>
+        );
+    }
+}
+
+
+
+class ModalTable extends React.Component {
+    static displayName = ModalTable.name;
+    constructor(props) {
+        super(props);
+        this.state = {
+            modal: false
+        };
+        this.toggle = this.toggle.bind(this);
+    }
+
+    toggle() {
+        this.setState({
+            modal: !this.state.modal
+        });
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        if (nextProps.results.length === 0)
+            return false;
+        else {
+            var flag = false;
+            for (var i = 0; i < nextProps.results.length - 1; i++)
+                if (nextProps.results[i].test != nextProps.results[i + 1].test)
+                    flag = true;
+            return !flag;
+        } 
+    }
+
+    render() {
+        return (
+            <div>
+                <Button color="info" className="col-12" outline onClick={this.toggle}>Таблица</Button>
+                <Modal size="lg" isOpen={this.state.modal} scrollable={true}>
+                    <Form onSubmit={this.onSubmit}>
+                        <ModalHeader toggle={this.toggle}>Сравнение</ModalHeader>
+                        <ModalBody>
+                            <Table hover size="sm">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                    {
+                                        this.props.results.map((result, index) => {
+                                            return (<th key={index}>{result.date}</th>);
+                                        })
+                                    }
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {
+                                        this.props.results[0].scales.map((scale, index) => {
+                                            return(
+                                                <tr key={index}>
+                                                    <th scope='row'>{scale.name}</th>
+                                                    {
+                                                        this.props.results.map((result, i) => {
+                                                            return(<td key={i}>{result.scales[index].scores}</td>);
+                                                        })
+                                                    }
+                                                </tr>
+                                            );
+                                        })
+                                    }
+                                </tbody>
+                            </Table> 
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button color="info" onClick={() => this.toggle()}>Закрыть</Button>
+                        </ModalFooter>
+                    </Form>
+                </Modal>
             </div>
         );
     }

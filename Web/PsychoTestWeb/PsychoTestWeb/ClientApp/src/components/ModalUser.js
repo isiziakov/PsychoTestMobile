@@ -1,6 +1,5 @@
 ﻿import React, { Component } from 'react';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Row, Col, Input, Form, FormGroup, Label, FormText } from 'reactstrap';
-import { Patients } from './Patients';
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Input, Form, FormGroup, Label, Collapse } from 'reactstrap';
 
 export default class ModalUser extends React.Component {
     static displayName = ModalUser.name;
@@ -15,12 +14,14 @@ export default class ModalUser extends React.Component {
             oldName: this.props.user.name,
             oldPassword: this.props.user.password,
             oldLogin: this.props.user.login,
-            oldRole: this.props.user.role
+            oldRole: this.props.user.role,
+            newPassword: "" 
         };
         this.toggle = this.toggle.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
         this.onChangeName = this.onChangeName.bind(this);
         this.onChangePassword = this.onChangePassword.bind(this);
+        this.onChangeNewPassword = this.onChangeNewPassword.bind(this);
         this.onChangeEmail = this.onChangeEmail.bind(this);
         this.onChangeRole = this.onChangeRole.bind(this);
         this.remove = this.remove.bind(this);
@@ -47,6 +48,9 @@ export default class ModalUser extends React.Component {
         tmp.password = e.target.value;
         this.setState({ user: tmp });
     }
+    onChangeNewPassword(e) {
+        this.setState({ newPassword: e.target.value });
+    }
     onChangeEmail(e) {
         var tmp = this.state.user;
         tmp.login = e.target.value;
@@ -72,7 +76,7 @@ export default class ModalUser extends React.Component {
                     name: this.state.user.name,
                     id: this.state.user.id,
                     role: this.state.user.role,
-                    password: this.state.user.password,
+                    password: this.state.newPassword,
                     login: this.state.user.login
                 })
             });
@@ -127,7 +131,8 @@ export default class ModalUser extends React.Component {
                 password: this.state.oldPassword,
                 login: this.state.oldLogin,
                 role: this.state.oldRole
-            }
+            },
+            newPassword: ""
         });
     }
 
@@ -147,10 +152,12 @@ export default class ModalUser extends React.Component {
                                 <Label for="email">Email:</Label>
                                 <Input type="email" required name="email" id="exampleEmail" placeholder="Введите email" value={this.state.user.login} onChange={this.onChangeEmail} />
                             </FormGroup>
-                            <FormGroup>
-                                <Label for="password">Пароль:</Label>
-                                <Input type="text" required name="password" id="password" placeholder="Введите пароль" value={this.state.user.password} onChange={this.onChangePassword} />
-                            </FormGroup>
+                            <Collapse isOpen={this.props.isCreate}>
+                                <FormGroup>
+                                    <Label for="password">Пароль:</Label>
+                                    <Input type="text" required name="password" id="password" placeholder="Введите пароль" value={this.state.user.password} onChange={this.onChangePassword} />
+                                </FormGroup>
+                            </Collapse>
                             <FormGroup>
                                 <Label for="role">Роль:</Label>
                                 <Input type="select" name="role" id="role" onChange={this.onChangeRole} value={this.state.user.role}>
@@ -158,6 +165,13 @@ export default class ModalUser extends React.Component {
                                     <option value={'admin'}>Администратор</option>
                                 </Input>
                             </FormGroup>
+
+                            <Collapse isOpen={!this.props.isCreate}>
+                                <FormGroup>
+                                    <Label for="passwordChange">Сменить пароль:</Label>
+                                    <Input type="text" name="passwordChange" id="passwordChange" placeholder="Введите новый пароль" value={this.state.user.newPassword} onChange={this.onChangeNewPassword} />
+                                </FormGroup>
+                            </Collapse>
                         </ModalBody>
                         <ModalFooter>
                             <Button color="danger" onClick={() => this.remove()}>Удалить</Button>

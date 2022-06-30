@@ -107,16 +107,5 @@ namespace PsychoTestWeb.Controllers
         {
             await db.RemoveUser(id);
         }
-
-
-
-        //УБРАТЬ!!!
-        // PUT api/<UsersController>/passwordToHash/all
-        [HttpPut]
-        [Route("passwordToHash/all")]
-        public async Task PasswordToHash()
-        {
-            await db.AllPasswordToHash();
-        }
     }
 }

@@ -153,28 +153,19 @@ namespace PsychoTestWeb.Models
         public async Task UpdateUser(string id, User u)
         {
             BsonDocument doc = new BsonDocument("_id", new ObjectId(id));
+            if (u.password != "")
+            {
+                var passwordHasher = new PasswordHasher<User>();
+                var hashedPassword = passwordHasher.HashPassword(u, u.password);
+                u.password = hashedPassword;
+            }
+            else u.password = doc["password"].AsString;
             await Users.ReplaceOneAsync(doc, u);
         }
         // удаление пользователя
         public async Task RemoveUser(string id)
         {
             await Users.DeleteOneAsync(new BsonDocument("_id", new ObjectId(id)));
-        }
-
-        //УБРАТЬ!!!
-        public async Task AllPasswordToHash ()
-        {
-            var builder = new FilterDefinitionBuilder<User>();
-            var filter = builder.Empty;
-            var people = Users.Find(filter).ToList();
-            foreach(var user in people)
-            {
-                var passwordHasher = new PasswordHasher<User>();
-                var hashedPassword = passwordHasher.HashPassword(user, user.password);
-
-                user.password = hashedPassword;
-                await UpdateUser(user.id, user);
-            }
         }
         #endregion
 
@@ -248,6 +239,17 @@ namespace PsychoTestWeb.Models
             Patient[] page = new Patient[count];
             patients.CopyTo(start, page, 0, count);
             return page;
+        }
+        //фильтрация результатов для статистики по id теста
+        public async Task<Patient> GetPatientsResultsByTestId(string patientId, string testId)
+        {
+            Patient patient = await GetPatientById(patientId);
+            List<PatientsResult> r = new List<PatientsResult>();
+            foreach (PatientsResult result in patient.results)
+                if (result.test == testId)
+                    r.Add(result);
+            patient.results = r;
+            return patient;
         }
         // добавление пациента
         public async Task<string> CreatePatient(Patient p)
@@ -352,7 +354,6 @@ namespace PsychoTestWeb.Models
             }
             return tests;
         }
-
 
         //получаем тест по id
         public async Task<string> GetTestById(string id)
@@ -580,5 +581,6 @@ namespace PsychoTestWeb.Models
         }
 
         #endregion
+
     }
 }
