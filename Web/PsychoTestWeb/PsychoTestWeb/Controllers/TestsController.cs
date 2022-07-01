@@ -29,7 +29,7 @@ namespace PsychoTestWeb.Controllers
         //получение всех тестов в формате id-название-заголовок-инструкция
         // GET: api/<TestsController>/view
         [Route("view")]
-        [Authorize(Roles = "admin")]
+        [Authorize]
         public async Task<IActionResult> Get()
         {
             IEnumerable<Test> list = await db.GetTestsView();

@@ -263,57 +263,52 @@ namespace PsychoTestWeb.Models
 
         public ProcessingLusherResults(JObject test, TestsResult result, BsonDocument norm)
         {
-            //подсчет баллов по шкалам
-            //Dictionary<string, int> sum = Scorting(test, result, patientResult.scales);
+            string[] testResult = result.answers[0].answer.Split(' ').Concat(result.answers[1].answer.Split(' ')).ToArray();
 
             //заполнение первых 16 шкал — порядок цветов
-            AddOrderColor(test, result);
+            AddOrderColor(test, testResult);
 
-            //автоматическая интерпретация результатов
-            //нахождение диапазонов
-            //RangeInterpretation(norm, patientResult.scales);
-            //рассчет по формулам
-            //CalculationByFormulas(test, patientResult.scales, norm);
+            //расчет по формулам
+            CalculationByFormulas(test);
+
+            //интерпритация
+            RangeInterpretation(norm, patientResult.scales);
         }
 
         //первые 16 шкал — порядок цветов
-        private void AddOrderColor(JObject test, TestsResult testResult)
+        private void AddOrderColor(JObject test, string[] testResult)
         {
-            for (int i = 0; i < 8; i++)
+            int start = 0;
+            for (int k = 0; k < 2; k++)
             {
-                var scale = new PatientsResult.Scale();
+                for (int i = start; i < start + 8; i++)
+                {
+                    var scale = new PatientsResult.Scale();
 
-                if (test["Groups"]["item"][i]["NormID"] != null)
-                    scale.idNormScale = test["Groups"]["item"][i]["NormID"].ToString();
-                scale.idTestScale = test["Groups"]["item"][i]["ID"].ToString();
-                scale.name = test["Groups"]["item"][i]["Name"]["#text"].ToString();
-                for (int j = 0; j < 8; j++)
-                    if (testResult.answers[j].answer == i.ToString())
+                    if (test["Groups"]["item"][i]["NormID"] != null)
+                        scale.idNormScale = test["Groups"]["item"][i]["NormID"].ToString();
+                    scale.idTestScale = test["Groups"]["item"][i]["ID"].ToString();
+                    scale.name = test["Groups"]["item"][i]["Name"]["#text"].ToString();
+                    for (int j = start; j < start + 8; j++)
                     {
-                        scale.scores = testResult.answers[j].question_id;
-                        break;
+                        if (testResult[j] == i.ToString() && i < 8)
+                        {
+                            scale.scores = j + 1;
+                            break;
+                        }
+                        if (testResult[j] == (i - 8).ToString() && i >= 8)
+                        {
+                            scale.scores = j - 7;
+                            break;
+                        }
                     }
-                
-            }
-            for (int i = 8; i < 16; i++)
-            {
-                var scale = new PatientsResult.Scale();
-
-                if (test["Groups"]["item"][i]["NormID"] != null)
-                    scale.idNormScale = test["Groups"]["item"][i]["NormID"].ToString();
-                scale.idTestScale = test["Groups"]["item"][i]["ID"].ToString();
-                scale.name = test["Groups"]["item"][i]["Name"]["#text"].ToString();
-                for (int j = 8; j < 16; j++)
-                    if (testResult.answers[j].answer == i.ToString())
-                    {
-                        scale.scores = testResult.answers[j].question_id;
-                        break;
-                    }
-                patientResult.scales.Add(scale);
+                    patientResult.scales.Add(scale);
+                }
+                start += 8;
             }
         }
 
-        private void CalculationByFormulas(JObject test, TestsResult testResult)
+        private void CalculationByFormulas(JObject test)
         {
             for (int i = 16; i < 40; i++)
             {
@@ -337,6 +332,89 @@ namespace PsychoTestWeb.Models
             }
         }
 
+        //автоматическая интерпретация результатов
+        private void RangeInterpretation(BsonDocument norm, List<PatientsResult.Scale> results)
+        {
+            //шкалы из норм
+            BsonArray normScales = new BsonArray();
+            if (norm["main"]["groups"]["item"]["quantities"]["item"] is BsonArray)
+                foreach (var scale in norm["main"]["groups"]["item"]["quantities"]["item"].AsBsonArray)
+                    normScales.Add(scale);
+            else
+                normScales.Add(norm["main"]["groups"]["item"]["quantities"]["item"]);
+
+
+            //Для каждой вычисленной шкалы
+            foreach (var result in results)
+            {
+                //если градация еще не определена
+                if (result.gradationNumber == null)
+                    foreach (var normScale in normScales)
+                    {
+                        //находим соответствующую шкалу из норм 
+                        if (result.scores != null && result.idNormScale == normScale["id"].AsString)
+                        {
+                            //выбираем все градации шкалы
+                            BsonArray grads = new BsonArray();
+                            if (normScale["treelevel"]["children"]["item"]["treelevel"]["children"]["item"]["termexpr"]["gradations"]["gradations"]["item"] is BsonArray)
+                                foreach (var grad in normScale["treelevel"]["children"]["item"]["treelevel"]["children"]["item"]["termexpr"]["gradations"]["gradations"]["item"].AsBsonArray)
+                                    grads.Add(grad);
+                            else
+                                grads.Add(normScale["treelevel"]["children"]["item"]["treelevel"]["children"]["item"]["termexpr"]["gradations"]["gradations"]["item"]);
+
+
+
+                            //Для каждой градации
+                            foreach (var bsonGrad in grads)
+                            {
+                                var grad = JObject.Parse(JsonConvert.SerializeObject(BsonTypeMapper.MapToDotNetValue(bsonGrad)));
+
+                                //если обе границы inf
+                                if (grad["lowerformula"]["ftext"].ToString() == "-inf" && grad["upperformula"]["ftext"].ToString() == "+inf")
+                                {
+                                    if (grad["comment"]["#text"] != null)
+                                        result.interpretation = grad["comment"]["#text"].ToString();
+                                    result.gradationNumber = (int)double.Parse(grad["number"].ToString(), System.Globalization.CultureInfo.InvariantCulture);
+                                }
+                                else
+                                //если слева -inf, справа число
+                                if (grad["lowerformula"]["ftext"].ToString() == "-inf" && grad["upperformula"]["ftext"].ToString() != "+inf")
+                                {
+                                    if (result.scores <= (int)double.Parse(grad["upperformula"]["ftext"].ToString(), System.Globalization.CultureInfo.InvariantCulture))
+                                    {
+                                        if (grad["comment"]["#text"] != null)
+                                            result.interpretation = grad["comment"]["#text"].ToString();
+                                        result.gradationNumber = (int)double.Parse(grad["number"].ToString(), System.Globalization.CultureInfo.InvariantCulture);
+                                    }
+                                }
+                                else
+                                //если справа +inf, слева число
+                                if (grad["lowerformula"]["ftext"].ToString() != "-inf" && grad["upperformula"]["ftext"].ToString() == "+inf")
+                                {
+                                    if (result.scores > (int)double.Parse(grad["lowerformula"]["ftext"].ToString(), System.Globalization.CultureInfo.InvariantCulture))
+                                    {
+                                        if (grad["comment"]["#text"] != null)
+                                            result.interpretation = grad["comment"]["#text"].ToString();
+                                        result.gradationNumber = (int)double.Parse(grad["number"].ToString(), System.Globalization.CultureInfo.InvariantCulture);
+                                    }
+                                }
+                                else
+                                //c обеих сторон числа
+                                if (grad["lowerformula"]["ftext"].ToString() != "-inf" && grad["upperformula"]["ftext"].ToString() != "+inf")
+                                {
+                                    if (result.scores > (int)double.Parse(grad["lowerformula"]["ftext"].ToString(), System.Globalization.CultureInfo.InvariantCulture) && result.scores <= (int)double.Parse(grad["upperformula"]["ftext"].ToString(), System.Globalization.CultureInfo.InvariantCulture))
+                                    {
+                                        if (grad["comment"]["#text"] != null)
+                                            result.interpretation = grad["comment"]["#text"].ToString();
+                                        result.gradationNumber = (int)double.Parse(grad["number"].ToString(), System.Globalization.CultureInfo.InvariantCulture);
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                    }
+            }
+        }
     }
 
     public static class ParseFormula
@@ -436,6 +514,93 @@ namespace PsychoTestWeb.Models
                 }
             } while (firstIndex != -1);
 
+            do
+            {
+                firstIndex = formula.IndexOf("==");
+                if (firstIndex != -1)
+                {
+                    int leftPartStart, rightPartFinish;
+                    string leftPart = "", rightPart = "";
+                    for (leftPartStart = firstIndex - 1; leftPartStart > -1; leftPartStart--)
+                        if (formula[leftPartStart] != '(')
+                            leftPart += formula[leftPartStart];
+                        else break;
+                    for (rightPartFinish = firstIndex + 2; rightPartFinish < formula.Length; rightPartFinish++)
+                        if (formula[rightPartFinish] != ')')
+                            rightPart += formula[rightPartFinish];
+                        else break;
+
+                    int value = 0;
+                    if (leftPart == rightPart)
+                        value = 1;
+
+                    formula = formula.Remove(leftPartStart, rightPartFinish - leftPartStart + 1);
+                    formula = formula.Insert(leftPartStart, value.ToString());
+                }
+            } while (firstIndex != -1);
+
+            do
+            {
+                firstIndex = formula.IndexOf("\r");
+                if (firstIndex != -1)
+                    formula = formula.Remove(firstIndex, 1);
+            } while (firstIndex != -1);
+            do
+            {
+                firstIndex = formula.IndexOf("\n");
+                if (firstIndex != -1)
+                    formula = formula.Remove(firstIndex, 1);
+            } while (firstIndex != -1);
+            do
+            {
+                firstIndex = formula.IndexOf("\t");
+                if (firstIndex != -1)
+                    formula = formula.Remove(firstIndex, 1);
+            } while (firstIndex != -1);
+            do
+            {
+                firstIndex = formula.IndexOf("out");
+                if (firstIndex != -1)
+                    formula = formula.Remove(firstIndex, 7);
+            } while (firstIndex != -1);
+            do
+            {
+                firstIndex = formula.IndexOf("if ");
+                if (firstIndex != -1)
+                    formula = formula.Remove(firstIndex, 3);
+            } while (firstIndex != -1);
+            do
+            {
+                firstIndex = formula.IndexOf("else");
+                if (firstIndex != -1)
+                    formula = formula.Remove(firstIndex, 4);
+            } while (firstIndex != -1);
+            do
+            {
+                firstIndex = formula.IndexOf("{");
+                if (firstIndex != -1)
+                    formula = formula.Remove(firstIndex, 1);
+            } while (firstIndex != -1);
+            do
+            {
+                firstIndex = formula.IndexOf("}");
+                if (firstIndex != -1)
+                    formula = formula.Remove(firstIndex, 1);
+            } while (firstIndex != -1);
+            do
+            {
+                firstIndex = formula.IndexOf("||");
+                if (firstIndex != -1)
+                {
+                    int r = 0;
+                    if (formula[firstIndex - 1] == 1 || formula[firstIndex + 2] == 1)
+                        r = 1;
+                    formula = formula.Remove(firstIndex - 1, 4);
+                    formula = formula.Insert(firstIndex - 1, r.ToString());
+                }
+            } while (firstIndex != -1);
+
+
             return formula;
         }
     }
@@ -483,9 +648,13 @@ namespace PsychoTestWeb.Models
 
         private static double Evaluate(string expression)
         {
-            string normalExpression = expression.Replace(" ", "");
+            string normalExpression = expression.Replace(" ", "").Replace(",", ".");
             List<char> operators = normalExpression.Split(numberChars.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(x => x[0]).ToList();
-            List<double> numbers = normalExpression.Split(operatorChars.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(x => double.Parse(x)).ToList();
+            //List<double> numbers = normalExpression.Split(operatorChars.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(x => double.Parse(x)).ToList();
+            List<string> strings = normalExpression.Split(operatorChars.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
+            List<double> numbers = new List<double>();
+            foreach (var s in strings)
+                numbers.Add(double.Parse(s, System.Globalization.CultureInfo.InvariantCulture));
 
             foreach (char o in operatorChars)
             {

@@ -321,14 +321,22 @@ namespace PsychoTestWeb.Models
 
                 //обработка результатов
 
-
+                //обработка люшера
                 if (test["IR"]["ClassName"] != null)
                 {
                     if (test["IR"]["ClassName"].ToString() == "Lusher")
                     {
-                        //обработка люшера
+                        ProcessingLusherResults processingResults = new ProcessingLusherResults(test, result, norm);
+                        DateTime now = DateTime.Now;
+                        processingResults.patientResult.date = now.ToString("g");
+                        processingResults.patientResult.comment = "";
+                        processingResults.patientResult.test = result.id;
+                        //добавление в бд
+                        patient.results.Add(processingResults.patientResult);
+                        await UpdatePatient(patient.id, patient);
                     }
                 }
+                //обработка стандартных опросников
                 else
                 {
                     ProcessingResults processingResults = new ProcessingResults(test, result, norm);
