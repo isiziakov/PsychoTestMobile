@@ -72,6 +72,7 @@ export class CustomPagination extends Component {
             if (newPage <= 1) newPage = 1;
             else if (newPage >= this.state.pageCount) newPage = this.state.pageCount;
 
+        this.props.setCurrentPage(newPage);
         this.setState({ currentPage: newPage }, () => {
             this.props.getContent(this.props.controllerUrl + "page/" + this.state.currentPage + "/" + this.props.postfixUrl);
         });

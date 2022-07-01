@@ -15,7 +15,8 @@ export default class ModalUser extends React.Component {
             oldPassword: this.props.user.password,
             oldLogin: this.props.user.login,
             oldRole: this.props.user.role,
-            newPassword: "" 
+            newPassword: "",
+            closeButton: ""
         };
         this.toggle = this.toggle.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
@@ -29,9 +30,9 @@ export default class ModalUser extends React.Component {
 
     componentDidMount() {
         if (this.state.isCreate === true)
-            this.setState({ button: "Добавить пользователя", modalHeader: "Новый пользователь" });
+            this.setState({ button: "Добавить пользователя", modalHeader: "Новый пользователь", closeButton: "Отмена" });
         else
-            this.setState({ button: "Просмотр", modalHeader: "Информация о пользователе" });
+            this.setState({ button: "Просмотр", modalHeader: "Информация о пользователе", closeButton: "Удалить" });
     }
     toggle() {
         this.setState({
@@ -66,7 +67,7 @@ export default class ModalUser extends React.Component {
         event.preventDefault();
         const token = sessionStorage.getItem('tokenKey');
         if (this.props.isCreate === false) {
-            var response = await fetch("/api/users/" + this.state.user.id, {
+            var response = await fetch("/api/users/" + this.props.user.id, {
                 method: "PUT",
                 headers: {
                     "Authorization": "Bearer " + token,
@@ -74,7 +75,7 @@ export default class ModalUser extends React.Component {
                 },
                 body: JSON.stringify({
                     name: this.state.user.name,
-                    id: this.state.user.id,
+                    id: this.props.user.id,
                     role: this.state.user.role,
                     password: this.state.newPassword,
                     login: this.state.user.login
@@ -90,7 +91,7 @@ export default class ModalUser extends React.Component {
                 },
                 body: JSON.stringify({
                     name: this.state.user.name,
-                    id: this.state.user.id,
+                    id: this.props.user.id,
                     role: this.state.user.role,
                     password: this.state.user.password,
                     login: this.state.user.login
@@ -100,14 +101,14 @@ export default class ModalUser extends React.Component {
         if (response.ok !== true) {
             console.log("Error: ", response.status);
         }
-        this.props.onClose("/api/users/");
+        this.props.onClose(this.props.url);
         this.onClose();
     }
 
     async remove() {
         if (window.confirm("Вы уверены что хотите удалить этого пользователя?")) {
             const token = sessionStorage.getItem('tokenKey');
-            var response = await fetch("/api/users/" + this.state.user.id, {
+            var response = await fetch("/api/users/" + this.props.user.id, {
                 method: "DELETE",
                 headers: {
                     "Authorization": "Bearer " + token,
@@ -117,12 +118,12 @@ export default class ModalUser extends React.Component {
                 console.log("Error: ", response.status);
             }
             else {
+                this.props.onClose(this.props.url);
                 this.toggle();
-                this.props.onClose("/api/users/");
             }
         }
     }
-
+ 
     onClose() {
         this.toggle();
         this.setState({
@@ -174,7 +175,7 @@ export default class ModalUser extends React.Component {
                             </Collapse>
                         </ModalBody>
                         <ModalFooter>
-                            <Button color="danger" onClick={() => this.remove()}>Удалить</Button>
+                            <Button color="danger" onClick={() => { if(this.state.isCreate) this.onClose(); else this.remove() }}>{this.state.closeButton}</Button>
                             <input type="submit" value="Сохранить" className="btn btn-info" />
                         </ModalFooter>
                     </Form>

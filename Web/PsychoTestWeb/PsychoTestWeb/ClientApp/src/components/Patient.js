@@ -1,5 +1,6 @@
 ﻿import React, { Component, useReducer } from 'react';
 import { Button, Row, Col, Input, Form, FormGroup, Label, Alert, InputGroup, InputGroupAddon, Collapse, Modal, ModalHeader, ModalBody, ModalFooter, Table  } from 'reactstrap';
+import '../custom.css';
 
 export default class Patient extends React.Component {
     static displayName = Patient.name;
@@ -248,7 +249,7 @@ export default class Patient extends React.Component {
         if (this.state.isPatient === "")
             return (
                 <div>
-                    <Alert color="success" isOpen={this.state.alertVisible} toggle={() => { this.onChangeAlert(false) }} fade={false}>
+                    <Alert color="success" className='fixed' style={{top: 5}} isOpen={this.state.alertVisible} toggle={() => { this.onChangeAlert(false) }} fade={false}>
                         Изменения успешно сохранены!
                     </Alert >
                     <Form onSubmit={this.onSubmit}>
@@ -351,9 +352,9 @@ export default class Patient extends React.Component {
                                         <p>Дата прохождения: {result.date}</p>
                                         <ul>
                                             {
-                                                result.scales.map((scale) => {
+                                                result.scales.map((scale, i) => {
                                                         return (
-                                                            <li style={{textAlign: 'justify'}} key={scale.idTestScale}>Результат: {scale.scores} — {scale.name}. {scale.interpretation}</li>
+                                                            <li style={{textAlign: 'justify'}} key={i}>Результат: {scale.scores} — {scale.name}. {scale.interpretation}</li>
                                                         );
                                                     })
                                             }
@@ -367,15 +368,17 @@ export default class Patient extends React.Component {
                         }
                         <br/>
                         <br />
-                        <FormGroup>
-                            <div className="row">
-                                <Button className="col-5" color="danger" onClick={() => this.remove()}>Удалить</Button>
-                                <div className="col-2"></div>
-                                <input type="submit" value="Сохранить" className="btn btn-info col-5" />
-                            </div>
-                        </FormGroup>
+                        <div className='fixed' style={{bottom: 0}}>
+                            <FormGroup>
+                                <Row>
+                                    <Col xs="4"><Button style={{width: '100%'}} color="danger" onClick={() => this.remove()}>Удалить пациента</Button></Col>
+                                    <Col xs="4"></Col>
+                                    <Col xs="4"><input  style={{width: '100%'}} type="submit" value="Сохранить изменения" className="btn btn-info" /></Col>
+                                </Row>
+                            </FormGroup>
+                        </div>
                     </Form>
-                    <br /><br />
+                    <br />
                 </div>
             );
         else return (<h1>{this.state.isPatient}</h1>);

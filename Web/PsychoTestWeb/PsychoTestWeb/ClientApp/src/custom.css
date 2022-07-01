@@ -23,3 +23,9 @@ code {
     padding: 60px;
     width: 450px;
 }
+
+.fixed {
+  position: fixed;
+  width: 73%;
+  z-index: 100;
+}

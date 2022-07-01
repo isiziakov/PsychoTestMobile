@@ -50,7 +50,7 @@ export default class ModalPatient extends React.Component {
             successAlertVisible: false,
             dangerAlertVisible: false
         });
-        this.props.onClose("/api/patients/page/1");
+        this.props.onClose(this.props.url);
     }
     onChangeName(e) {
         this.setState({ name: e.target.value });

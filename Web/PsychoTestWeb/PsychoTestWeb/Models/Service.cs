@@ -153,13 +153,14 @@ namespace PsychoTestWeb.Models
         public async Task UpdateUser(string id, User u)
         {
             BsonDocument doc = new BsonDocument("_id", new ObjectId(id));
+            User user = await Users.Find(new BsonDocument("_id", new ObjectId(id))).FirstOrDefaultAsync();
             if (u.password != "")
             {
                 var passwordHasher = new PasswordHasher<User>();
                 var hashedPassword = passwordHasher.HashPassword(u, u.password);
                 u.password = hashedPassword;
             }
-            else u.password = doc["password"].AsString;
+            else u.password = user.password;
             await Users.ReplaceOneAsync(doc, u);
         }
         // удаление пользователя
