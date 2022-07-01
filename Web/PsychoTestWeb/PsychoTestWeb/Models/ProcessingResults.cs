@@ -240,79 +240,9 @@ namespace PsychoTestWeb.Models
                                 result.scores = 0;
                             else
                             {
-                                int firstIndex;
                                 string formula = scale["Formula"].ToString();
-                                do
-                                {
-                                    firstIndex = formula.IndexOf("GRADNUM");
-                                    if (firstIndex != -1)
-                                    {
-                                        string idTestScale = "";
-                                        int lastIndex;
-                                        for (lastIndex = firstIndex + 11; lastIndex < formula.Length; lastIndex++)
-                                            if (formula[lastIndex] != ')')
-                                                idTestScale += formula[lastIndex];
-                                            else break;
-
-                                        int value = 0;
-                                        foreach (var r in results)
-                                            if (r.idTestScale == idTestScale)
-                                            {
-                                                value = (int)r.gradationNumber;
-                                                break;
-                                            }
-                                        formula = formula.Remove(firstIndex, lastIndex - firstIndex + 1);
-                                        formula = formula.Insert(firstIndex, value.ToString());
-                                    }
-                                } while (firstIndex != -1);
-
-                                do
-                                {
-                                    firstIndex = formula.IndexOf("Scale");
-                                    if (firstIndex != -1)
-                                    {
-                                        string idTestScale = "";
-                                        int lastIndex;
-                                        for (lastIndex = firstIndex + 9; lastIndex < formula.Length; lastIndex++)
-                                            if (formula[lastIndex] != ')')
-                                                idTestScale += formula[lastIndex];
-                                            else break;
-
-                                        int value = 0;
-                                        foreach (var r in results)
-                                            if (r.idTestScale == idTestScale)
-                                            {
-                                                value = (int)r.scores;
-                                                break;
-                                            }
-                                        formula = formula.Remove(firstIndex, lastIndex - firstIndex + 1);
-                                        formula = formula.Insert(firstIndex, value.ToString());
-                                    }
-                                } while (firstIndex != -1);
-
-                                do
-                                {
-                                    firstIndex = formula.IndexOf("STSUMM");
-                                    if (firstIndex != -1)
-                                    {
-                                        string idTestScale = "";
-                                        int lastIndex;
-                                        for (lastIndex = firstIndex + 10; lastIndex < formula.Length; lastIndex++)
-                                            if (formula[lastIndex] != ')')
-                                                idTestScale += formula[lastIndex];
-                                            else break;
-
-                                        int value = 0;
-                                        foreach (var r in results)
-                                            if (r.idTestScale == idTestScale)
-                                            {
-                                                value = (int)r.scores;
-                                                break;
-                                            }
-                                        formula = formula.Remove(firstIndex, lastIndex - firstIndex + 1);
-                                        formula = formula.Insert(firstIndex, value.ToString());
-                                    }
-                                } while (firstIndex != -1);
+                                //парсим формулу
+                                formula = ParseFormula.Parse(formula, results);
 
                                 //расчет баллов по формуле
                                 result.scores = (int)Calculator.Calculate(formula);
@@ -322,84 +252,271 @@ namespace PsychoTestWeb.Models
                             break;
                         }
                 }
+        }       
+
+    }
+
+
+    public class ProcessingLusherResults
+    {
+        public PatientsResult patientResult = new PatientsResult();
+
+        public ProcessingLusherResults(JObject test, TestsResult result, BsonDocument norm)
+        {
+            //подсчет баллов по шкалам
+            //Dictionary<string, int> sum = Scorting(test, result, patientResult.scales);
+
+            //заполнение первых 16 шкал — порядок цветов
+            AddOrderColor(test, result);
+
+            //автоматическая интерпретация результатов
+            //нахождение диапазонов
+            //RangeInterpretation(norm, patientResult.scales);
+            //рассчет по формулам
+            //CalculationByFormulas(test, patientResult.scales, norm);
         }
 
-        //считает арифметическое вырежение, записанное в виде строки
-        private static class Calculator
+        //первые 16 шкал — порядок цветов
+        private void AddOrderColor(JObject test, TestsResult testResult)
         {
-            private const string numberChars = "01234567890.";
-            private const string operatorChars = "^*/+-";
-
-            public static double Calculate(string expression)
+            for (int i = 0; i < 8; i++)
             {
-                return EvaluateParenthesis(expression);
-            }
+                var scale = new PatientsResult.Scale();
 
-            private static double EvaluateParenthesis(string expression)
-            {
-                string planarExpression = expression;
-                while (planarExpression.Contains('('))
-                {
-                    int clauseStart = planarExpression.IndexOf('(') + 1;
-                    int clauseEnd = IndexOfRightParenthesis(planarExpression, clauseStart);
-                    string clause = planarExpression.Substring(clauseStart, clauseEnd - clauseStart);
-                    planarExpression = planarExpression.Replace("(" + clause + ")", EvaluateParenthesis(clause).ToString());
-                }
-                return Evaluate(planarExpression);
-            }
-
-            private static int IndexOfRightParenthesis(string expression, int start)
-            {
-                int c = 1;
-                for (int i = start; i < expression.Length; i++)
-                {
-                    switch (expression[i])
+                if (test["Groups"]["item"][i]["NormID"] != null)
+                    scale.idNormScale = test["Groups"]["item"][i]["NormID"].ToString();
+                scale.idTestScale = test["Groups"]["item"][i]["ID"].ToString();
+                scale.name = test["Groups"]["item"][i]["Name"]["#text"].ToString();
+                for (int j = 0; j < 8; j++)
+                    if (testResult.answers[j].answer == i.ToString())
                     {
-                        case '(': c++; break;
-                        case ')': c--; break;
+                        scale.scores = testResult.answers[j].question_id;
+                        break;
                     }
-                    if (c == 0) return i;
-                }
-                return -1;
+                
             }
-
-            private static double Evaluate(string expression)
+            for (int i = 8; i < 16; i++)
             {
-                string normalExpression = expression.Replace(" ", "");
-                List<char> operators = normalExpression.Split(numberChars.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(x => x[0]).ToList();
-                List<double> numbers = normalExpression.Split(operatorChars.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(x => double.Parse(x)).ToList();
+                var scale = new PatientsResult.Scale();
 
-                foreach (char o in operatorChars)
-                {
-                    for (int i = 0; i < operators.Count; i++)
+                if (test["Groups"]["item"][i]["NormID"] != null)
+                    scale.idNormScale = test["Groups"]["item"][i]["NormID"].ToString();
+                scale.idTestScale = test["Groups"]["item"][i]["ID"].ToString();
+                scale.name = test["Groups"]["item"][i]["Name"]["#text"].ToString();
+                for (int j = 8; j < 16; j++)
+                    if (testResult.answers[j].answer == i.ToString())
                     {
-                        if (operators[i] == o)
-                        {
-                            double result = Calc(numbers[i], numbers[i + 1], o);
-                            numbers[i] = result;
-                            numbers.RemoveAt(i + 1);
-                            operators.RemoveAt(i);
-                            i--;
-                        }
+                        scale.scores = testResult.answers[j].question_id;
+                        break;
                     }
-                }
-                return numbers[0];
+                patientResult.scales.Add(scale);
             }
+        }
 
-            private static double Calc(double left, double right, char oper)
+        private void CalculationByFormulas(JObject test, TestsResult testResult)
+        {
+            for (int i = 16; i < 40; i++)
             {
-                switch (oper)
-                {
-                    case '+': return left + right;
-                    case '-': return left - right;
-                    case '*': return left * right;
-                    case '/': return left / right;
-                    case '^': return Math.Pow(left, right);
-                    default: return 0;
-                }
+                var patientScale = new PatientsResult.Scale();
+                var testScale = test["Groups"]["item"][i];
+
+                if (testScale["NormID"] != null)
+                    patientScale.idNormScale = testScale["NormID"].ToString();
+                patientScale.idTestScale = testScale["ID"].ToString();
+                patientScale.name = testScale["Name"]["#text"].ToString();
+
+                string formula = testScale["Formula"].ToString();
+
+                //парсим формулу
+                formula = ParseFormula.Parse(formula, patientResult.scales);
+
+                //расчет баллов по формуле
+                patientScale.scores = (int)Calculator.Calculate(formula);
+
+                patientResult.scales.Add(patientScale);
             }
         }
 
     }
 
+    public static class ParseFormula
+    {
+        public static string Parse(string formula, List<PatientsResult.Scale> results)
+        {
+            int firstIndex;
+            do
+            {
+                firstIndex = formula.IndexOf("GRADNUM");
+                if (firstIndex != -1)
+                {
+                    string idTestScale = "";
+                    int lastIndex;
+                    for (lastIndex = firstIndex + 11; lastIndex < formula.Length; lastIndex++)
+                        if (formula[lastIndex] != ')')
+                            idTestScale += formula[lastIndex];
+                        else break;
+
+                    int value = 0;
+                    foreach (var r in results)
+                        if (r.idTestScale == idTestScale)
+                        {
+                            value = (int)r.gradationNumber;
+                            break;
+                        }
+                    formula = formula.Remove(firstIndex, lastIndex - firstIndex + 1);
+                    formula = formula.Insert(firstIndex, value.ToString());
+                }
+            } while (firstIndex != -1);
+
+            do
+            {
+                firstIndex = formula.IndexOf("Scale");
+                if (firstIndex != -1)
+                {
+                    string idTestScale = "";
+                    int lastIndex;
+                    for (lastIndex = firstIndex + 9; lastIndex < formula.Length; lastIndex++)
+                        if (formula[lastIndex] != ')')
+                            idTestScale += formula[lastIndex];
+                        else break;
+
+                    int value = 0;
+                    foreach (var r in results)
+                        if (r.idTestScale == idTestScale)
+                        {
+                            value = (int)r.scores;
+                            break;
+                        }
+                    formula = formula.Remove(firstIndex, lastIndex - firstIndex + 1);
+                    formula = formula.Insert(firstIndex, value.ToString());
+                }
+            } while (firstIndex != -1);
+
+            do
+            {
+                firstIndex = formula.IndexOf("STSUMM");
+                if (firstIndex != -1)
+                {
+                    string idTestScale = "";
+                    int lastIndex;
+                    for (lastIndex = firstIndex + 10; lastIndex < formula.Length; lastIndex++)
+                        if (formula[lastIndex] != ')')
+                            idTestScale += formula[lastIndex];
+                        else break;
+
+                    int value = 0;
+                    foreach (var r in results)
+                        if (r.idTestScale == idTestScale)
+                        {
+                            value = (int)r.scores;
+                            break;
+                        }
+                    formula = formula.Remove(firstIndex, lastIndex - firstIndex + 1);
+                    formula = formula.Insert(firstIndex, value.ToString());
+                }
+            } while (firstIndex != -1);
+
+            do
+            {
+                firstIndex = formula.IndexOf("abs");
+                if (firstIndex != -1)
+                {
+                    int lastIndex;
+                    string shortFormula = "";
+                    for (lastIndex = firstIndex + 4; lastIndex < formula.Length; lastIndex++)
+                        if (formula[lastIndex] != ')')
+                            shortFormula += formula[lastIndex];
+                        else break;
+                    int value = (int)Calculator.Calculate(shortFormula);
+                    if (value < 0)
+                        value *= -1;
+
+                    formula = formula.Remove(firstIndex, lastIndex - firstIndex + 1);
+                    formula = formula.Insert(firstIndex, value.ToString());
+                }
+            } while (firstIndex != -1);
+
+            return formula;
+        }
+    }
+
+
+
+    //считает арифметическое вырежение, записанное в виде строки
+    public static class Calculator
+    {
+        private const string numberChars = "01234567890.";
+        private const string operatorChars = "^*/+-";
+
+        public static double Calculate(string expression)
+        {
+            return EvaluateParenthesis(expression);
+        }
+
+        private static double EvaluateParenthesis(string expression)
+        {
+            string planarExpression = expression;
+            while (planarExpression.Contains('('))
+            {
+                int clauseStart = planarExpression.IndexOf('(') + 1;
+                int clauseEnd = IndexOfRightParenthesis(planarExpression, clauseStart);
+                string clause = planarExpression.Substring(clauseStart, clauseEnd - clauseStart);
+                planarExpression = planarExpression.Replace("(" + clause + ")", EvaluateParenthesis(clause).ToString());
+            }
+            return Evaluate(planarExpression);
+        }
+
+        private static int IndexOfRightParenthesis(string expression, int start)
+        {
+            int c = 1;
+            for (int i = start; i < expression.Length; i++)
+            {
+                switch (expression[i])
+                {
+                    case '(': c++; break;
+                    case ')': c--; break;
+                }
+                if (c == 0) return i;
+            }
+            return -1;
+        }
+
+        private static double Evaluate(string expression)
+        {
+            string normalExpression = expression.Replace(" ", "");
+            List<char> operators = normalExpression.Split(numberChars.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(x => x[0]).ToList();
+            List<double> numbers = normalExpression.Split(operatorChars.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(x => double.Parse(x)).ToList();
+
+            foreach (char o in operatorChars)
+            {
+                for (int i = 0; i < operators.Count; i++)
+                {
+                    if (operators[i] == o)
+                    {
+                        double result = Calc(numbers[i], numbers[i + 1], o);
+                        numbers[i] = result;
+                        numbers.RemoveAt(i + 1);
+                        operators.RemoveAt(i);
+                        i--;
+                    }
+                }
+            }
+            return numbers[0];
+        }
+
+        private static double Calc(double left, double right, char oper)
+        {
+            switch (oper)
+            {
+                case '+': return left + right;
+                case '-': return left - right;
+                case '*': return left * right;
+                case '/': return left / right;
+                case '^': return Math.Pow(left, right);
+                default: return 0;
+            }
+        }
+    }
+
 }
+

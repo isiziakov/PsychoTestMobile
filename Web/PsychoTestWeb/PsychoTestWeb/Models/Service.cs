@@ -320,15 +320,26 @@ namespace PsychoTestWeb.Models
                 var norm = await NormsBson.Find(new BsonDocument("main.groups.item.id", test["IR"]["ID"].ToString())).FirstOrDefaultAsync();
 
                 //обработка результатов
-                ProcessingResults processingResults = new ProcessingResults(test, result, norm);
-                DateTime now = DateTime.Now;
-                processingResults.patientResult.date = now.ToString("g");
-                processingResults.patientResult.comment = "";
-                processingResults.patientResult.test = result.id;
 
-                //добавление в бд
-                patient.results.Add(processingResults.patientResult);
-                await UpdatePatient(patient.id, patient);
+
+                if (test["IR"]["ClassName"] != null)
+                {
+                    if (test["IR"]["ClassName"].ToString() == "Lusher")
+                    {
+                        //обработка люшера
+                    }
+                }
+                else
+                {
+                    ProcessingResults processingResults = new ProcessingResults(test, result, norm);
+                    DateTime now = DateTime.Now;
+                    processingResults.patientResult.date = now.ToString("g");
+                    processingResults.patientResult.comment = "";
+                    processingResults.patientResult.test = result.id;
+                    //добавление в бд
+                    patient.results.Add(processingResults.patientResult);
+                    await UpdatePatient(patient.id, patient);
+                }
             }
         }
 
@@ -363,6 +374,7 @@ namespace PsychoTestWeb.Models
             var dotNetObj = BsonTypeMapper.MapToDotNetValue(bsonDoc);
             var json = JsonConvert.SerializeObject(dotNetObj);
             var jObj = JObject.Parse(json);
+            if (jObj["Questions"] != null && jObj["Questions"].ToString() != "")
             foreach (var question in jObj["Questions"]["item"])
             {
                 if (question["Question_Type"].ToString() == "1" && question["ImageFileName"] != null)
@@ -430,6 +442,7 @@ namespace PsychoTestWeb.Models
             if (test == null)
             {
                 int i = 0;
+                if (jObj["Questions"] != null && jObj["Questions"].ToString() != "")
                 foreach (var question in jObj["Questions"]["item"])
                 {
                     question["Question_id"] = i;
