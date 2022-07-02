@@ -1,6 +1,7 @@
 ﻿import React, { Component, useReducer } from 'react';
 import { Button, Row, Col, Input, Form, FormGroup, Label, Alert, InputGroup, InputGroupAddon, Collapse, Modal, ModalHeader, ModalBody, ModalFooter, Table  } from 'reactstrap';
 import '../custom.css';
+import ModalTable from './ModalTable';
 
 export default class Patient extends React.Component {
     static displayName = Patient.name;
@@ -458,84 +459,6 @@ class Url extends Component {
                         <Col xs="2"><Button color='info' className="col-12" outline onClick={() => { this.generateUrl() }}>Новая ссылка</Button></Col>
                     </Row>
                 </FormGroup>
-            </div>
-        );
-    }
-}
-
-
-
-class ModalTable extends React.Component {
-    static displayName = ModalTable.name;
-    constructor(props) {
-        super(props);
-        this.state = {
-            modal: false
-        };
-        this.toggle = this.toggle.bind(this);
-    }
-
-    toggle() {
-        this.setState({
-            modal: !this.state.modal
-        });
-    }
-
-    shouldComponentUpdate(nextProps, nextState) {
-        if (nextProps.results.length === 0)
-            return false;
-        else {
-            var flag = false;
-            for (var i = 0; i < nextProps.results.length - 1; i++)
-                if (nextProps.results[i].test != nextProps.results[i + 1].test)
-                    flag = true;
-            return !flag;
-        } 
-    }
-
-    render() {
-        return (
-            <div>
-                <Button color="info" className="col-12" outline onClick={this.toggle}>Таблица</Button>
-                <Modal size="lg" isOpen={this.state.modal} scrollable={true}>
-                    <Form onSubmit={this.onSubmit}>
-                        <ModalHeader toggle={this.toggle}>Сравнение</ModalHeader>
-                        <ModalBody>
-                            <Table hover size="sm">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                    {
-                                        this.props.results.map((result, index) => {
-                                            return (<th key={index}>{result.date}</th>);
-                                        })
-                                    }
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-                                    {
-                                        this.props.results[0].scales.map((scale, index) => {
-                                            return(
-                                                <tr key={index}>
-                                                    <th scope='row'>{scale.name}</th>
-                                                    {
-                                                        this.props.results.map((result, i) => {
-                                                            return(<td key={i}>{result.scales[index].scores}</td>);
-                                                        })
-                                                    }
-                                                </tr>
-                                            );
-                                        })
-                                    }
-                                </tbody>
-                            </Table> 
-                        </ModalBody>
-                        <ModalFooter>
-                            <Button color="info" onClick={() => this.toggle()}>Закрыть</Button>
-                        </ModalFooter>
-                    </Form>
-                </Modal>
             </div>
         );
     }

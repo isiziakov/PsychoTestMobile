@@ -21,7 +21,7 @@ namespace PsychoTestWeb.Models
         public ProcessingResults(JObject test, TestsResult result, BsonDocument norm)
         {
             //подсчет баллов по шкалам
-            Dictionary<string, int> sum = Scorting(test, result, patientResult.scales);
+            Dictionary<string, double> sum = Scorting(test, result, patientResult.scales);
 
             //добавление шкал пациенту
             AddScales(sum, test);
@@ -35,10 +35,10 @@ namespace PsychoTestWeb.Models
 
 
         //подсчет баллов по шкалам
-        private Dictionary<string, int> Scorting(JObject test, TestsResult result, List<PatientsResult.Scale> patientScales)
+        private Dictionary<string, double> Scorting(JObject test, TestsResult result, List<PatientsResult.Scale> patientScales)
         {
             //id шкалы - сумма по шкале 
-            Dictionary<string, int> scales = new Dictionary<string, int>();
+            Dictionary<string, double> scales = new Dictionary<string, double>();
             foreach (var answer in result.answers)
             {
                 //Если вопрос с выбором одного из вариантов ответа
@@ -55,20 +55,20 @@ namespace PsychoTestWeb.Models
                                     {
                                         scale = s["ScID"].ToString();
                                         if (scales.ContainsKey(scale))
-                                            scales[scale] += Int32.Parse(s["Weights"].ToString());
+                                            scales[scale] += double.Parse(s["Weights"].ToString(), System.Globalization.CultureInfo.InvariantCulture);
                                         else
                                         {
-                                            scales[scale] = Int32.Parse(s["Weights"].ToString());
+                                            scales[scale] = double.Parse(s["Weights"].ToString(), System.Globalization.CultureInfo.InvariantCulture);
                                         }
                                     }
                                 else
                                 {
                                     scale = test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"]["item"]["ScID"].ToString();
                                     if (scales.ContainsKey(scale))
-                                        scales[scale] += Int32.Parse(test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"]["item"]["Weights"].ToString());
+                                        scales[scale] += double.Parse(test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"]["item"]["Weights"].ToString(), System.Globalization.CultureInfo.InvariantCulture);
                                     else
                                     {
-                                        scales[scale] = Int32.Parse(test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"]["item"]["Weights"].ToString());
+                                        scales[scale] = double.Parse(test["Questions"]["item"][answer.question_id]["Answers"]["item"][Int32.Parse(answer.answer)]["Weights"]["item"]["Weights"].ToString(), System.Globalization.CultureInfo.InvariantCulture);
                                     }
                                 }
                             }
@@ -83,19 +83,19 @@ namespace PsychoTestWeb.Models
                             {
                                 foreach (var i in ans["Weights"]["item"])
                                     if (scales.ContainsKey(i["ScID"].ToString()))
-                                        scales[i["ScID"].ToString()] += Int32.Parse(i["Weights"].ToString());
+                                        scales[i["ScID"].ToString()] += double.Parse(i["Weights"].ToString(), System.Globalization.CultureInfo.InvariantCulture);
                                     else
                                     {
-                                        scales[i["ScID"].ToString()] = Int32.Parse(i["Weights"].ToString());
+                                        scales[i["ScID"].ToString()] = double.Parse(i["Weights"].ToString(), System.Globalization.CultureInfo.InvariantCulture);
                                     }
                             }
                             else
                             {
                                 if (scales.ContainsKey(ans["Weights"]["item"]["ScID"].ToString()))
-                                    scales[ans["Weights"]["item"]["ScID"].ToString()] += Int32.Parse(ans["Weights"]["item"]["Weights"].ToString());
+                                    scales[ans["Weights"]["item"]["ScID"].ToString()] += double.Parse(ans["Weights"]["item"]["Weights"].ToString(), System.Globalization.CultureInfo.InvariantCulture);
                                 else
                                 {
-                                    scales[ans["Weights"]["item"]["ScID"].ToString()] = Int32.Parse(ans["Weights"]["item"]["Weights"].ToString());
+                                    scales[ans["Weights"]["item"]["ScID"].ToString()] = double.Parse(ans["Weights"]["item"]["Weights"].ToString(), System.Globalization.CultureInfo.InvariantCulture);
                                 }
                             }
                         }
@@ -106,7 +106,7 @@ namespace PsychoTestWeb.Models
 
 
         //добавление шкал пациенту
-        private void AddScales (Dictionary<string, int> sum, JObject test)
+        private void AddScales (Dictionary<string, double> sum, JObject test)
         {
             if (test["Groups"]["item"] is JArray)
                 foreach (var scale in test["Groups"]["item"])
@@ -182,7 +182,7 @@ namespace PsychoTestWeb.Models
                                 //если слева -inf, справа число
                                 if (grad["lowerformula"]["ftext"].ToString() == "-inf" && grad["upperformula"]["ftext"].ToString() != "+inf")
                                 {
-                                    if (result.scores <= Int32.Parse(grad["upperformula"]["ftext"].ToString()))
+                                    if (result.scores <= double.Parse(grad["upperformula"]["ftext"].ToString(), System.Globalization.CultureInfo.InvariantCulture))
                                     {
                                         if (grad["comment"]["#text"] != null)
                                             result.interpretation = grad["comment"]["#text"].ToString();
@@ -193,7 +193,7 @@ namespace PsychoTestWeb.Models
                                 //если справа +inf, слева число
                                 if (grad["lowerformula"]["ftext"].ToString() != "-inf" && grad["upperformula"]["ftext"].ToString() == "+inf")
                                 {
-                                    if (result.scores > Int32.Parse(grad["lowerformula"]["ftext"].ToString()))
+                                    if (result.scores > double.Parse(grad["lowerformula"]["ftext"].ToString(), System.Globalization.CultureInfo.InvariantCulture))
                                     {
                                         if (grad["comment"]["#text"] != null)
                                             result.interpretation = grad["comment"]["#text"].ToString();
@@ -204,7 +204,8 @@ namespace PsychoTestWeb.Models
                                 //c обеих сторон числа
                                 if (grad["lowerformula"]["ftext"].ToString() != "-inf" && grad["upperformula"]["ftext"].ToString() != "+inf")
                                 {
-                                    if (result.scores > Int32.Parse(grad["lowerformula"]["ftext"].ToString()) && result.scores <= Int32.Parse(grad["upperformula"]["ftext"].ToString()))
+                                    if (result.scores > double.Parse(grad["lowerformula"]["ftext"].ToString(), System.Globalization.CultureInfo.InvariantCulture) && 
+                                        result.scores <= double.Parse(grad["upperformula"]["ftext"].ToString(), System.Globalization.CultureInfo.InvariantCulture))
                                     {
                                         if (grad["comment"]["#text"] != null)
                                             result.interpretation = grad["comment"]["#text"].ToString();
@@ -245,7 +246,7 @@ namespace PsychoTestWeb.Models
                                 formula = ParseFormula.Parse(formula, results);
 
                                 //расчет баллов по формуле
-                                result.scores = (int)Calculator.Calculate(formula);
+                                result.scores = Calculator.Calculate(formula);
                                 //повторное нахождение диапазонов
                                 RangeInterpretation(norm, patientResult.scales);
                             }
@@ -253,7 +254,6 @@ namespace PsychoTestWeb.Models
                         }
                 }
         }       
-
     }
 
 
@@ -273,6 +273,9 @@ namespace PsychoTestWeb.Models
 
             //интерпритация
             RangeInterpretation(norm, patientResult.scales);
+
+            //Удаляем вспомогательные шкалы из окончательного результата 
+            RemoveAuxiliaryScales(patientResult.scales);
         }
 
         //первые 16 шкал — порядок цветов
@@ -326,7 +329,7 @@ namespace PsychoTestWeb.Models
                 formula = ParseFormula.Parse(formula, patientResult.scales);
 
                 //расчет баллов по формуле
-                patientScale.scores = (int)Calculator.Calculate(formula);
+                patientScale.scores = Calculator.Calculate(formula);
 
                 patientResult.scales.Add(patientScale);
             }
@@ -374,39 +377,39 @@ namespace PsychoTestWeb.Models
                                 {
                                     if (grad["comment"]["#text"] != null)
                                         result.interpretation = grad["comment"]["#text"].ToString();
-                                    result.gradationNumber = (int)double.Parse(grad["number"].ToString(), System.Globalization.CultureInfo.InvariantCulture);
+                                    result.gradationNumber = Int32.Parse(grad["number"].ToString());
                                 }
                                 else
                                 //если слева -inf, справа число
                                 if (grad["lowerformula"]["ftext"].ToString() == "-inf" && grad["upperformula"]["ftext"].ToString() != "+inf")
                                 {
-                                    if (result.scores <= (int)double.Parse(grad["upperformula"]["ftext"].ToString(), System.Globalization.CultureInfo.InvariantCulture))
+                                    if (result.scores <= double.Parse(grad["upperformula"]["ftext"].ToString(), System.Globalization.CultureInfo.InvariantCulture))
                                     {
                                         if (grad["comment"]["#text"] != null)
                                             result.interpretation = grad["comment"]["#text"].ToString();
-                                        result.gradationNumber = (int)double.Parse(grad["number"].ToString(), System.Globalization.CultureInfo.InvariantCulture);
+                                        result.gradationNumber = Int32.Parse(grad["number"].ToString());
                                     }
                                 }
                                 else
                                 //если справа +inf, слева число
                                 if (grad["lowerformula"]["ftext"].ToString() != "-inf" && grad["upperformula"]["ftext"].ToString() == "+inf")
                                 {
-                                    if (result.scores > (int)double.Parse(grad["lowerformula"]["ftext"].ToString(), System.Globalization.CultureInfo.InvariantCulture))
+                                    if (result.scores > double.Parse(grad["lowerformula"]["ftext"].ToString(), System.Globalization.CultureInfo.InvariantCulture))
                                     {
                                         if (grad["comment"]["#text"] != null)
                                             result.interpretation = grad["comment"]["#text"].ToString();
-                                        result.gradationNumber = (int)double.Parse(grad["number"].ToString(), System.Globalization.CultureInfo.InvariantCulture);
+                                        result.gradationNumber = Int32.Parse(grad["number"].ToString());
                                     }
                                 }
                                 else
                                 //c обеих сторон числа
                                 if (grad["lowerformula"]["ftext"].ToString() != "-inf" && grad["upperformula"]["ftext"].ToString() != "+inf")
                                 {
-                                    if (result.scores > (int)double.Parse(grad["lowerformula"]["ftext"].ToString(), System.Globalization.CultureInfo.InvariantCulture) && result.scores <= (int)double.Parse(grad["upperformula"]["ftext"].ToString(), System.Globalization.CultureInfo.InvariantCulture))
+                                    if (result.scores > double.Parse(grad["lowerformula"]["ftext"].ToString(), System.Globalization.CultureInfo.InvariantCulture) && result.scores <= (int)double.Parse(grad["upperformula"]["ftext"].ToString(), System.Globalization.CultureInfo.InvariantCulture))
                                     {
                                         if (grad["comment"]["#text"] != null)
                                             result.interpretation = grad["comment"]["#text"].ToString();
-                                        result.gradationNumber = (int)double.Parse(grad["number"].ToString(), System.Globalization.CultureInfo.InvariantCulture);
+                                        result.gradationNumber = Int32.Parse(grad["number"].ToString());
                                     }
                                 }
                             }
@@ -414,6 +417,21 @@ namespace PsychoTestWeb.Models
                         }
                     }
             }
+        }
+
+        private void RemoveAuxiliaryScales(List<PatientsResult.Scale> scales)
+        {
+            //удаляем первые 16 значений — место цветов в двух выборках.
+            //Вместо них оставим средние значения мест (среднее по ряду выборов место каждого цвета)
+            scales.RemoveRange(0, 16);
+
+            //для шкал y1,y2,y3,x1,x2,x3 стрессовых цветов сохраняем только вариант, неравный 0 в соответствии с местом
+            for (int i = 15; i < 21; i++)
+                if (scales[i].scores == 0)
+                    scales[i].scores = null;
+
+            //убираем 2 промежуточных значения для рассчета показателя стресса
+            scales.RemoveRange(scales.Count() - 3, 2); 
         }
     }
 
@@ -505,7 +523,7 @@ namespace PsychoTestWeb.Models
                         if (formula[lastIndex] != ')')
                             shortFormula += formula[lastIndex];
                         else break;
-                    int value = (int)Calculator.Calculate(shortFormula);
+                    double value = Calculator.Calculate(shortFormula);
                     if (value < 0)
                         value *= -1;
 
@@ -593,7 +611,7 @@ namespace PsychoTestWeb.Models
                 if (firstIndex != -1)
                 {
                     int r = 0;
-                    if (formula[firstIndex - 1] == 1 || formula[firstIndex + 2] == 1)
+                    if (formula[firstIndex - 1] == '1' || formula[firstIndex + 2] == '1')
                         r = 1;
                     formula = formula.Remove(firstIndex - 1, 4);
                     formula = formula.Insert(firstIndex - 1, r.ToString());
@@ -650,11 +668,7 @@ namespace PsychoTestWeb.Models
         {
             string normalExpression = expression.Replace(" ", "").Replace(",", ".");
             List<char> operators = normalExpression.Split(numberChars.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(x => x[0]).ToList();
-            //List<double> numbers = normalExpression.Split(operatorChars.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(x => double.Parse(x)).ToList();
-            List<string> strings = normalExpression.Split(operatorChars.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
-            List<double> numbers = new List<double>();
-            foreach (var s in strings)
-                numbers.Add(double.Parse(s, System.Globalization.CultureInfo.InvariantCulture));
+            List<double> numbers = normalExpression.Split(operatorChars.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(x => double.Parse(x, System.Globalization.CultureInfo.InvariantCulture)).ToList();
 
             foreach (char o in operatorChars)
             {

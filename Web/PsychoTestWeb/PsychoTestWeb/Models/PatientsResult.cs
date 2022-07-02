@@ -22,7 +22,7 @@ namespace PsychoTestWeb.Models
             public string? idTestScale { get; set; }
             public string? idNormScale { get; set; }
             public string? name { get; set; }
-            public int? scores { get; set; }
+            public double? scores { get; set; }
             public int? gradationNumber { get; set; }
             public string? interpretation { get; set; }
         }
