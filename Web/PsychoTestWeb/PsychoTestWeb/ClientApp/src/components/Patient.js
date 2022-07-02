@@ -354,9 +354,11 @@ export default class Patient extends React.Component {
                                         <ul>
                                             {
                                                 result.scales.map((scale, i) => {
+                                                    if (scale.scores !== null)
                                                         return (
                                                             <li style={{textAlign: 'justify'}} key={i}>Результат: {scale.scores} — {scale.name}. {scale.interpretation}</li>
                                                         );
+                                                    else return(null);
                                                     })
                                             }
                                         </ul>
