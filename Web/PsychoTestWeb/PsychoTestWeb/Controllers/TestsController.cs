@@ -112,28 +112,6 @@ namespace PsychoTestWeb.Controllers
             return BadRequest();
         }
 
-        //УБРАТЬ!!!
-        // POST api/<TestsController>/importImage
-        [Route("importImage")]
-        [HttpPost]
-        public async Task<IActionResult> PostImages([FromForm] List<IFormFile> images)
-        {
-            if (images != null)
-            { 
-                foreach (IFormFile image in images)
-                {
-                    using (Stream fs = image.OpenReadStream())
-                    {
-                        await db.ImportImage(fs, image.FileName);
-                    }
-                }
-
-                return Ok();
-            }
-            else
-                return BadRequest();
-        }
-
         // DELETE api/<TestsController>/62a2ee61e5ab646eb9231448
         [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]

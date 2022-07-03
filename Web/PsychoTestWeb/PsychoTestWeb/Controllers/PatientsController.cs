@@ -85,6 +85,15 @@ namespace PsychoTestWeb.Controllers
             return await db.GetPatientsByNameWithCount(pageValue, nameValue);
         }
 
+        //получение пациента с отфильтрованными результатами для статистики
+        // GET: api/<PatientsController>/results/62a1f08829de97df5563051f/62a1f08829de97df5563051f
+        [Authorize]
+        [HttpGet("results/{patientId}/{testId}")]
+        public async Task<Patient> GetResultsByTestId(string patientId, string testId)
+        {
+            return await db.GetPatientsResultsByTestId(patientId, testId);
+        }
+
         // POST api/<PatientsController>
         [Authorize]
         [HttpPost]
@@ -93,7 +102,7 @@ namespace PsychoTestWeb.Controllers
             string token = await db.CreatePatient(value);
             if (token != null)
             {
-                var msg = new { message = "https://ptest://" + this.HttpContext.Request.Host + "/api/link/t=" + token };
+                var msg = new { message = "ptest://https://" + this.HttpContext.Request.Host + "/api/link/t=" + token };
                 return Ok(msg);
             }
             else return null;

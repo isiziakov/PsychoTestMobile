@@ -42,7 +42,7 @@ export class Tests extends Component {
                 <br/>
                 <Row>
                     <Col xs="8"><h2>Список тестов:</h2></Col>
-                    <Col xs="auto"><ModalImportTest getTests={this.getTests}/></Col>
+                    <Col xs="2"><ModalImportTest getTests={this.getTests}/></Col>
                 </Row>
                 <hr />
                 <div>
@@ -89,7 +89,7 @@ class Test extends React.Component {
             <div>
                 <Row>
                     <Col xs="8">{this.props.test.name}</Col>
-                    <Col xs="auto"><Button color='danger' outline onClick={this.remove}>Удалить</Button></Col>
+                    <Col xs="2"><Button color='danger' className="col-12"  outline onClick={this.remove}>Удалить</Button></Col>
                 </Row>
                 <br/>
             </div>
@@ -231,7 +231,7 @@ class ModalImportTest extends React.Component {
     render() {
         return (
             <div>
-                <Button color="info" onClick={this.toggle}>Импортировать</Button>
+                <Button color="info" className="col-12"  onClick={this.toggle}>Импортировать</Button>
                 <Modal isOpen={this.state.modal}>
                     <Form onSubmit={(e) => { this.onSubmit(e) }} encType="multipart/form-data">
                         <ModalHeader toggle={this.toggle}>Импорт теста</ModalHeader>

@@ -49,7 +49,6 @@ export class Authorisation extends Component {
         if (response.ok === true) {
             // сохраняем в хранилище sessionStorage токен доступа
             sessionStorage.setItem('tokenKey', data.accessToken);
-            console.log(data);
             window.location.reload();
         }
         else {

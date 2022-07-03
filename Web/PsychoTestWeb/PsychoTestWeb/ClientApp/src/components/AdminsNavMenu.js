@@ -1,10 +1,25 @@
-﻿import React, { Component } from 'react';
+﻿import React, { PureComponent } from 'react';
 import { Collapse, Container, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
-import { Link } from 'react-router-dom';
-import { useHistory } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 import './NavMenu.css';
 
-export class AdminsNavMenu extends Component {
+const LogOut = () => {
+    let history = useHistory();
+
+    const goToHome = () => {
+        history.push("/");
+        sessionStorage.removeItem('tokenKey');
+        window.location.reload();
+    }
+
+    return (
+        <NavItem>
+             <NavLink tag={Link} className="text-dark" to="/" onClick={goToHome}>Выход</NavLink>
+        </NavItem>
+    );
+}
+
+export class AdminsNavMenu extends PureComponent {
     static displayName = AdminsNavMenu.name;
 
     constructor(props) {
@@ -20,11 +35,6 @@ export class AdminsNavMenu extends Component {
         this.setState({
             collapsed: !this.state.collapsed
         });
-    }
-
-    LogOut() {
-        sessionStorage.removeItem('tokenKey');
-        window.location.reload();
     }
 
     render() {
@@ -45,9 +55,7 @@ export class AdminsNavMenu extends Component {
                                 <NavItem>
                                     <NavLink tag={Link} className="text-dark" to="/">Пациенты</NavLink>
                                 </NavItem>
-                                <NavItem>
-                                    <NavLink tag={Link} className="text-dark" to="/#" onClick={this.LogOut}>Выход</NavLink>
-                                </NavItem>
+                                <LogOut/>
                             </ul>
                         </Collapse>
                     </Container>

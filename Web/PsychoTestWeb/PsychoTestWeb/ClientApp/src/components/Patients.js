@@ -14,11 +14,13 @@ export class Patients extends Component {
             patients: [],
             searchString: "",
             emptyPatient: { name: "", tests: [], id: "", results: [] },
+            currentPage: 1,
             urlForPagination: "",
             postfixUrlForPagination: ""
         };
         this.getPatients = this.getPatients.bind(this);
         this.onSearchStringChange = this.onSearchStringChange.bind(this);
+        this.onCurrentPageChange = this.onCurrentPageChange.bind(this);
     }
 
     componentDidMount() {
@@ -27,6 +29,9 @@ export class Patients extends Component {
     }
     onSearchStringChange(e) {
         this.setState({ searchString: e.target.value });
+    }
+    onCurrentPageChange(value) {
+        this.setState({ currentPage: value });
     }
     async getPatients(url) {
         const token = sessionStorage.getItem('tokenKey');
@@ -58,34 +63,34 @@ export class Patients extends Component {
                         <InputGroup>
                             <Input value={this.state.searchString} onChange={this.onSearchStringChange} />
                             <InputGroupAddon addonType="append">
-                                <Button color="secondary" outline onClick={() => { this.getPatients("api/patients/page/1"); this.setState({ searchString: "", urlForPagination: "api/patients/", postfixUrlForPagination: "" }) }}>&#215;</Button>
+                                <Button color="secondary" outline onClick={() => { this.getPatients("api/patients/page/" + this.state.currentPage); this.setState({ searchString: "", urlForPagination: "api/patients/", postfixUrlForPagination: "" }) }}>&#215;</Button>
                             </InputGroupAddon>
                         </InputGroup>
                     </Col>
                     <Col xs="2"><Button color="info" className="col-12" onClick={() => {
                         if (this.state.searchString !== "") {
                             this.getPatients("api/patients/name/page/1/" + this.state.searchString);
-                            this.setState({ urlForPagination: "api/patients/name/", postfixUrlForPagination: this.state.searchString });
+                            this.setState({ urlForPagination: "api/patients/name/", postfixUrlForPagination: this.state.searchString, currentPage: 1 });
                         }
                         else {
                             this.getPatients("api/patients/page/1");
-                            this.setState({ urlForPagination: "api/patients/", postfixUrlForPagination: "" })
+                            this.setState({ urlForPagination: "api/patients/", postfixUrlForPagination: "", currentPage: 1 })
                         }
                     }}>Найти</Button></Col>
                     <Col xs="1"></Col>
-                    <Col xs="auto"><ModalPatient patient={this.state.emptyPatient} isCreate={true} onClose={this.getPatients} /></Col>
+                    <Col xs="auto"><ModalPatient patient={this.state.emptyPatient} isCreate={true} onClose={this.getPatients} currentPage={this.state.currentPage} url={this.state.urlForPagination + "page/" + this.state.currentPage + "/" + this.state.postfixUrlForPagination} /></Col>
                 </Row>
                 <br />
                 <hr />
                 <div>
                     {
                         this.state.patients.map((patient) => {
-                            return <Patient patient={patient} getPatients={this.getPatients} key={patient.id} />
+                            return <Patient patient={patient} getPatients={this.getPatients} key={patient.id} currentPage={this.state.currentPage} url={this.state.urlForPagination + "page/" + this.state.currentPage + "/" + this.state.postfixUrlForPagination} />
                         })
                     }
                 </div>
                 <br />
-                <CustomPagination controllerUrl={this.state.urlForPagination} postfixUrl={this.state.postfixUrlForPagination} getContent={this.getPatients} className="col-12" />
+                <CustomPagination controllerUrl={this.state.urlForPagination} postfixUrl={this.state.postfixUrlForPagination} getContent={this.getPatients} setCurrentPage={this.onCurrentPageChange} className="col-12" />
             </div>
         );
     }
@@ -124,4 +129,3 @@ const ViewPatient = (patientId) => {
         <Button color="info" outline className="col-12" onClick={goToPatient}>Просмотр</Button>
     );
 };
-

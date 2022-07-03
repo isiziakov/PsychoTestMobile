@@ -12,6 +12,10 @@ using System.Linq;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Security.Cryptography;
 using MongoDB.Driver.GridFS;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using System.Text;
+using PsychoTestWeb.Authorisation;
+using Microsoft.AspNetCore.Identity;
 
 namespace PsychoTestWeb.Models
 {
@@ -60,7 +64,23 @@ namespace PsychoTestWeb.Models
             var builder = new FilterDefinitionBuilder<User>();
             var filter = builder.Empty;
             var people = Users.Find(filter).ToList();
-            return people.FirstOrDefault(x => x.login == username && x.password == password);
+
+
+            var passwordHasher = new PasswordHasher<User>();
+            bool verified = false;
+            
+
+            foreach (var user in people)
+                if (username == user.login)
+                {
+                    var result = passwordHasher.VerifyHashedPassword(user, user.password, password);
+                    if (result == PasswordVerificationResult.Success) verified = true;
+                    else if (result == PasswordVerificationResult.SuccessRehashNeeded) verified = true;
+                    else if (result == PasswordVerificationResult.Failed) verified = false;
+                    if (verified) 
+                        return user;
+                }       
+            return null;
         }
         //получаем количество страниц с пользователями, если на странице 10 пользователей
         public async Task<double> GetUsersPagesCount()
@@ -123,12 +143,24 @@ namespace PsychoTestWeb.Models
         // добавление пользователя
         public async Task CreateUser(User u)
         {
+            var passwordHasher = new PasswordHasher<User>();
+            var hashedPassword = passwordHasher.HashPassword(u, u.password);
+            u.password = hashedPassword;
+
             await Users.InsertOneAsync(u);
         }
         // обновление пользователя
         public async Task UpdateUser(string id, User u)
         {
             BsonDocument doc = new BsonDocument("_id", new ObjectId(id));
+            User user = await Users.Find(new BsonDocument("_id", new ObjectId(id))).FirstOrDefaultAsync();
+            if (u.password != "")
+            {
+                var passwordHasher = new PasswordHasher<User>();
+                var hashedPassword = passwordHasher.HashPassword(u, u.password);
+                u.password = hashedPassword;
+            }
+            else u.password = user.password;
             await Users.ReplaceOneAsync(doc, u);
         }
         // удаление пользователя
@@ -209,6 +241,17 @@ namespace PsychoTestWeb.Models
             patients.CopyTo(start, page, 0, count);
             return page;
         }
+        //фильтрация результатов для статистики по id теста
+        public async Task<Patient> GetPatientsResultsByTestId(string patientId, string testId)
+        {
+            Patient patient = await GetPatientById(patientId);
+            List<PatientsResult> r = new List<PatientsResult>();
+            foreach (PatientsResult result in patient.results)
+                if (result.test == testId)
+                    r.Add(result);
+            patient.results = r;
+            return patient;
+        }
         // добавление пациента
         public async Task<string> CreatePatient(Patient p)
         {
@@ -277,15 +320,34 @@ namespace PsychoTestWeb.Models
                 var norm = await NormsBson.Find(new BsonDocument("main.groups.item.id", test["IR"]["ID"].ToString())).FirstOrDefaultAsync();
 
                 //обработка результатов
-                ProcessingResults processingResults = new ProcessingResults(test, result, norm);
-                DateTime now = DateTime.Now;
-                processingResults.patientResult.date = now.ToString("g");
-                processingResults.patientResult.comment = "";
-                processingResults.patientResult.test = result.id;
 
-                //добавление в бд
-                patient.results.Add(processingResults.patientResult);
-                await UpdatePatient(patient.id, patient);
+                //обработка люшера
+                if (test["IR"]["ClassName"] != null)
+                {
+                    if (test["IR"]["ClassName"].ToString() == "Lusher")
+                    {
+                        ProcessingLusherResults processingResults = new ProcessingLusherResults(test, result, norm);
+                        DateTime now = DateTime.Now;
+                        processingResults.patientResult.date = now.ToString("g");
+                        processingResults.patientResult.comment = "";
+                        processingResults.patientResult.test = result.id;
+                        //добавление в бд
+                        patient.results.Add(processingResults.patientResult);
+                        await UpdatePatient(patient.id, patient);
+                    }
+                }
+                //обработка стандартных опросников
+                else
+                {
+                    ProcessingResults processingResults = new ProcessingResults(test, result, norm);
+                    DateTime now = DateTime.Now;
+                    processingResults.patientResult.date = now.ToString("g");
+                    processingResults.patientResult.comment = "";
+                    processingResults.patientResult.test = result.id;
+                    //добавление в бд
+                    patient.results.Add(processingResults.patientResult);
+                    await UpdatePatient(patient.id, patient);
+                }
             }
         }
 
@@ -313,7 +375,6 @@ namespace PsychoTestWeb.Models
             return tests;
         }
 
-
         //получаем тест по id
         public async Task<string> GetTestById(string id)
         {
@@ -321,6 +382,7 @@ namespace PsychoTestWeb.Models
             var dotNetObj = BsonTypeMapper.MapToDotNetValue(bsonDoc);
             var json = JsonConvert.SerializeObject(dotNetObj);
             var jObj = JObject.Parse(json);
+            if (jObj["Questions"] != null && jObj["Questions"].ToString() != "")
             foreach (var question in jObj["Questions"]["item"])
             {
                 if (question["Question_Type"].ToString() == "1" && question["ImageFileName"] != null)
@@ -338,6 +400,15 @@ namespace PsychoTestWeb.Models
                     }
             }
             return JsonConvert.SerializeObject(jObj);
+        }
+
+        //получаем тест по id
+        public async Task<string> GetTestByIdWithoutImages(string id)
+        {
+            var bsonDoc = await TestsBson.Find(new BsonDocument("_id", new ObjectId(id))).FirstOrDefaultAsync();
+            var dotNetObj = BsonTypeMapper.MapToDotNetValue(bsonDoc);
+            var json = JsonConvert.SerializeObject(dotNetObj);
+            return json;
         }
 
         //получаем все назначенные пациенту тесты 
@@ -379,6 +450,7 @@ namespace PsychoTestWeb.Models
             if (test == null)
             {
                 int i = 0;
+                if (jObj["Questions"] != null && jObj["Questions"].ToString() != "")
                 foreach (var question in jObj["Questions"]["item"])
                 {
                     question["Question_id"] = i;
@@ -530,8 +602,7 @@ namespace PsychoTestWeb.Models
             await gridFS.UploadFromStreamAsync(imageName, imageStream);
         }
 
-
         #endregion
-    }
 
+    }
 }

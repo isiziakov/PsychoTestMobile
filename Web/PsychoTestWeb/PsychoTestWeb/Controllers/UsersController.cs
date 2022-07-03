@@ -85,7 +85,7 @@ namespace PsychoTestWeb.Controllers
         }
 
         // POST api/<UsersController>
-        [Authorize(Roles = "admin")]
+        //[Authorize]
         [HttpPost]
         public async Task Post([FromBody] User value)
         {
