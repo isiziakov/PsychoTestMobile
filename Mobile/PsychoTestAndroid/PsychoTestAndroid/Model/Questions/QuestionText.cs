@@ -19,7 +19,7 @@ namespace PsychoTestAndroid.Model.Questions
     {
         // текст вопроса
         [JsonProperty("text")]
-        string text;
+        protected string text;
 
         public QuestionText()
         {
@@ -33,6 +33,7 @@ namespace PsychoTestAndroid.Model.Questions
         public QuestionText(JObject data) : base(data)
         {
             text = data["Text"]["#text"].ToString();
+            text = text.Replace("   ", " ");
         }
         // отобразить вопрос
         public override View Show(View layout)

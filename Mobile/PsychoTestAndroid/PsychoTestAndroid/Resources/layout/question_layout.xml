@@ -11,13 +11,15 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/question_view"/>
+            android:id="@+id/question_view"
+            android:orientation="vertical" />
     </ScrollView>
-    <androidx.recyclerview.widget.RecyclerView
+    <LinearLayout
        android:id="@+id/answers_view"
        android:layout_width="match_parent"
        android:layout_height="match_parent"
-       android:layout_weight="66">
-    </androidx.recyclerview.widget.RecyclerView>
+       android:layout_weight="66"
+        android:orientation="vertical">
+    </LinearLayout>
 </LinearLayout>
 

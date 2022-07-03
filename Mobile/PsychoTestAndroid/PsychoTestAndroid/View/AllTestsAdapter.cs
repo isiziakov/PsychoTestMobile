@@ -1,5 +1,6 @@
 ﻿using Android.App;
 using Android.Content;
+using Android.Graphics;
 using Android.OS;
 using Android.Runtime;
 using Android.Views;
@@ -16,6 +17,7 @@ namespace PsychoTestAndroid
 {
     public class AllTestsViewHolder : RecyclerView.ViewHolder
     {
+        public LinearLayout Layout { get; set; }
         public TextView Name { get; set; }
         public TextView Title { get; set; }
         public TextView Status { get; set; }
@@ -23,6 +25,7 @@ namespace PsychoTestAndroid
         [Obsolete]
         public AllTestsViewHolder(View itemview, Action<int> listener) : base(itemview)
         {
+            Layout = itemview.FindViewById<LinearLayout>(Resource.Id.allTests_layout);
             Name = itemview.FindViewById<TextView>(Resource.Id.tests_recycler_name);
             Title = itemview.FindViewById<TextView>(Resource.Id.tests_recycler_title);
             Status = itemview.FindViewById<TextView>(Resource.Id.tests_recycler_status);
@@ -40,17 +43,30 @@ namespace PsychoTestAndroid
         }
         public override int ItemCount
         {
-            get { return tests.Count; }
+            get { return tests.Count > 0? tests.Count : 1; }
         }
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
             AllTestsViewHolder vh = holder as AllTestsViewHolder;
-            vh.Name.Text = tests[position].Name;
-            vh.Status.Text = tests[position].Status;
-            if (tests[position].Title != null && tests[position].Title != "")
+            if (tests.Count > 0)
             {
-                vh.Title.Text = tests[position].Title;
-                vh.Title.Visibility = ViewStates.Visible;
+                vh.Name.Text = tests[position].Name;
+                vh.Status.Text = tests[position].Status;
+                if (tests[position].Title != null && tests[position].Title != "")
+                {
+                    vh.Title.Text = tests[position].Title;
+                    vh.Title.Visibility = ViewStates.Visible;
+                }
+                if (!(tests[position].Questions == "" && tests[position].EndDate != "" && tests[position].EndDate != null))
+                {
+                    vh.Layout.SetBackgroundColor(Color.Green);
+                }
+            }
+            else
+            {
+                vh.Name.Text = "Вопросов нет";
+                vh.Status.Visibility = ViewStates.Gone;
+                vh.Title.Visibility = ViewStates.Gone;
             }
         }
 
@@ -63,7 +79,7 @@ namespace PsychoTestAndroid
         }
         private void OnClick(int obj)
         {
-            if (ItemClick != null)
+            if (ItemClick != null && tests.Count > 0)
                 ItemClick(this, obj);
         }
 

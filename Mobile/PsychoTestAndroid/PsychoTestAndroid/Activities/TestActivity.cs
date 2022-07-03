@@ -40,7 +40,8 @@ namespace PsychoTestAndroid
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.instruction);
             // считать тест
-            dbTest = JsonConvert.DeserializeObject<DbTest>(Intent.GetStringExtra("Test"));
+            int id = Intent.GetIntExtra("Test", 0);
+            dbTest = DbOperations.GetTest(id);
             test = new Test(dbTest);
             // тест пуст
             if (test == null)
@@ -79,7 +80,23 @@ namespace PsychoTestAndroid
             {
                 if (test != null)
                 {
-                    InitializeTestContent();
+                    if (test.Duration != "" && test.Duration != "0")
+                    {
+                        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+                        alert.SetTitle("Тест имеет ограничение по времени");
+                        alert.SetMessage($"Длительность теста - {Int32.Parse(test.Duration) / 60} минут");
+                        alert.SetPositiveButton("Начать", (senderAlert, args) => {
+                            InitializeTestContent();
+                        });
+                        alert.SetNegativeButton("Назад", (senderAlert, args) => {
+                        });
+                        Dialog dialog = alert.Create();
+                        dialog.Show();
+                    }
+                    else
+                    {
+                        InitializeTestContent();
+                    }
                 }
             };
         }
@@ -180,8 +197,22 @@ namespace PsychoTestAndroid
         // кнопка назад для теста
         private void TestBackButtonClick(object sender, EventArgs e)
         {
-            // save results?
-            Finish();
+            if (timer != null)
+            {
+                timer.Stop();
+            }
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.SetTitle("Завершение теста");
+            alert.SetMessage("При выходе из теста текущие результаты будут потеряны. Продолжить?");
+            alert.SetPositiveButton("Выход", (senderAlert, args) => {
+                Finish();
+            });
+            alert.SetNegativeButton("Назад", (senderAlert, args) => {
+                if (timer != null)
+                {
+                    timer.Start();
+                }
+            });
         }
         // переход к результатам теста
         private void EndHeaderButtonClick(object sender, EventArgs e)
@@ -241,17 +272,21 @@ namespace PsychoTestAndroid
         private async void EndTest()
         {
             TestResult result = new TestResult(test);
+            dbTest.Results = JsonConvert.SerializeObject(result).ToString();
+            dbTest.EndDate = DateTime.Now.ToString();
+            DbOperations.UpdateTest(dbTest);
             if (await WebApi.SendResult(JsonConvert.SerializeObject(result)))
             {
                 Toast.MakeText(Application.Context, GetString(Resource.String.test_result_success), ToastLength.Short).Show();
-                DbOperations.DeleteTest(dbTest);
+                dbTest.Questions = "";
+                dbTest.StatusNumber = 3;
+                DbOperations.UpdateTest(dbTest);
                 Finish();
             }
             else
             {
                 Toast.MakeText(Application.Context, GetString(Resource.String.test_result_failure), ToastLength.Short).Show();
-                dbTest.Results = JsonConvert.SerializeObject(result).ToString();
-                DbOperations.UpdateTest(dbTest);
+                dbTest.StatusNumber = 2;
                 Finish();
             }
         }

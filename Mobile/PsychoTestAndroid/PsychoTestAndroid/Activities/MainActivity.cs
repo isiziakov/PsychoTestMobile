@@ -1,5 +1,6 @@
 ﻿using Android.App;
 using Android.Content;
+using Android.Net;
 using Android.OS;
 using Android.Runtime;
 using Android.Views;
@@ -8,6 +9,7 @@ using AndroidX.AppCompat.App;
 using AndroidX.Work;
 using Java.Util.Concurrent;
 using Newtonsoft.Json;
+using PsychoTestAndroid.Helpers;
 using PsychoTestAndroid.Model;
 using PsychoTestAndroid.Web;
 using System;
@@ -20,8 +22,6 @@ namespace PsychoTestAndroid
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
     public class MainActivity : AppCompatActivity
     {
-        // ошибка входа
-        TextView error;
         // код для входа
         EditText code;
         protected override void OnCreate(Bundle savedInstanceState)
@@ -38,7 +38,6 @@ namespace PsychoTestAndroid
         // инициализацмя визуальных элементов
         void InitializeComponents()
         {
-            error = FindViewById<TextView>(Resource.Id.main_error);
             code = FindViewById<EditText>(Resource.Id.main_code);
             // кнопка войти
             Button enterButton = FindViewById<Button>(Resource.Id.main_enter_button);
@@ -50,18 +49,43 @@ namespace PsychoTestAndroid
 
         private async void enterClick(object sender, EventArgs e)
         {
-            if (code != null && code.Text != "" && await WebApi.Login(code.Text))
+            if ((GetSystemService(ConnectivityService) as ConnectivityManager).ActiveNetwork != null)
             {
-                // переход на активность с тестами
-                GoToTests();
+                if (code != null && code.Text != "")
+                {
+                    var result = await WebApi.Login(code.Text);
+                    if (result != null)
+                    {
+                        if (result == System.Net.HttpStatusCode.OK)
+                        {
+                            // переход на активность с тестами
+                            GoToTests();
+                        }
+                        else
+                        {
+                            if (result == System.Net.HttpStatusCode.Forbidden)
+                            {
+                                Toast.MakeText(this, "Ссылка неверна", ToastLength.Short).Show();
+                            }
+                            else
+                            {
+                                Toast.MakeText(this, "Произошла ошибка", ToastLength.Short).Show();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Toast.MakeText(this, "Произошла ошибка", ToastLength.Short).Show();
+                    }
+                }
+                else
+                {
+                    Toast.MakeText(this, "Введите ссылку", ToastLength.Short).Show();
+                }
             }
             else
             {
-                // отобразить ошибку
-                if (error != null)
-                {
-                    error.Visibility = ViewStates.Visible;
-                }
+                Toast.MakeText(this, "Отсутствует подклбючение к интернету, вход невозможен", ToastLength.Short).Show();
             }
         }
         // переход на активность с тестами

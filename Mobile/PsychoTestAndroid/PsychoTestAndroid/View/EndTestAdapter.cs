@@ -50,7 +50,7 @@ namespace PsychoTestAndroid
             tx.LayoutParameters.Width = ViewGroup.LayoutParams.MatchParent;
             tx.LayoutParameters.Height = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, tx.TextSize * 0.6f, tx.Context.Resources.DisplayMetrics);
             tx.SetMaxHeight(tx.LayoutParameters.Height);
-            if (test.Questions[position].Result != null && test.Questions[position].Result != "")
+            if (test.CheckResults())
             {
                 //tx.Text += test.Questions[position].Result;
                 tx.Text += "есть ответ";

@@ -63,7 +63,7 @@ namespace PsychoTestAndroid.Model.Questions
             return Resource.Layout.question_layout;
         }
         // установить ответ для вопроса
-        public void SetResult(string result)
+        public virtual void SetResult(string result)
         {
             this.Result = result;
             // обновить ответы
@@ -79,7 +79,7 @@ namespace PsychoTestAndroid.Model.Questions
             }
         }
         // установить ответы
-        public void SetAnswers(JObject data)
+        public virtual void SetAnswers(JObject data)
         {
             // массив ответов
             JArray answers = JArray.Parse(data["Answers"]["item"].ToString());
@@ -106,7 +106,7 @@ namespace PsychoTestAndroid.Model.Questions
             }
         }
 
-        public bool CheckResult()
+        public virtual bool CheckResult()
         {
             return Result != null && Result != "";
         }
