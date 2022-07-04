@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PsychoTestAndroid.DataBase;
 using PsychoTestAndroid.DataBase.Entity;
+using PsychoTestAndroid.Helpers;
 using PsychoTestAndroid.Model;
 using PsychoTestAndroid.Model.Questions;
 using PsychoTestAndroid.Web;
@@ -61,6 +62,16 @@ namespace PsychoTestAndroid
             {
                 InitializeInstructionComponents();
             }
+        }
+        protected override void OnResume()
+        {
+            base.OnResume();
+            PreferencesHelper.PutString("AllTestStatus", "true");
+        }
+        protected override void OnStop()
+        {
+            PreferencesHelper.PutString("AllTestStatus", "false");
+            base.OnStop();
         }
         // инициализация визуальных элементов отображения инструкции
         private void InitializeInstructionComponents()
@@ -213,6 +224,7 @@ namespace PsychoTestAndroid
                     timer.Start();
                 }
             });
+            alert.Show();
         }
         // переход к результатам теста
         private void EndHeaderButtonClick(object sender, EventArgs e)
@@ -234,18 +246,32 @@ namespace PsychoTestAndroid
             else
             {
                 AlertDialog.Builder alert = new AlertDialog.Builder(this);
-                alert.SetTitle("Даны ответы не на все вопросы");
-                alert.SetMessage("Вы не ответили на некоторые вопросы. Завершить тест?");
-                alert.SetPositiveButton("Завершить", (senderAlert, args) => {
-                    EndTest();
-                });
-                alert.SetNegativeButton("Назад", (senderAlert, args) => {
-                    Toast.MakeText(Application.Context, GetString(Resource.String.test_result_incomplete), ToastLength.Short).Show();
-                    if (timer != null)
-                    {
-                        timer.Start();
-                    }
-                });
+                if (test.WithoutAnswers)
+                {
+                    alert.SetTitle("Даны ответы не на все вопросы");
+                    alert.SetMessage("Вы не ответили на некоторые вопросы. Завершить тест?");
+                    alert.SetPositiveButton("Завершить", (senderAlert, args) => {
+                        EndTest();
+                    });
+                    alert.SetNegativeButton("Назад", (senderAlert, args) => {
+                        Toast.MakeText(Application.Context, GetString(Resource.String.test_result_incomplete), ToastLength.Short).Show();
+                        if (timer != null)
+                        {
+                            timer.Start();
+                        }
+                    });
+                }
+                else
+                {
+                    alert.SetTitle("Даны ответы не на все вопросы");
+                    alert.SetMessage("Необходимо ответить на все вопросы");
+                    alert.SetPositiveButton("ОК", (senderAlert, args) => {
+                        if (timer != null)
+                        {
+                            timer.Start();
+                        }
+                    });
+                }
                 Dialog dialog = alert.Create();
                 dialog.Show();
             }

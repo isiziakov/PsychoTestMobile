@@ -50,7 +50,7 @@ namespace PsychoTestAndroid.Web
             if (newTests != null)
             {
                 var deletedTests = tests.Where(i => i.StatusNumber != 3 && newTests.FirstOrDefault(p => p.Id == i.Id) == null).ToList();
-                newTests = newTests.Where(i => tests.FirstOrDefault(p => p.Id == i.Id) == null).ToList();
+                newTests = newTests.Where(i => tests.FirstOrDefault(p => p.Id == i.Id && p.StatusNumber != 3) == null).ToList();
                 if (newTests.Count > 0)
                 {
                     foreach (var test in newTests)
@@ -60,10 +60,14 @@ namespace PsychoTestAndroid.Web
                     }
                     NotifyHelper.ShowNewTestsNotification();
                 }
-                foreach (var test in deletedTests)
+                if (deletedTests.Count > 0)
                 {
-                    tests.Remove(test);
-                    DbOperations.DeleteTest(test);
+                    foreach (var test in deletedTests)
+                    {
+                        tests.Remove(test);
+                        DbOperations.DeleteTest(test);
+                    }
+                    NotifyHelper.ShowDeleteTestsNotification();
                 }
             }
             await LoadTests(tests);

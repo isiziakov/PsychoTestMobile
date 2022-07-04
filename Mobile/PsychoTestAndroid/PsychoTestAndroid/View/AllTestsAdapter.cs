@@ -64,7 +64,7 @@ namespace PsychoTestAndroid
             }
             else
             {
-                vh.Name.Text = "Вопросов нет";
+                vh.Name.Text = "Тестов нет";
                 vh.Status.Visibility = ViewStates.Gone;
                 vh.Title.Visibility = ViewStates.Gone;
             }

@@ -50,7 +50,9 @@ namespace PsychoTestAndroid.Model.Questions
         public virtual View Show(View view)
         {
             // отрисовывает список ответов как RecyclerView
-            RecyclerView recycler = view.FindViewById<RecyclerView>(Resource.Id.answers_view);
+            LinearLayout answers = view.FindViewById<LinearLayout>(Resource.Id.answers_view);
+            RecyclerView recycler = new RecyclerView(answers.Context);
+            answers.AddView(recycler);
             var mLayoutManager = new LinearLayoutManager(view.Context);
             recycler.SetLayoutManager(mLayoutManager);
             var adapter = new AnswersAdapter(this);

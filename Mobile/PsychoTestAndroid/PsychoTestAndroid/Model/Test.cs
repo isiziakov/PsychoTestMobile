@@ -42,6 +42,8 @@ namespace PsychoTestAndroid.Model
         // список вопросов
         [JsonIgnore]
         public List<Question> Questions = new List<Question>();
+        [JsonIgnore]
+        public bool WithoutAnswers = true; // скорее всего можно взять из теста
 
         public Test()
         {
@@ -64,6 +66,7 @@ namespace PsychoTestAndroid.Model
                     Questions.Add(new QuestionLusher("0"));
                     Questions.Add(new QuestionLusher("1"));
                     answerOrder = "1";
+                    WithoutAnswers = false;
                 }
                 else
                 {

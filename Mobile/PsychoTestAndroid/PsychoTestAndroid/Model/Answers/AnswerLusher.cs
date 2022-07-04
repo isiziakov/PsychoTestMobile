@@ -67,14 +67,14 @@ namespace PsychoTestAndroid.Model.Answers
         {
             switch (Id)
             {
-                case "0": return Color.Gray;
-                case "1": return Color.Blue;
-                case "2": return Color.Green;
-                case "3": return Color.Red;
-                case "4": return Color.Yellow;
-                case "5": return Color.Violet;
-                case "6": return Color.Brown;
-                case "7": return Color.Black;
+                case "0": return new Color(152,147,141, 255);
+                case "1": return new Color(0,73,131, 255);
+                case "2": return new Color(29,151,114, 255);
+                case "3": return new Color(241,47,35, 255);
+                case "4": return new Color(242,221,0, 255);
+                case "5": return new Color(212,36,129,255);
+                case "6": return new Color(197,82,35, 255);
+                case "7": return new Color(35,31,32,255);
                 default: return Color.White;  
             }
         }

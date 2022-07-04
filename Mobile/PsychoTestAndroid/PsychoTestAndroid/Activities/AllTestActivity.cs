@@ -6,6 +6,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using AndroidX.RecyclerView.Widget;
+using AndroidX.SwipeRefreshLayout.Widget;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PsychoTestAndroid.DataBase;
@@ -33,10 +34,10 @@ namespace PsychoTestAndroid
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.activity_allTests);
-
+            Toolbar toolbar = FindViewById<Toolbar>(Resource.Id.allTests_toolbar);
+            SetActionBar(toolbar);
             if (WebApi.Token == null || WebApi.Token == "")
             {
                 ToLogin();
@@ -51,7 +52,43 @@ namespace PsychoTestAndroid
             // получить массив тестов
             GetTests();
         }
+        public override bool OnCreateOptionsMenu(IMenu menu)
+        {
+            MenuInflater.Inflate(Resource.Menu.menu, menu);
+            return true;
+        }
 
+        public override bool OnOptionsItemSelected(IMenuItem item)
+        {
+            switch (item.ItemId)
+            {
+                case Resource.Id.menu_helps:
+                {
+                    AlertDialog.Builder alert = new AlertDialog.Builder(this);
+                    alert.SetTitle("Справка");
+                    alert.SetMessage("Переключение вопросов происходит \"смахиванием\" влево-вправо. Варианты ответа и текст вопроса при необходимости можно прокручивать вверх-вниз.");
+                    alert.SetPositiveButton("Ок", (senderAlert, args) => {
+
+                    });
+                    Dialog dialog = alert.Create();
+                    dialog.Show();
+                    return true;
+                }
+                case Resource.Id.menu_about:
+                {
+                    AlertDialog.Builder alert = new AlertDialog.Builder(this);
+                    alert.SetTitle("О программе");
+                    alert.SetMessage("Версия - 1.0.0.");
+                    alert.SetPositiveButton("Ок", (senderAlert, args) => {
+
+                    });
+                    Dialog dialog = alert.Create();
+                    dialog.Show();
+                    return true;
+                }
+            }
+            return base.OnOptionsItemSelected(item);
+        }
         protected override void OnStop()
         {
             PreferencesHelper.PutString("AllTestStatus", "false");
@@ -62,6 +99,12 @@ namespace PsychoTestAndroid
         {
             ImageButton exitButton = FindViewById<ImageButton>(Resource.Id.allTest_Exit);
             ImageButton updateButton = FindViewById<ImageButton>(Resource.Id.allTest_Update);
+            SwipeRefreshLayout refresh = FindViewById<SwipeRefreshLayout>(Resource.Id.allTest_Refresh);
+            refresh.Refresh += (sender, e) =>
+            {
+                GetTests();
+                refresh.Refreshing = false;
+            };
             // установить размер кнопки назад в header
             exitButton.Click += (sender, e) =>
             {
@@ -78,21 +121,55 @@ namespace PsychoTestAndroid
             };
             updateButton.Click += (sender, e) =>
             {
-                GetTests();
+                PopupMenu menu = new PopupMenu(this, updateButton);
+                menu.Inflate(Resource.Menu.menu);
+                menu.MenuItemClick += (sender, e) =>
+                {
+                    switch (e.Item.ItemId)
+                    {
+                        case Resource.Id.menu_helps:
+                            {
+                                AlertDialog.Builder alert = new AlertDialog.Builder(this);
+                                alert.SetTitle("Справка");
+                                alert.SetMessage("Переключение вопросов происходит \"смахиванием\" влево-вправо. Варианты ответа и текст вопроса при необходимости можно прокручивать вверх-вниз.");
+                                alert.SetPositiveButton("Ок", (senderAlert, args) =>
+                                {
+
+                                });
+                                Dialog dialog = alert.Create();
+                                dialog.Show();
+                                return;
+                            }
+                        case Resource.Id.menu_about:
+                            {
+                                AlertDialog.Builder alert = new AlertDialog.Builder(this);
+                                alert.SetTitle("О программе");
+                                alert.SetMessage("Версия - 1.0.0.");
+                                alert.SetPositiveButton("Ок", (senderAlert, args) =>
+                                {
+
+                                });
+                                Dialog dialog = alert.Create();
+                                dialog.Show();
+                                return;
+                            }
+                    }
+                };
+                menu.Show();
             };
         }
         // обработка нажатия на элемент из списка тестов
         private void MAdapter_ItemClick(object sender, int e)
         {
-            if (tests[e].Questions == null || tests[e].Questions == "")
+            if (tests[e].StatusNumber == 0)
             {
                 Toast.MakeText(this, "Тест не загружен", ToastLength.Short).Show();
             }
             else
             {
-                if (tests[e].Results != null && tests[e].Results != "")
+                if (tests[e].StatusNumber == 2 || tests[e].StatusNumber == 3)
                 {
-                    Toast.MakeText(this, "Тест не загружен", ToastLength.Short).Show();
+                    Toast.MakeText(this, "Тест уже пройден", ToastLength.Short).Show();
                 }
                 else
                 {
@@ -107,8 +184,8 @@ namespace PsychoTestAndroid
         private async void GetTests()
         {
             tests = DbOperations.GetTests();
-            var archive = tests.Where(x => x.Questions == "" && x.EndDate != "" && x.EndDate != null).ToList();
-            tests = tests.Where(x => (x.EndDate == null || x.EndDate == "") && (x.Questions != null)).ToList();
+            var archive = tests.Where(x => x.StatusNumber == 3).ToList();
+            tests = tests.Where(x => x.StatusNumber != 3).ToList();
             var cm = (ConnectivityManager)GetSystemService(ConnectivityService);
             if (cm.ActiveNetwork != null)
             {
