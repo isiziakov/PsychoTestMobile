@@ -40,12 +40,12 @@ export default class ModalPatient extends React.Component {
         this.setState({ dangerAlertVisible: value });
     }
     toggle() {
+        this.getTests();
         this.setState({
             modal: !this.state.modal,
             name: "",
             isPrescribedTests: "Тестов пока нет!",
             prescribedTests: [],
-            availableTests: this.state.tests,
             isSave: false,
             successAlertVisible: false,
             dangerAlertVisible: false
