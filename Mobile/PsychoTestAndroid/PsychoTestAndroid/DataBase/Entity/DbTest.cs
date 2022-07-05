@@ -36,7 +36,12 @@ namespace PsychoTestAndroid.DataBase.Entity
 
         public string Questions { get; set; }
         public string Results { get; set; }
-        public string Status { get; set; } = "Ожидает загрузки";
+        [Ignore]
+        string status { get; set; }
+        [Ignore]
+        public string Status { get { return status == null || status == null ? GetStatus() : status; } set { status = value; } }
+        public int StatusNumber { get; set; } = 0;
+        public string EndDate { get; set; }
 
         public DbTest()
         {
@@ -45,10 +50,31 @@ namespace PsychoTestAndroid.DataBase.Entity
 
         public void SetTestInfo(JObject data)
         {
+            var s = data.ToString();
             Duration = data["TestTime"].ToString();
             AnswerOrder = data["OrderOfAnswers"].ToString();
             QuestionOrder = data["QuestionsOrder"].ToString();
-            Questions = data["Questions"]["item"].ToString();
+            if (data["IR"]["ClassName"]?.ToString() != null && data["IR"]["ClassName"].ToString() == "Lusher")
+            {
+                Questions = "Lusher";
+            }
+            else
+            {
+                Questions = data["Questions"]["item"].ToString();
+            }
+            StatusNumber = 0;
+        }
+
+        public string GetStatus()
+        {
+            switch (StatusNumber)
+            {
+                case 0: return "Ожидает загрузки";
+                case 1: return "Загружен";
+                case 2: return "Ожидает отправки";
+                case 3: return "Пройден " + EndDate;
+                default: return "Ожидает загрузки";
+            }
         }
     }
 }

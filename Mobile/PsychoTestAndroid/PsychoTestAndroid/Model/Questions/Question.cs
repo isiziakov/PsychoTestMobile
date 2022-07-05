@@ -50,7 +50,9 @@ namespace PsychoTestAndroid.Model.Questions
         public virtual View Show(View view)
         {
             // отрисовывает список ответов как RecyclerView
-            RecyclerView recycler = view.FindViewById<RecyclerView>(Resource.Id.answers_view);
+            LinearLayout answers = view.FindViewById<LinearLayout>(Resource.Id.answers_view);
+            RecyclerView recycler = new RecyclerView(answers.Context);
+            answers.AddView(recycler);
             var mLayoutManager = new LinearLayoutManager(view.Context);
             recycler.SetLayoutManager(mLayoutManager);
             var adapter = new AnswersAdapter(this);
@@ -63,7 +65,7 @@ namespace PsychoTestAndroid.Model.Questions
             return Resource.Layout.question_layout;
         }
         // установить ответ для вопроса
-        public void SetResult(string result)
+        public virtual void SetResult(string result)
         {
             this.Result = result;
             // обновить ответы
@@ -79,7 +81,7 @@ namespace PsychoTestAndroid.Model.Questions
             }
         }
         // установить ответы
-        public void SetAnswers(JObject data)
+        public virtual void SetAnswers(JObject data)
         {
             // массив ответов
             JArray answers = JArray.Parse(data["Answers"]["item"].ToString());
@@ -106,7 +108,7 @@ namespace PsychoTestAndroid.Model.Questions
             }
         }
 
-        public bool CheckResult()
+        public virtual bool CheckResult()
         {
             return Result != null && Result != "";
         }

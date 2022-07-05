@@ -17,9 +17,6 @@ namespace PsychoTestAndroid.Model
 {
     public class Test
     {
-        // продолжительность теста
-        [JsonProperty("max_duration")]
-        string duration;
         // оставшееся время
         int currentDuration;
         // порядок ответов (фиксирован / случаен)
@@ -39,9 +36,14 @@ namespace PsychoTestAndroid.Model
         // инструкция к тесту
         [JsonProperty("instruction")]
         public string Instruction;
+        // продолжительность теста
+        [JsonProperty("max_duration")]
+        public string Duration;
         // список вопросов
         [JsonIgnore]
         public List<Question> Questions = new List<Question>();
+        [JsonIgnore]
+        public bool WithoutAnswers = true; // скорее всего можно взять из теста
 
         public Test()
         {
@@ -54,34 +56,33 @@ namespace PsychoTestAndroid.Model
             Name = test.Name;
             Title = test.Title;
             Instruction = test.Instruction;
-            duration = test.Duration;
+            Duration = test.Duration;
             answerOrder = test.AnswerOrder;
             questionOrder = test.QuestionOrder;
-            if (test.Questions != null && test.Questions != "")
+            if (test.Questions != null)
             {
-                SetQuestions(JArray.Parse(test.Questions));
+                if (test.Questions == "Lusher")
+                {
+                    Questions.Add(new QuestionLusher("0"));
+                    Questions.Add(new QuestionLusher("1"));
+                    answerOrder = "1";
+                    WithoutAnswers = false;
+                }
+                else
+                {
+                    SetQuestions(JArray.Parse(test.Questions));
+                }
             }
-        }
-
-        public Test(JObject data)
-        {
-            Id = data["_id"].ToString();
-            Name = data["IR"]["Name"]["#text"].ToString();
-            Title = data["IR"]["Title"]?["#text"]?.ToString();
-            Instruction = data["Instruction"]["#text"].ToString();
-            duration = data["TestTime"].ToString();
-            answerOrder = data["OrderOfAnswers"].ToString();
-            questionOrder = data["QuestionsOrder"].ToString();
         }
 
         // запустить таймер
         public string StartTimer()
         {
             // время задано
-            if (duration != "" && duration != "0")
+            if (Duration != "" && Duration != "0")
             {
                 // получаем оставшееся время в секундах
-                currentDuration = Int32.Parse(duration);
+                currentDuration = Int32.Parse(Duration);
                 // преобразуем оставшееся время к формату [м][м]м:сс
                 return GetDuration();
             }

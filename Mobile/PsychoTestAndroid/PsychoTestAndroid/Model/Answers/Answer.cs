@@ -32,6 +32,10 @@ namespace PsychoTestAndroid.Model.Answers
         [JsonIgnore]
         protected AnswersDecorator decorator;
 
+        public Answer()
+        {
+
+        }
         public Answer(JObject data)
         {
             Id = data["Answer_id"].ToString();
@@ -45,7 +49,9 @@ namespace PsychoTestAndroid.Model.Answers
             // отрисовка декоратора, если он есть
             if (decorator != null)
             {
-                layout.AddView(decorator.Show(new LinearLayout(layout.Context)));
+                LinearLayout decoratorLayout = decorator.Show(new LinearLayout(layout.Context));
+                decoratorLayout.Click += (sender, e) => { layout.CallOnClick(); };
+                layout.AddView(decoratorLayout);
             }
             return layout;
         }

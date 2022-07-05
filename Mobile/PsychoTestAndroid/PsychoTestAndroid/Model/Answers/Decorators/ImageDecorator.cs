@@ -1,11 +1,15 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.OS;
 using Android.Runtime;
+using Android.Util;
 using Android.Views;
 using Android.Widget;
+using Java.Interop;
 using Newtonsoft.Json.Linq;
+using PsychoTestAndroid.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,27 +32,22 @@ namespace PsychoTestAndroid.Model.Answers
 
         public ImageDecorator(JObject data)
         {
-            imageSrc = data["ImageFileName"].ToString();
+            imageSrc = data["Image"].ToString();
+            imageSrc = imageSrc.Remove(0, imageSrc.IndexOf(",") + 1);
+            byte[] imageData = Base64.Decode(imageSrc, Base64Flags.Default);
+            image = BitmapFactory.DecodeByteArray(imageData, 0, imageData.Length);
         }
         // отобразить декоратор
         public override LinearLayout Show(LinearLayout layout)
         {
-            if (image == null)
-            {
-                image = getImage().GetAwaiter().GetResult();
-            }
-            TextView textView = new TextView(layout.Context);
-            textView.Text = imageSrc;
-            textView.TextSize = 20;
-            layout.AddView(textView);
-            textView.LayoutParameters.Width = ViewGroup.LayoutParams.MatchParent;
-            textView.LayoutParameters.Height = ViewGroup.LayoutParams.WrapContent;
+            ImageView imageView = new ImageView(layout.Context);
+            imageView.SetImageBitmap(image);
+            layout.AddView(imageView);
+            imageView.SetOnLongClickListener(new IncreaseImageOnLongClick(image));
+            imageView.Click += (sender, e) => { layout.CallOnClick(); };
+            imageView.LayoutParameters.Width = ViewGroup.LayoutParams.MatchParent;
+            imageView.LayoutParameters.Height = ViewGroup.LayoutParams.WrapContent;
             return layout;
-        }
-        // получить изображение
-        private async Task<Bitmap> getImage()
-        {
-            return await Web.WebApi.GetImage(imageSrc);
         }
     }
 }

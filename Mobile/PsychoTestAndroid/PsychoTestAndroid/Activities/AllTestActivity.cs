@@ -1,14 +1,17 @@
 ﻿using Android.App;
 using Android.Content;
+using Android.Net;
 using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using AndroidX.RecyclerView.Widget;
+using AndroidX.SwipeRefreshLayout.Widget;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PsychoTestAndroid.DataBase;
 using PsychoTestAndroid.DataBase.Entity;
+using PsychoTestAndroid.Helpers;
 using PsychoTestAndroid.Model;
 using PsychoTestAndroid.Web;
 using System;
@@ -31,10 +34,8 @@ namespace PsychoTestAndroid
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.activity_allTests);
-
             if (WebApi.Token == null || WebApi.Token == "")
             {
                 ToLogin();
@@ -49,7 +50,7 @@ namespace PsychoTestAndroid
             // получить массив тестов
             GetTests();
         }
-
+       
         protected override void OnStop()
         {
             PreferencesHelper.PutString("AllTestStatus", "false");
@@ -58,11 +59,16 @@ namespace PsychoTestAndroid
         // инициализировать визуальные элементы
         private void InitializeComponents()
         {
-            ImageButton backHeaderButton = FindViewById<ImageButton>(Resource.Id.headerBack_backButton);
+            ImageButton exitButton = FindViewById<ImageButton>(Resource.Id.allTest_Exit);
+            ImageButton updateButton = FindViewById<ImageButton>(Resource.Id.allTest_Update);
+            SwipeRefreshLayout refresh = FindViewById<SwipeRefreshLayout>(Resource.Id.allTest_Refresh);
+            refresh.Refresh += (sender, e) =>
+            {
+                GetTests();
+                refresh.Refreshing = false;
+            };
             // установить размер кнопки назад в header
-            backHeaderButton.SetMinimumHeight((int)(Resources.DisplayMetrics.HeightPixels * 0.08));
-            backHeaderButton.SetMinimumWidth((int)(Resources.DisplayMetrics.WidthPixels * 0.08));
-            backHeaderButton.Click += (sender, e) =>
+            exitButton.Click += (sender, e) =>
             {
                 AlertDialog.Builder alert = new AlertDialog.Builder(this);
                 alert.SetTitle("Выход из аккаунта");
@@ -75,25 +81,63 @@ namespace PsychoTestAndroid
                 Dialog dialog = alert.Create();
                 dialog.Show();
             };
+            updateButton.Click += (sender, e) =>
+            {
+                PopupMenu menu = new PopupMenu(this, updateButton);
+                menu.Inflate(Resource.Menu.menu);
+                menu.MenuItemClick += (sender, e) =>
+                {
+                    switch (e.Item.ItemId)
+                    {
+                        case Resource.Id.menu_helps:
+                            {
+                                AlertDialog.Builder alert = new AlertDialog.Builder(this);
+                                alert.SetTitle("Справка");
+                                alert.SetMessage("Переключение вопросов происходит \"смахиванием\" влево-вправо. Варианты ответа и текст вопроса при необходимости можно прокручивать вверх-вниз.");
+                                alert.SetPositiveButton("Ок", (senderAlert, args) =>
+                                {
+
+                                });
+                                Dialog dialog = alert.Create();
+                                dialog.Show();
+                                return;
+                            }
+                        case Resource.Id.menu_about:
+                            {
+                                AlertDialog.Builder alert = new AlertDialog.Builder(this);
+                                alert.SetTitle("О программе");
+                                alert.SetMessage("Версия - 1.0.0.");
+                                alert.SetPositiveButton("Ок", (senderAlert, args) =>
+                                {
+
+                                });
+                                Dialog dialog = alert.Create();
+                                dialog.Show();
+                                return;
+                            }
+                    }
+                };
+                menu.Show();
+            };
         }
         // обработка нажатия на элемент из списка тестов
         private void MAdapter_ItemClick(object sender, int e)
         {
-            if (tests[e].Questions == null || tests[e].Questions == "")
+            if (tests[e].StatusNumber == 0)
             {
                 Toast.MakeText(this, "Тест не загружен", ToastLength.Short).Show();
             }
             else
             {
-                if (tests[e].Results != null && tests[e].Results != "")
+                if (tests[e].StatusNumber == 2 || tests[e].StatusNumber == 3)
                 {
-                    Toast.MakeText(this, "Тест не загружен", ToastLength.Short).Show();
+                    Toast.MakeText(this, "Тест уже пройден", ToastLength.Short).Show();
                 }
                 else
                 {
                     // открыть выбранный тест
                     Intent intent = new Intent(this, typeof(TestActivity));
-                    intent.PutExtra("Test", JsonConvert.SerializeObject(tests[e]));
+                    intent.PutExtra("Test", tests[e]._id);
                     this.StartActivity(intent);
                 }
             }
@@ -102,20 +146,41 @@ namespace PsychoTestAndroid
         private async void GetTests()
         {
             tests = DbOperations.GetTests();
-            newTests = await WebApi.GetTests();
-            if (newTests != null)
+            var archive = tests.Where(x => x.StatusNumber == 3).ToList();
+            tests = tests.Where(x => x.StatusNumber != 3).ToList();
+            var cm = (ConnectivityManager)GetSystemService(ConnectivityService);
+            if (cm.ActiveNetwork != null)
             {
-                newTests = newTests.Where(i => tests.FirstOrDefault(p => p.Id == i.Id) == null).ToList();
-                foreach (var test in newTests)
+                newTests = await WebApi.GetTests();
+                if (newTests != null)
                 {
-                    DbOperations.CreateTest(test);
-                    tests.Add(test);
+                    var deletedTests = tests.Where(i => i.StatusNumber != 3 && newTests.FirstOrDefault(p => p.Id == i.Id) == null).ToList();
+                    newTests = newTests.Where(i => tests.FirstOrDefault(p => p.Id == i.Id) == null).ToList();
+                    foreach (var test in newTests)
+                    {
+                        DbOperations.CreateTest(test);
+                        tests.Add(test);
+                    }
+                    foreach (var test in deletedTests)
+                    {
+                        tests.Remove(test);
+                        DbOperations.DeleteTest(test);
+                    }
                 }
+                else
+                {
+                    Toast.MakeText(this, "Код для входа был изменен", ToastLength.Short).Show();
+                    ToLogin();
+                }
+                LoadTests();
             }
             else
             {
-                Toast.MakeText(this, "Код для входа был изменен", ToastLength.Short).Show();
-                ToLogin();
+                Toast.MakeText(this, "Отсутствует интернет. Показаны загруженные ранее тесты.", ToastLength.Short).Show();
+            }
+            for (int i = archive.Count - 1; i > -1; i--)
+            {
+                tests.Add(archive[i]);
             }
             recycleView = FindViewById<RecyclerView>(Resource.Id.testsRecylcerView);
             var mLayoutManager = new LinearLayoutManager(this);
@@ -123,7 +188,6 @@ namespace PsychoTestAndroid
             adapter = new AllTestsAdapter(tests);
             adapter.ItemClick += MAdapter_ItemClick;
             recycleView.SetAdapter(adapter);
-            LoadTests();
         }
 
         private void ToLogin()
@@ -137,10 +201,9 @@ namespace PsychoTestAndroid
 
         private async void LoadTests()
         {
-            List<int> removed = new List<int>();
             for (int i = 0; i < tests.Count; i++)
             {
-                if (tests[i].Questions == null || tests[i].Questions == "")
+                if (tests[i].StatusNumber == 0)
                 {
                     var result = await WebApi.GetTest(tests[i].Id);
                     if (result != null)
@@ -149,7 +212,7 @@ namespace PsychoTestAndroid
                     }
                     if (tests[i].Questions != null && tests[i].Questions != "")
                     {
-                        tests[i].Status = "Загружен";
+                        tests[i].StatusNumber = 1;
                         DbOperations.UpdateTest(tests[i]);
                     }
                     else
@@ -158,30 +221,20 @@ namespace PsychoTestAndroid
                     }
                     adapter.NotifyItemChanged(i);
                 }
-                else
+                if (tests[i].StatusNumber == 2)
                 {
-                    if (tests[i].Results != null || tests[i].Results != "")
+                    var result = await WebApi.SendResult(tests[i].Results);
+                    if (result)
                     {
-                        if (tests[i].Results != null && tests[i].Results != "")
-                        {
-                            var result = await WebApi.SendResult(tests[i].Results);
-                            if (result)
-                            {
-                                removed.Add(i);
-                            }
-                            else
-                            {
-                                tests[i].Status = "Ошибка отправки";
-                                adapter.NotifyItemChanged(i);
-                            }
-                        }
+                        tests[i].StatusNumber = 3;
+                        tests[i].Questions = "";
                     }
+                    else
+                    {
+                        tests[i].Status = "Ошибка отправки";
+                    }
+                    adapter.NotifyItemChanged(i);
                 }
-            }
-            foreach (int i in removed)
-            {
-                DbOperations.DeleteTest(tests[i]);
-                adapter.NotifyItemRemoved(i);
             }
         }
     }

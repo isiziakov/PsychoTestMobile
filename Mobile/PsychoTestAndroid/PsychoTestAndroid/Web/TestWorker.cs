@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PsychoTestAndroid.DataBase;
 using PsychoTestAndroid.DataBase.Entity;
+using PsychoTestAndroid.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,7 +49,8 @@ namespace PsychoTestAndroid.Web
             var newTests = await WebApi.GetTests();
             if (newTests != null)
             {
-                newTests = newTests.Where(i => tests.FirstOrDefault(p => p.Id == i.Id) == null).ToList();
+                var deletedTests = tests.Where(i => i.StatusNumber != 3 && newTests.FirstOrDefault(p => p.Id == i.Id) == null).ToList();
+                newTests = newTests.Where(i => tests.FirstOrDefault(p => p.Id == i.Id && p.StatusNumber != 3) == null).ToList();
                 if (newTests.Count > 0)
                 {
                     foreach (var test in newTests)
@@ -57,6 +59,15 @@ namespace PsychoTestAndroid.Web
                         tests.Add(test);
                     }
                     NotifyHelper.ShowNewTestsNotification();
+                }
+                if (deletedTests.Count > 0)
+                {
+                    foreach (var test in deletedTests)
+                    {
+                        tests.Remove(test);
+                        DbOperations.DeleteTest(test);
+                    }
+                    NotifyHelper.ShowDeleteTestsNotification();
                 }
             }
             await LoadTests(tests);
@@ -67,7 +78,7 @@ namespace PsychoTestAndroid.Web
         {
             for (int i = 0; i < tests.Count; i++)
             {
-                if (tests[i].Questions == null || tests[i].Questions == "")
+                if (tests[i].StatusNumber == 0)
                 {
                     var result = await WebApi.GetTest(tests[i].Id);
                     if (result != null)
@@ -76,18 +87,19 @@ namespace PsychoTestAndroid.Web
                     }
                     if (tests[i].Questions != null && tests[i].Questions != "")
                     {
-                        tests[i].Status = "Загружен";
+                        tests[i].StatusNumber = 1;
                         DbOperations.UpdateTest(tests[i]);
                     }
                 }
                 else
                 {
-                    if (tests[i].Results != null && tests[i].Results != "")
+                    if (tests[i].StatusNumber == 2)
                     {
                         var result = await WebApi.SendResult(tests[i].Results);
                         if (result)
                         {
-                            DbOperations.DeleteTest(tests[i]);
+                            tests[i].StatusNumber = 3;
+                            DbOperations.UpdateTest(tests[i]);
                         }
                     }
                 }

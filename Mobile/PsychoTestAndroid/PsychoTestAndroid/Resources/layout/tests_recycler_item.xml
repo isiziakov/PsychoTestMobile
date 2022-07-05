@@ -5,6 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:layout_margin="8dp"
+    android:id="@+id/allTests_layout"
     android:background="@color/colorAccent">
     <TextView
         android:id="@+id/tests_recycler_name"

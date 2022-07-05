@@ -22,6 +22,7 @@ using Android.Preferences;
 using Xamarin.Android.Net;
 using System.Threading;
 using PsychoTestAndroid.DataBase.Entity;
+using PsychoTestAndroid.Helpers;
 
 namespace PsychoTestAndroid.Web
 {
@@ -58,7 +59,7 @@ namespace PsychoTestAndroid.Web
             Token = PreferencesHelper.GetString("token", null);
         }
 
-        public static async Task<bool> Login(string url)
+        public static async Task<HttpStatusCode?> Login(string url)
         {
             var client = new HttpClient(SocketsHttpHandler);
             HttpResponseMessage result;
@@ -68,7 +69,7 @@ namespace PsychoTestAndroid.Web
             }
             catch
             {
-                return false;
+                return null;
             }
             if (result != null && result.StatusCode == HttpStatusCode.OK)
             {
@@ -77,15 +78,14 @@ namespace PsychoTestAndroid.Web
                 var newToken = data["token"].ToString();
                 if (newUrl == null || newToken == null)
                 {
-                    return false;
+                    return null;
                 }
                 Token = newToken;
                 url = newUrl;
                 PreferencesHelper.PutString("url", url);
                 PreferencesHelper.PutString("token", Token);
-                return true;
             }
-            return false;
+            return result.StatusCode;
         }
 
         public static async Task<string> GetTest(string id)
@@ -115,7 +115,7 @@ namespace PsychoTestAndroid.Web
             HttpRequestMessage request = new HttpRequestMessage();
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             request.Headers.Authorization = new AuthenticationHeaderValue(Token);
-            request.RequestUri = new Uri(url + "api/tests/");
+            request.RequestUri = new Uri(url + "api/tests");
             request.Method = HttpMethod.Get;
             HttpResponseMessage result;
             try
@@ -159,12 +159,6 @@ namespace PsychoTestAndroid.Web
                 return false;
             }
             return result != null && result.StatusCode == HttpStatusCode.OK;
-        }
-
-        // получить картинку по имени
-        public static async Task<Bitmap> GetImage(string imageSrc)
-        {
-            return null;
         }
 
         public static void RemoveToken()

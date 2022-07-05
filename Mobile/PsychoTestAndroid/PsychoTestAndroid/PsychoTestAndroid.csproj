@@ -77,9 +77,11 @@
     <Compile Include="DataBase\Interfaces\IRepository.cs" />
     <Compile Include="DataBase\Repository\SQLite\DBRepos.cs" />
     <Compile Include="DataBase\Repository\SQLite\TestRepos.cs" />
+    <Compile Include="Helpers\Listeners.cs" />
     <Compile Include="Model\Answers\Answer.cs" />
     <Compile Include="Model\Answers\AnswerHelper.cs" />
     <Compile Include="Model\Answers\AnswerInput.cs" />
+    <Compile Include="Model\Answers\AnswerLusher.cs" />
     <Compile Include="Model\Answers\Decorators\AnswersDecorator.cs" />
     <Compile Include="Model\Answers\AnswerSingle.cs" />
     <Compile Include="Model\Answers\Decorators\DecoratorHelper.cs" />
@@ -88,6 +90,7 @@
     <Compile Include="Model\Questions\Question.cs" />
     <Compile Include="Model\Questions\QuestionHelper.cs" />
     <Compile Include="Model\Questions\QuestionImage.cs" />
+    <Compile Include="Model\Questions\QuestionLusher.cs" />
     <Compile Include="Model\Questions\QuestionText.cs" />
     <Compile Include="Model\Result.cs" />
     <Compile Include="Model\Test.cs" />
@@ -98,8 +101,8 @@
     <Compile Include="View\AnswersAdapter.cs" />
     <Compile Include="View\EndTestAdapter.cs" />
     <Compile Include="View\TestViewPagerAdapter.cs" />
-    <Compile Include="Web\NotifyHelper.cs" />
-    <Compile Include="Web\PreferencesHelper.cs" />
+    <Compile Include="Helpers\NotifyHelper.cs" />
+    <Compile Include="Helpers\PreferencesHelper.cs" />
     <Compile Include="Web\TestWorker.cs" />
     <Compile Include="Web\WebApi.cs" />
   </ItemGroup>
@@ -183,6 +186,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\header_test.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\menu\menu.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

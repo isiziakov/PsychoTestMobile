@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PsychoTestAndroid.DataBase;
 using PsychoTestAndroid.DataBase.Entity;
+using PsychoTestAndroid.Helpers;
 using PsychoTestAndroid.Model;
 using PsychoTestAndroid.Model.Questions;
 using PsychoTestAndroid.Web;
@@ -40,7 +41,8 @@ namespace PsychoTestAndroid
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.instruction);
             // считать тест
-            dbTest = JsonConvert.DeserializeObject<DbTest>(Intent.GetStringExtra("Test"));
+            int id = Intent.GetIntExtra("Test", 0);
+            dbTest = DbOperations.GetTest(id);
             test = new Test(dbTest);
             // тест пуст
             if (test == null)
@@ -61,6 +63,16 @@ namespace PsychoTestAndroid
                 InitializeInstructionComponents();
             }
         }
+        protected override void OnResume()
+        {
+            base.OnResume();
+            PreferencesHelper.PutString("AllTestStatus", "true");
+        }
+        protected override void OnStop()
+        {
+            PreferencesHelper.PutString("AllTestStatus", "false");
+            base.OnStop();
+        }
         // инициализация визуальных элементов отображения инструкции
         private void InitializeInstructionComponents()
         {
@@ -79,7 +91,23 @@ namespace PsychoTestAndroid
             {
                 if (test != null)
                 {
-                    InitializeTestContent();
+                    if (test.Duration != "" && test.Duration != "0")
+                    {
+                        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+                        alert.SetTitle("Тест имеет ограничение по времени");
+                        alert.SetMessage($"Длительность теста - {Int32.Parse(test.Duration) / 60} минут");
+                        alert.SetPositiveButton("Начать", (senderAlert, args) => {
+                            InitializeTestContent();
+                        });
+                        alert.SetNegativeButton("Назад", (senderAlert, args) => {
+                        });
+                        Dialog dialog = alert.Create();
+                        dialog.Show();
+                    }
+                    else
+                    {
+                        InitializeTestContent();
+                    }
                 }
             };
         }
@@ -180,8 +208,23 @@ namespace PsychoTestAndroid
         // кнопка назад для теста
         private void TestBackButtonClick(object sender, EventArgs e)
         {
-            // save results?
-            Finish();
+            if (timer != null)
+            {
+                timer.Stop();
+            }
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.SetTitle("Завершение теста");
+            alert.SetMessage("При выходе из теста текущие результаты будут потеряны. Продолжить?");
+            alert.SetPositiveButton("Выход", (senderAlert, args) => {
+                Finish();
+            });
+            alert.SetNegativeButton("Назад", (senderAlert, args) => {
+                if (timer != null)
+                {
+                    timer.Start();
+                }
+            });
+            alert.Show();
         }
         // переход к результатам теста
         private void EndHeaderButtonClick(object sender, EventArgs e)
@@ -203,18 +246,32 @@ namespace PsychoTestAndroid
             else
             {
                 AlertDialog.Builder alert = new AlertDialog.Builder(this);
-                alert.SetTitle("Даны ответы не на все вопросы");
-                alert.SetMessage("Вы не ответили на некоторые вопросы. Завершить тест?");
-                alert.SetPositiveButton("Завершить", (senderAlert, args) => {
-                    EndTest();
-                });
-                alert.SetNegativeButton("Назад", (senderAlert, args) => {
-                    Toast.MakeText(Application.Context, GetString(Resource.String.test_result_incomplete), ToastLength.Short).Show();
-                    if (timer != null)
-                    {
-                        timer.Start();
-                    }
-                });
+                if (test.WithoutAnswers)
+                {
+                    alert.SetTitle("Даны ответы не на все вопросы");
+                    alert.SetMessage("Вы не ответили на некоторые вопросы. Завершить тест?");
+                    alert.SetPositiveButton("Завершить", (senderAlert, args) => {
+                        EndTest();
+                    });
+                    alert.SetNegativeButton("Назад", (senderAlert, args) => {
+                        Toast.MakeText(Application.Context, GetString(Resource.String.test_result_incomplete), ToastLength.Short).Show();
+                        if (timer != null)
+                        {
+                            timer.Start();
+                        }
+                    });
+                }
+                else
+                {
+                    alert.SetTitle("Даны ответы не на все вопросы");
+                    alert.SetMessage("Необходимо ответить на все вопросы");
+                    alert.SetPositiveButton("ОК", (senderAlert, args) => {
+                        if (timer != null)
+                        {
+                            timer.Start();
+                        }
+                    });
+                }
                 Dialog dialog = alert.Create();
                 dialog.Show();
             }
@@ -241,17 +298,21 @@ namespace PsychoTestAndroid
         private async void EndTest()
         {
             TestResult result = new TestResult(test);
+            dbTest.Results = JsonConvert.SerializeObject(result).ToString();
+            dbTest.EndDate = DateTime.Now.ToString();
+            DbOperations.UpdateTest(dbTest);
             if (await WebApi.SendResult(JsonConvert.SerializeObject(result)))
             {
                 Toast.MakeText(Application.Context, GetString(Resource.String.test_result_success), ToastLength.Short).Show();
-                DbOperations.DeleteTest(dbTest);
+                dbTest.Questions = "";
+                dbTest.StatusNumber = 3;
+                DbOperations.UpdateTest(dbTest);
                 Finish();
             }
             else
             {
                 Toast.MakeText(Application.Context, GetString(Resource.String.test_result_failure), ToastLength.Short).Show();
-                dbTest.Results = JsonConvert.SerializeObject(result).ToString();
-                DbOperations.UpdateTest(dbTest);
+                dbTest.StatusNumber = 2;
                 Finish();
             }
         }

@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace PsychoTestAndroid.Web
+namespace PsychoTestAndroid.Helpers
 {
     public static class NotifyHelper
     {
@@ -39,6 +39,24 @@ namespace PsychoTestAndroid.Web
               .SetContentTitle(Application.Context.GetString(Resource.String.notification_new_name))
               .SetSmallIcon(Resource.Drawable.abc_ic_star_black_16dp)
               .SetContentText(Application.Context.GetString(Resource.String.notification_new_description));
+
+            var notificationManager = NotificationManagerCompat.From(Application.Context);
+            notificationManager.Notify(Resource.String.notification_channel_id, builder.Build());
+        }
+
+        public static void ShowDeleteTestsNotification()
+        {
+            Intent resultIntent = new Intent(Application.Context, typeof(MainActivity));
+            Android.App.TaskStackBuilder stackBuilder = Android.App.TaskStackBuilder.Create(Application.Context);
+            stackBuilder.AddNextIntent(resultIntent);
+            PendingIntent resultPendingIntent = stackBuilder.GetPendingIntent(0, PendingIntentFlags.Immutable);
+
+            var builder = new NotificationCompat.Builder(Application.Context, id)
+              .SetAutoCancel(true)
+              .SetContentIntent(resultPendingIntent)
+              .SetContentTitle("Удален тест")
+              .SetSmallIcon(Resource.Drawable.abc_ic_star_black_16dp)
+              .SetContentText("Врач отменил назначение теста");
 
             var notificationManager = NotificationManagerCompat.From(Application.Context);
             notificationManager.Notify(Resource.String.notification_channel_id, builder.Build());
