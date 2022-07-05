@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Input, Form, FormGroup, Label, Collapse } from 'reactstrap';
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Input, Form, FormGroup, Label, Collapse, Alert } from 'reactstrap';
 
 export default class ModalUser extends React.Component {
     static displayName = ModalUser.name;
@@ -16,7 +16,9 @@ export default class ModalUser extends React.Component {
             oldLogin: this.props.user.login,
             oldRole: this.props.user.role,
             newPassword: "",
-            closeButton: ""
+            closeButton: "",
+            successAlertVisible: false,
+            isSave: false
         };
         this.toggle = this.toggle.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
@@ -26,11 +28,12 @@ export default class ModalUser extends React.Component {
         this.onChangeEmail = this.onChangeEmail.bind(this);
         this.onChangeRole = this.onChangeRole.bind(this);
         this.remove = this.remove.bind(this);
+        this.onChangeSuccessAlert = this.onChangeSuccessAlert.bind(this);
     }
 
     componentDidMount() {
         if (this.state.isCreate === true)
-            this.setState({ button: "Добавить пользователя", modalHeader: "Новый пользователь", closeButton: "Отмена" });
+            this.setState({ button: "Добавить пользователя", modalHeader: "Новый пользователь", closeButton: "Закрыть" });
         else
             this.setState({ button: "Просмотр", modalHeader: "Информация о пользователе", closeButton: "Удалить" });
     }
@@ -38,6 +41,9 @@ export default class ModalUser extends React.Component {
         this.setState({
             modal: !this.state.modal
         });
+    }
+    onChangeSuccessAlert(value) {
+        this.setState({ successAlertVisible: value });
     }
     onChangeName(e) {
         var tmp = this.state.user;
@@ -83,26 +89,28 @@ export default class ModalUser extends React.Component {
             });
         }
         else {
-            var response = await fetch("/api/users/", {
-                method: "POST",
-                headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    name: this.state.user.name,
-                    id: this.props.user.id,
-                    role: this.state.user.role,
-                    password: this.state.user.password,
-                    login: this.state.user.login
-                })
-            });
+            if (this.state.isSave === false) {
+                var response = await fetch("/api/users/", {
+                    method: "POST",
+                    headers: {
+                        "Accept": "application/json",
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        name: this.state.user.name,
+                        id: this.props.user.id,
+                        role: this.state.user.role,
+                        password: this.state.user.password,
+                        login: this.state.user.login
+                    })
+                });
+            }
         }
         if (response.ok !== true) {
             console.log("Error: ", response.status);
         }
-        this.props.onClose(this.props.url);
-        this.onClose();
+        this.onChangeSuccessAlert(true);
+        this.setState({ isSave: true });
     }
 
     async remove() {
@@ -133,8 +141,11 @@ export default class ModalUser extends React.Component {
                 login: this.state.oldLogin,
                 role: this.state.oldRole
             },
-            newPassword: ""
+            newPassword: "",
+            successAlertVisible: false,
+            isSave: false
         });
+        this.props.onClose(this.props.url);
     }
 
     render() {
@@ -144,6 +155,7 @@ export default class ModalUser extends React.Component {
                 <Modal size="lg" isOpen={this.state.modal}>
                     <Form onSubmit={this.onSubmit}>
                         <ModalHeader toggle={() => { this.onClose() }}>{this.state.modalHeader}</ModalHeader>
+                        <Alert color="success" isOpen={this.state.successAlertVisible} toggle={() => { this.onChangeSuccessAlert(false) }} fade={false}>Пользователь успешно сохранен!</Alert >
                         <ModalBody>
                             <FormGroup>
                                 <Label for="name">Имя пользователя:</Label>
