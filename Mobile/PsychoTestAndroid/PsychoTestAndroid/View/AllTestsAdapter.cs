@@ -56,8 +56,9 @@ namespace PsychoTestAndroid
                 {
                     vh.Title.Text = tests[position].Title;
                     vh.Title.Visibility = ViewStates.Visible;
+                    vh.Layout.SetBackgroundColor(Color.Yellow);
                 }
-                if (!(tests[position].Questions == "" && tests[position].EndDate != "" && tests[position].EndDate != null))
+                if (tests[position].StatusNumber != 3)
                 {
                     vh.Layout.SetBackgroundColor(Color.Green);
                 }

@@ -78,7 +78,7 @@ namespace PsychoTestAndroid.Web
         {
             for (int i = 0; i < tests.Count; i++)
             {
-                if (tests[i].Questions == null || tests[i].Questions == "")
+                if (tests[i].StatusNumber == 0)
                 {
                     var result = await WebApi.GetTest(tests[i].Id);
                     if (result != null)
@@ -93,7 +93,7 @@ namespace PsychoTestAndroid.Web
                 }
                 else
                 {
-                    if (tests[i].Results != null && tests[i].Results != "")
+                    if (tests[i].StatusNumber == 2)
                     {
                         var result = await WebApi.SendResult(tests[i].Results);
                         if (result)

@@ -36,8 +36,6 @@ namespace PsychoTestAndroid
             base.OnCreate(savedInstanceState);
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.activity_allTests);
-            Toolbar toolbar = FindViewById<Toolbar>(Resource.Id.allTests_toolbar);
-            SetActionBar(toolbar);
             if (WebApi.Token == null || WebApi.Token == "")
             {
                 ToLogin();
@@ -52,43 +50,7 @@ namespace PsychoTestAndroid
             // получить массив тестов
             GetTests();
         }
-        public override bool OnCreateOptionsMenu(IMenu menu)
-        {
-            MenuInflater.Inflate(Resource.Menu.menu, menu);
-            return true;
-        }
-
-        public override bool OnOptionsItemSelected(IMenuItem item)
-        {
-            switch (item.ItemId)
-            {
-                case Resource.Id.menu_helps:
-                {
-                    AlertDialog.Builder alert = new AlertDialog.Builder(this);
-                    alert.SetTitle("Справка");
-                    alert.SetMessage("Переключение вопросов происходит \"смахиванием\" влево-вправо. Варианты ответа и текст вопроса при необходимости можно прокручивать вверх-вниз.");
-                    alert.SetPositiveButton("Ок", (senderAlert, args) => {
-
-                    });
-                    Dialog dialog = alert.Create();
-                    dialog.Show();
-                    return true;
-                }
-                case Resource.Id.menu_about:
-                {
-                    AlertDialog.Builder alert = new AlertDialog.Builder(this);
-                    alert.SetTitle("О программе");
-                    alert.SetMessage("Версия - 1.0.0.");
-                    alert.SetPositiveButton("Ок", (senderAlert, args) => {
-
-                    });
-                    Dialog dialog = alert.Create();
-                    dialog.Show();
-                    return true;
-                }
-            }
-            return base.OnOptionsItemSelected(item);
-        }
+       
         protected override void OnStop()
         {
             PreferencesHelper.PutString("AllTestStatus", "false");
