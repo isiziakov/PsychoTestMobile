@@ -100,7 +100,7 @@ namespace PsychoTestAndroid
         private void OnClick(int obj)
         {
             if (ItemClick != null)
-                ItemClick(this, obj);
+                ItemClick(this, questions[obj].number - 1);
         }
 
         public override long GetItemId(int position)
