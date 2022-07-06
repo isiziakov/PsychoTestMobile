@@ -144,77 +144,37 @@ class ModalImportTest extends React.Component {
     async onSubmit(e) {
         e.preventDefault();
         this.setState({dangerAlertText: ""}, async () => {
-            //var save = 0;
-            //for (var i = 0; i < this.state.files.length; i++) {
-                var formData = new FormData();
-                formData.append('testFile', this.state.files[0]);
-                formData.append('normFile', this.state.normFiles[0]);
-                for (var i = 0; i < this.state.images.length; i++) {
-                    formData.append('images', this.state.images[i]);
-                }
-
-                const token = sessionStorage.getItem('tokenKey');
-                var response = await fetch("/api/tests/importTests", {
-                    method: "POST",
-                    headers: {
-                        "Authorization": "Bearer " + token
-                    },
-                    body: formData
-                });
-                if (response.ok !== true) {
-                    console.log("Error: ", response.status);
-                    if (response.status === 500)
-                        {
-                            this.setState({dangerAlertText: "Файлы не были сохранены, проверьте их правильность!", normFiles: [], files: []});
-                            this.onChangeDangerAlert(true);
-                        }
-                    var data = await response.json();
-                    this.setState({dangerAlertText: data.errorText});
-                    this.onChangeSuccessAlert(false);
-                    this.onChangeDangerAlert(true);
-                }
-                else {
-                    this.onChangeDangerAlert(false);
-                    this.onChangeSuccessAlert(true);
-                }
-            //}
-
-            /*for (var i = 0; i < this.state.normFiles.length; i++) {
-                var formData = new FormData();
-                formData.append('normFile', this.state.normFiles[i]);
-
-                const token = sessionStorage.getItem('tokenKey');
-                var response = await fetch("/api/tests/importNorms", {
-                    method: "POST",
-                    headers: {
-                        "Authorization": "Bearer " + token
-                    },
-                    body: formData
-                });
-                if (response.ok !== true) {
-                    console.log("Error: ", response.status);
-                    if (response.status === 500)
-                        {
-                            this.setState({dangerAlertText: "Файлы не были сохранены, проверьте их правильность!", normFiles: [], files: []});
-                            this.onChangeDangerAlert(true);
-                        }
-                    var data = await response.json();
-                    data.errorText = this.state.dangerAlertText + "\n" +  data.errorText;
-                    this.setState({dangerAlertText: data.errorText});
-                }
-                else save++;
+            var formData = new FormData();
+            formData.append('testFile', this.state.files[0]);
+            formData.append('normFile', this.state.normFiles[0]);
+            for (var i = 0; i < this.state.images.length; i++) {
+                formData.append('images', this.state.images[i]);
             }
 
-            if (this.state.normFiles.length + this.state.files.length != 0) {
-                if (save === this.state.normFiles.length + this.state.files.length) {
-                    this.onChangeSuccessAlert(true);
-                }
-                else {
-                    var s = "Часть файлов не сохранена!\n" + this.state.dangerAlertText;
-                    this.setState({dangerAlertText: s});
-                    this.onChangeDangerAlert(true);
-                }
-            }*/
+            const token = sessionStorage.getItem('tokenKey');
+            var response = await fetch("/api/tests/importTests", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + token
+                },
+                body: formData
+            });
+            if (response.ok !== true) {
+                console.log("Error: ", response.status);
+                if (response.status === 500)
+                    {
+                        this.setState({dangerAlertText: "Файлы не были сохранены, проверьте их правильность!", normFiles: [], files: []});
+                        this.onChangeDangerAlert(true);
+                    }
+                var data = await response.json();
+                this.setState({dangerAlertText: data.errorText});
+                this.onChangeSuccessAlert(false);
+                this.onChangeDangerAlert(true);
+            }
+            else {
+                this.onChangeDangerAlert(false);
+                this.onChangeSuccessAlert(true);
+            }
         });
     }
 

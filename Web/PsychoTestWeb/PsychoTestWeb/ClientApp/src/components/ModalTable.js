@@ -10,7 +10,6 @@ export default class ModalTable extends React.Component {
             modal: false
         };
         this.toggle = this.toggle.bind(this);
-        this.cell = this.cell.bind(this);
     }
 
     toggle() {
@@ -29,26 +28,6 @@ export default class ModalTable extends React.Component {
                     flag = true;
             return !flag;
         } 
-    }
-
-    cell(patientScale, scale) {
-        if(patientScale.idTestScale === scale.id)
-            return (<td>{patientScale.scores}</td>);
-        else
-          return(<td></td>);
-    }
-
-    row (scaleId) {
-        var td = <></>;
-        this.props.results.map((result) => {
-            result.scales.map((patientScale) => {
-                if (patientScale.idTestScale === scaleId)
-                    td += <td>{patientScale.scores}</td>;
-                else 
-                    td += <td></td>;
-            });
-        });
-        return td;
     }
 
     render() {
@@ -87,7 +66,7 @@ export default class ModalTable extends React.Component {
                                                 <th>{scale.name}</th>
                                                 {
                                                     this.props.results.map((result, j) => {
-                                                        return (<td  key={j}><Cell patientScales={result.scales} idScale={scale.id} /></td>);
+                                                        return (<td key={j}><Cell patientScales={result.scales} idScale={scale.id} /></td>);
                                                     })
                                                 }
                                             </tr>
