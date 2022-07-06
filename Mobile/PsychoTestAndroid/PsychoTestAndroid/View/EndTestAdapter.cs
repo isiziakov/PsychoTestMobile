@@ -7,6 +7,7 @@ using Android.Views;
 using Android.Widget;
 using AndroidX.RecyclerView.Widget;
 using PsychoTestAndroid.Model;
+using PsychoTestAndroid.Model.Questions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,15 +30,33 @@ namespace PsychoTestAndroid
 
     public class EndTestAdapter : RecyclerView.Adapter
     {
+        class questionWithNumber
+        {
+            public int number { get; }
+            public Question question { get; }
+            public questionWithNumber(int number, Question question)
+            {
+                this.number = number;
+                this.question = question;
+            }
+        }
         public event EventHandler<int> ItemClick;
-        Test test;
+        public Test test;
+        List<questionWithNumber> questions = new List<questionWithNumber>();
         public EndTestAdapter(Test test)
         {
             this.test = test;
+            for (int i = 0; i < test.Questions.Count; i++)
+            {
+                if (!test.Questions[i].CheckResult())
+                {
+                    questions.Add(new questionWithNumber(i + 1, test.Questions[i]));
+                }
+            }
         }
         public override int ItemCount
         {
-            get { return test.Questions.Count; }
+            get { return questions.Count > 0? questions.Count : 1; }
         }
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
@@ -46,20 +65,29 @@ namespace PsychoTestAndroid
             TextView tx = new TextView(vh.Layout.Context);
             tx.TextSize = 20;
             vh.Layout.AddView(tx);
-            tx.Text = "Вопрос " + (position + 1) + " - ";
             tx.LayoutParameters.Width = ViewGroup.LayoutParams.MatchParent;
             tx.LayoutParameters.Height = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, tx.TextSize * 0.6f, tx.Context.Resources.DisplayMetrics);
             tx.SetMaxHeight(tx.LayoutParameters.Height);
-            if (test.Questions[position].CheckResult())
+            if (questions.Count > 0)
             {
-                //tx.Text += test.Questions[position].Result;
-                tx.Text += "есть ответ";
-                tx.SetTextColor(Android.Graphics.Color.Green);
+                tx.Text = "Вопрос " + questions[position].number + " - нет ответа";
             }
             else
             {
-                tx.Text += "нет ответа";
+                tx.Text = "На все вопросы есть ответ";
+                tx.SetTextColor(Android.Graphics.Color.Green);
             }
+            
+            //if (test.Questions[position].CheckResult())
+            //{
+            //    //tx.Text += test.Questions[position].Result;
+            //    tx.Text += "есть ответ";
+            //    tx.SetTextColor(Android.Graphics.Color.Green);
+            //}
+            //else
+            //{
+            //    tx.Text += "нет ответа";
+            //}
         }
 
         [Obsolete]

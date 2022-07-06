@@ -52,15 +52,18 @@ namespace PsychoTestAndroid
             {
                 vh.Name.Text = tests[position].Name;
                 vh.Status.Text = tests[position].Status;
-                if (tests[position].Title != null && tests[position].Title != "")
-                {
-                    vh.Title.Text = tests[position].Title;
-                    vh.Title.Visibility = ViewStates.Visible;
-                    vh.Layout.SetBackgroundColor(Color.Yellow);
-                }
                 if (tests[position].StatusNumber != 3)
                 {
                     vh.Layout.SetBackgroundColor(Color.Green);
+                    if (tests[position].Title != null && tests[position].Title != "")
+                    {
+                        vh.Title.Text = tests[position].Title;
+                        vh.Title.Visibility = ViewStates.Visible;
+                    }
+                }
+                else
+                {
+                    vh.Layout.SetBackgroundColor(Color.Yellow);
                 }
             }
             else

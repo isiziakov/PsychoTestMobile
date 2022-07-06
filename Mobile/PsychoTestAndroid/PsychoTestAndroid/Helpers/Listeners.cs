@@ -28,6 +28,7 @@ namespace PsychoTestAndroid.Helpers
                     new ColorDrawable(Color.Transparent));
             ImageView dImageView = new ImageView(v.Context);
             dImageView.SetImageBitmap(image);
+            dImageView.SetAdjustViewBounds(true);
             builder.AddContentView(dImageView, new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.WrapContent,
                 ViewGroup.LayoutParams.WrapContent));

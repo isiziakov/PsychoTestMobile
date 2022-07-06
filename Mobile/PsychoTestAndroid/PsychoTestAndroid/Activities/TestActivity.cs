@@ -78,8 +78,6 @@ namespace PsychoTestAndroid
         {
             // кнопка назад
             ImageButton backHeaderButton = FindViewById<ImageButton>(Resource.Id.headerBack_backButton);
-            backHeaderButton.SetMinimumHeight((int)(Resources.DisplayMetrics.HeightPixels * 0.08));
-            backHeaderButton.SetMinimumWidth((int)(Resources.DisplayMetrics.WidthPixels * 0.08));
             backHeaderButton.Click += InstructionBackButtonClick;
             TextView name = FindViewById<TextView>(Resource.Id.test_name);
             TextView instruction = FindViewById<TextView>(Resource.Id.test_instruction);
@@ -117,13 +115,9 @@ namespace PsychoTestAndroid
             SetContentView(Resource.Layout.test_viewPager);
             // кнопка назад
             ImageButton backHeaderButton = FindViewById<ImageButton>(Resource.Id.headerTest_backButton);
-            backHeaderButton.SetMinimumHeight((int)(Resources.DisplayMetrics.HeightPixels * 0.08));
-            backHeaderButton.SetMinimumWidth((int)(Resources.DisplayMetrics.WidthPixels * 0.08));
             backHeaderButton.Click += TestBackButtonClick;
             // кнопка перехода к результатам теста
             ImageButton endHeaderButton = FindViewById<ImageButton>(Resource.Id.headerTest_endButton);
-            endHeaderButton.SetMinimumHeight((int)(Resources.DisplayMetrics.HeightPixels * 0.08));
-            endHeaderButton.SetMinimumWidth((int)(Resources.DisplayMetrics.WidthPixels * 0.08));
             endHeaderButton.Click += EndHeaderButtonClick;
             
             viewPager = FindViewById<ViewPager>(Resource.Id.testViewPager);

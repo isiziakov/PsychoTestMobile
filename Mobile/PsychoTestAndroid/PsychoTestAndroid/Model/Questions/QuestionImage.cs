@@ -56,8 +56,7 @@ namespace PsychoTestAndroid.Model.Questions
             imageView.SetImageBitmap(image);
             questionLinear.AddView(textView);
             questionLinear.AddView(imageView);
-            imageView.LayoutParameters.Width = ViewGroup.LayoutParams.MatchParent;
-            imageView.LayoutParameters.Height = ViewGroup.LayoutParams.WrapContent;
+            imageView.SetAdjustViewBounds(true);
             imageView.SetForegroundGravity(GravityFlags.Center);
             imageView.SetOnLongClickListener(new IncreaseImageOnLongClick(image));
             return layout;

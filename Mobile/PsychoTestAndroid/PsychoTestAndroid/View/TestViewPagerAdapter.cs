@@ -88,7 +88,9 @@ namespace PsychoTestAndroid
         // перерисовка страницы с результатами
         public void ReDrawEnd()
         {
-            endRecyclerView.SetAdapter(endRecyclerView.GetAdapter());
+            var adapter = new EndTestAdapter(test);
+            adapter.ItemClick += EndAnswerItemClick;
+            endRecyclerView.SetAdapter(adapter);
         }
     }
 }
