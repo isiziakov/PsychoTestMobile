@@ -18,12 +18,12 @@ namespace PsychoTestAndroid.Model
         [JsonProperty("question_id")]
         string id;
         [JsonProperty("answer")]
-        string answer;
+        public string Answer;
 
         public Result(Question question)
         {
             id = question.Id;
-            answer = question.Result != null ? question.Result : "";
+            Answer = question.Result != null ? question.Result : "";
         }
     }
 }

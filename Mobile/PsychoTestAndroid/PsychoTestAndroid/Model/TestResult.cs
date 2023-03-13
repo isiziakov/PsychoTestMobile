@@ -18,15 +18,15 @@ namespace PsychoTestAndroid.Model
         [JsonProperty("id")]
         string id;
         [JsonProperty("answers")]
-        List<Result> answers;
+        public List<Result> Answers;
 
         public TestResult(Test test)
         {
-            answers = new List<Result>();
+            Answers = new List<Result>();
             id = test.Id;
             foreach(Question question in test.Questions)
             {
-                answers.Add(new Result(question));
+                Answers.Add(new Result(question));
             }
         }
     }

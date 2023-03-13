@@ -42,6 +42,7 @@ namespace PsychoTestAndroid.Web
                     {
                         ReadTimeout = TimeSpan.FromSeconds(5)
                     };
+                    _socketsHttpHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
                 }
                 return _socketsHttpHandler;
             }
@@ -61,7 +62,10 @@ namespace PsychoTestAndroid.Web
 
         public static async Task<HttpStatusCode?> Login(string url)
         {
-            var client = new HttpClient(SocketsHttpHandler);
+            HttpClientHandler clientHandler = new HttpClientHandler();
+            clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
+            var client = new HttpClient(clientHandler);
+            //var client = new HttpClient(SocketsHttpHandler);
             HttpResponseMessage result;
             try
             {
@@ -90,7 +94,10 @@ namespace PsychoTestAndroid.Web
 
         public static async Task<string> GetTest(string id)
         {
-            var client = new HttpClient(SocketsHttpHandler);
+            HttpClientHandler clientHandler = new HttpClientHandler();
+            clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
+            var client = new HttpClient(clientHandler);
+            //var client = new HttpClient(SocketsHttpHandler);
             HttpResponseMessage result;
             try
             {
@@ -107,10 +114,35 @@ namespace PsychoTestAndroid.Web
             return null;
         }
 
+        public static async Task<string> GetScale(string id)
+        {
+            HttpClientHandler clientHandler = new HttpClientHandler();
+            clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
+            var client = new HttpClient(clientHandler);
+            //var client = new HttpClient(SocketsHttpHandler);
+            HttpResponseMessage result;
+            try
+            {
+                result = await client.GetAsync(url + "api/scales/" + id);
+            }
+            catch
+            {
+                return null;
+            }
+            if (result != null && result.StatusCode == HttpStatusCode.OK)
+            {
+                return await result.Content.ReadAsStringAsync();
+            }
+            return null;
+        }
+
         // получить список доступных тестов
         public static async Task<List<DbTest>> GetTests()
         {
-            var client = new HttpClient(SocketsHttpHandler);
+            HttpClientHandler clientHandler = new HttpClientHandler();
+            clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
+            var client = new HttpClient(clientHandler);
+            //var client = new HttpClient(SocketsHttpHandler);
             List<DbTest> tests;
             HttpRequestMessage request = new HttpRequestMessage();
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -143,7 +175,10 @@ namespace PsychoTestAndroid.Web
 
         public static async Task<bool> SendResult(string testResult)
         {
-            var client = new HttpClient(SocketsHttpHandler);
+            HttpClientHandler clientHandler = new HttpClientHandler();
+            clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
+            var client = new HttpClient(clientHandler);
+            //var client = new HttpClient(SocketsHttpHandler);
             HttpRequestMessage request = new HttpRequestMessage();
             request.Headers.Authorization = new AuthenticationHeaderValue(Token);
             request.RequestUri = new Uri(url + "api/answers/");

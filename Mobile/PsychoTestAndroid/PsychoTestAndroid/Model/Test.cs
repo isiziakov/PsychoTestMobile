@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PsychoTestAndroid.DataBase.Entity;
 using PsychoTestAndroid.Model.Questions;
+using PsychoTestAndroid.Result;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,6 +46,16 @@ namespace PsychoTestAndroid.Model
         [JsonIgnore]
         public bool WithoutAnswers = true; // скорее всего можно взять из теста
 
+        // result
+        [JsonIgnore]
+        public string Result = "";
+
+        [JsonIgnore]
+        public bool ShowResult = false;
+
+        [JsonIgnore]
+        public string Type = "";
+
         public Test()
         {
 
@@ -59,6 +70,9 @@ namespace PsychoTestAndroid.Model
             Duration = test.Duration;
             answerOrder = test.AnswerOrder;
             questionOrder = test.QuestionOrder;
+            ShowResult = test.ShowResult;
+            Result = test.TestResult;
+            Type = test.Questions;
             if (test.Questions != null)
             {
                 if (test.Questions == "Lusher")

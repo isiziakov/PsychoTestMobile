@@ -6,6 +6,7 @@ using Android.Views;
 using Android.Widget;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using PsychoTestAndroid.Result.ResultClasses;
 using SQLite;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,7 @@ namespace PsychoTestAndroid.DataBase.Entity
     {
         [PrimaryKey, AutoIncrement, Column("_id")]
         public int _id { get; set; }
-
+        
         public string Duration { get; set; }
 
         public string AnswerOrder { get; set; }
@@ -43,6 +44,11 @@ namespace PsychoTestAndroid.DataBase.Entity
         public int StatusNumber { get; set; } = 0;
         public string EndDate { get; set; }
 
+        // results
+        public string TestResult { get; set; } = "";
+
+        public bool ShowResult { get; set; } = false;
+
         public DbTest()
         {
 
@@ -50,10 +56,15 @@ namespace PsychoTestAndroid.DataBase.Entity
 
         public void SetTestInfo(JObject data)
         {
-            var s = data.ToString();
             Duration = data["TestTime"].ToString();
             AnswerOrder = data["OrderOfAnswers"].ToString();
             QuestionOrder = data["QuestionsOrder"].ToString();
+            var showResult = data["ShowResult"];
+            if (showResult != null && showResult.ToString() == "1")
+            {
+                ShowResult = true;
+                ResultsCalculator.ResultsCalculator.SetScalesAsync(Id);
+            }
             if (data["IR"]["ClassName"]?.ToString() != null && data["IR"]["ClassName"].ToString() == "Lusher")
             {
                 Questions = "Lusher";

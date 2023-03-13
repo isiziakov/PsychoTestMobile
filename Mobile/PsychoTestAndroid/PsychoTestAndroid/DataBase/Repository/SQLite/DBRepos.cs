@@ -19,6 +19,8 @@ namespace PsychoTestAndroid.DataBase.Repository.SQLite
     {
         SQLiteConnection db;
         TestRepos test;
+        ScaleRepos scale;
+        TestCalcInfoRepos testCalcInfo;
 
         public DBRepos()
         {
@@ -39,6 +41,26 @@ namespace PsychoTestAndroid.DataBase.Repository.SQLite
                 if (test == null)
                     test = new TestRepos(db);
                 return test;
+            }
+        }
+
+        public IRepository<DbScale> Scale
+        {
+            get
+            {
+                if (scale == null)
+                    scale = new ScaleRepos(db);
+                return scale;
+            }
+        }
+
+        public IRepository<DbTestCalcInfo> TestCalcInfo
+        {
+            get
+            {
+                if (testCalcInfo == null)
+                    testCalcInfo = new TestCalcInfoRepos(db);
+                return testCalcInfo;
             }
         }
 
