@@ -120,5 +120,15 @@ namespace PsychoTestWeb.Controllers
             await db.RemoveTest(id);
         }
 
+        //получение нормы по id теста
+        // GET api/<TestsController>/norm/62a2ee61e5ab646eb9231448
+        [HttpGet("norm/{id}")]
+        public async Task<IActionResult> GetNorm(string id)
+        {
+            string norm = await db.GetNormByTestId(id);
+            if (norm != null)
+                return Ok(norm);
+            else return NoContent();
+        }
     }
 }

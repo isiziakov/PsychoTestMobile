@@ -602,6 +602,23 @@ namespace PsychoTestWeb.Models
             await gridFS.UploadFromStreamAsync(imageName, imageStream);
         }
 
+        //получаем Норму по id теста
+        public async Task<string> GetNormByTestId(string id)
+        {
+            var bsonDoc = await TestsBson.Find(new BsonDocument("_id", new ObjectId(id))).FirstOrDefaultAsync();
+            if (bsonDoc != null)
+            {
+                //пройденный тест
+                var test = JObject.Parse(JsonConvert.SerializeObject(BsonTypeMapper.MapToDotNetValue(bsonDoc)));
+                //норма для данного теста
+                var norm = await NormsBson.Find(new BsonDocument("main.groups.item.id", test["IR"]["ID"].ToString()))
+                    .FirstOrDefaultAsync();
+                return JsonConvert.SerializeObject(BsonTypeMapper.MapToDotNetValue(norm));
+            }
+            else
+                return null;
+        }
+
         #endregion
 
     }
