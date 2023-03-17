@@ -16,7 +16,7 @@ namespace PsychoTestAndroid.Model
     public class TestResult
     {
         [JsonProperty("id")]
-        string id;
+        public string id;
         [JsonProperty("answers")]
         public List<Result> Answers;
 

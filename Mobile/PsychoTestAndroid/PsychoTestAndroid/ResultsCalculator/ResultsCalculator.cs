@@ -7,6 +7,7 @@ using Android.Widget;
 using PsychoTestAndroid.DataBase;
 using PsychoTestAndroid.DataBase.Operations;
 using PsychoTestAndroid.Model;
+using PsychoTestAndroid.ResultsCalculator.Calculators;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,8 +38,8 @@ namespace PsychoTestAndroid.ResultsCalculator
 
         public static string ProcessingResults(TestResult result, Test test)
         {
-            var calcInfo = TestCalcInfoOperations.GetCalcInfoForTest(test.Id);
-            var scale = ScaleOperations.GetScaleForTest(test.Id);
+            var calcInfo = new CalcInfo(TestCalcInfoOperations.GetCalcInfoForTest(test.Id));
+            var norm = new Norm(ScaleOperations.GetScaleForTest(test.Id));
 
             //обработка результатов
 
@@ -46,27 +47,15 @@ namespace PsychoTestAndroid.ResultsCalculator
 
             if (test.Type == "Lusher")
             {
-                ProcessingLusherResults processingResults = new ProcessingLusherResults(test, result, norm);
-                DateTime now = DateTime.Now;
-                processingResults.patientResult.date = now.ToString("g");
-                processingResults.patientResult.comment = "";
-                processingResults.patientResult.test = result.id;
-                //добавление в бд
-                patient.results.Add(processingResults.patientResult);
-                await UpdatePatient(patient.id, patient);
+                CalculatorLusher processingResults = new CalculatorLusher(calcInfo, result, norm);
+                return processingResults.patientResult.String();
             }
 
             //обработка стандартных опросников
             else
             {
-                ProcessingResults processingResults = new ProcessingResults(test, result, norm);
-                DateTime now = DateTime.Now;
-                processingResults.patientResult.date = now.ToString("g");
-                processingResults.patientResult.comment = "";
-                processingResults.patientResult.test = result.id;
-                //добавление в бд
-                patient.results.Add(processingResults.patientResult);
-                await UpdatePatient(patient.id, patient);
+                CalculatorBase processingResults = new CalculatorBase(calcInfo, result, norm);
+                return processingResults.patientResult.String();
             }
         }
     }

@@ -23,6 +23,8 @@ namespace PsychoTestAndroid.DataBase.Entity
 
         public string Groups { get; set; }
 
+        public string Questions { get; set; }
+
         public DbTestCalcInfo()
         {
 
@@ -31,6 +33,7 @@ namespace PsychoTestAndroid.DataBase.Entity
         public void SetTestInfo(JObject data)
         {
             Groups = data["Groups"].ToString();
+            Questions = data["Questions"].ToString();
         }
     }
 }

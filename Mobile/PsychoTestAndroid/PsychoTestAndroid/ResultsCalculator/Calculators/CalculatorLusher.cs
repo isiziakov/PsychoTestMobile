@@ -4,6 +4,7 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using Newtonsoft.Json.Linq;
 using PsychoTestAndroid.Model;
 using PsychoTestAndroid.ResultsCalculator.Model;
 using System;
@@ -17,7 +18,7 @@ namespace PsychoTestAndroid.ResultsCalculator.Calculators
     {
         public PatientsResult patientResult = new PatientsResult();
 
-        public CalculatorLusher(CalcInfo test, TestResult result, BsonDocument norm)
+        public CalculatorLusher(CalcInfo test, TestResult result, Norm norm)
         {
             string[] testResult = result.Answers[0].Answer.Split(' ').Concat(result.Answers[1].Answer.Split(' ')).ToArray();
 
@@ -92,15 +93,15 @@ namespace PsychoTestAndroid.ResultsCalculator.Calculators
         }
 
         //автоматическая интерпретация результатов
-        private void RangeInterpretation(BsonDocument norm, List<Scale> results)
+        private void RangeInterpretation(Norm norm, List<Scale> results)
         {
             //шкалы из норм
-            BsonArray normScales = new BsonArray();
-            if (norm["main"]["groups"]["item"]["quantities"]["item"] is BsonArray)
-                foreach (var scale in norm["main"]["groups"]["item"]["quantities"]["item"].AsBsonArray)
+            JArray normScales = new JArray();
+            if (norm.Data["main"]["groups"]["item"]["quantities"]["item"] is JArray)
+                foreach (var scale in norm.Data["main"]["groups"]["item"]["quantities"]["item"])
                     normScales.Add(scale);
             else
-                normScales.Add(norm["main"]["groups"]["item"]["quantities"]["item"]);
+                normScales.Add(norm.Data["main"]["groups"]["item"]["quantities"]["item"]);
 
 
             //Для каждой вычисленной шкалы
@@ -111,12 +112,12 @@ namespace PsychoTestAndroid.ResultsCalculator.Calculators
                     foreach (var normScale in normScales)
                     {
                         //находим соответствующую шкалу из норм 
-                        if (result.scores != null && result.idNormScale == normScale["id"].AsString)
+                        if (result.scores != null && result.idNormScale == normScale["id"].ToString())
                         {
                             //выбираем все градации шкалы
-                            BsonArray grads = new BsonArray();
-                            if (normScale["treelevel"]["children"]["item"]["treelevel"]["children"]["item"]["termexpr"]["gradations"]["gradations"]["item"] is BsonArray)
-                                foreach (var grad in normScale["treelevel"]["children"]["item"]["treelevel"]["children"]["item"]["termexpr"]["gradations"]["gradations"]["item"].AsBsonArray)
+                            JArray grads = new JArray();
+                            if (normScale["treelevel"]["children"]["item"]["treelevel"]["children"]["item"]["termexpr"]["gradations"]["gradations"]["item"] is JArray)
+                                foreach (var grad in normScale["treelevel"]["children"]["item"]["treelevel"]["children"]["item"]["termexpr"]["gradations"]["gradations"]["item"])
                                     grads.Add(grad);
                             else
                                 grads.Add(normScale["treelevel"]["children"]["item"]["treelevel"]["children"]["item"]["termexpr"]["gradations"]["gradations"]["item"]);
@@ -126,14 +127,14 @@ namespace PsychoTestAndroid.ResultsCalculator.Calculators
                             //Для каждой градации
                             foreach (var bsonGrad in grads)
                             {
-                                var grad = JObject.Parse(JsonConvert.SerializeObject(BsonTypeMapper.MapToDotNetValue(bsonGrad)));
+                                var grad = JObject.Parse(bsonGrad.ToString());
 
                                 //если обе границы inf
                                 if (grad["lowerformula"]["ftext"].ToString() == "-inf" && grad["upperformula"]["ftext"].ToString() == "+inf")
                                 {
                                     if (grad["comment"]["#text"] != null)
                                         result.interpretation = grad["comment"]["#text"].ToString();
-                                    result.gradationNumber = Int32.Parse(grad["number"].ToString());
+                                    result.gradationNumber = int.Parse(grad["number"].ToString());
                                 }
                                 else
                                 //если слева -inf, справа число

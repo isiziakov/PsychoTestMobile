@@ -13,13 +13,20 @@ namespace PsychoTestAndroid.ResultsCalculator.Model
 {
     public class PatientsResult
     {
-        public string test { get; set; }
-        public string date { get; set; }
         public List<Scale> scales { get; set; }
-        public string comment { get; set; }
         public PatientsResult()
         {
             scales = new List<Scale>();
+        }
+
+        public string String()
+        {
+            string result = "";
+            foreach(var item in scales)
+            {
+                result += item.interpretation + "\n";
+            }
+            return result;
         }
     }
 }

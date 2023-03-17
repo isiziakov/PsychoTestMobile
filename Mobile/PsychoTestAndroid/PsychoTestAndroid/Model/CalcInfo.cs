@@ -19,6 +19,8 @@ namespace PsychoTestAndroid.Model
 
         public JObject Groups { get; set; }
 
+        public JObject Questions { get; set; }
+
         public CalcInfo()
         {
 
@@ -28,6 +30,7 @@ namespace PsychoTestAndroid.Model
         {
             Id = testCalcInfo.TestId;
             Groups = JObject.Parse(testCalcInfo.Groups);
+            Questions = JObject.Parse(testCalcInfo.Questions);
         }
     }
 }

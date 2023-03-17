@@ -13,21 +13,21 @@ using System.Text;
 
 namespace PsychoTestAndroid.Model
 {
-    public class Scale
+    public class Norm
     {
         public string Id { get; set; }
 
-        public JObject Norm { get; set; }
+        public JObject Data { get; set; }
 
-        public Scale()
+        public Norm()
         {
 
         }
 
-        public Scale(DbScale scale)
+        public Norm(DbScale scale)
         {
             Id = scale.TestId;
-            Norm = JObject.Parse(scale.Scales);
+            Data = JObject.Parse(scale.Scales);
         }
     }
 }

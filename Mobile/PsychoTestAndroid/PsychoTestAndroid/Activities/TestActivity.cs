@@ -285,7 +285,7 @@ namespace PsychoTestAndroid
         // скрыть клавиатуру
         private void HideKeyboard()
         {
-            InputMethodManager inputMethodManager = (InputMethodManager)this.GetSystemService(Context.InputMethodService);
+            InputMethodManager inputMethodManager = (InputMethodManager)this.GetSystemService(InputMethodService);
             inputMethodManager.HideSoftInputFromWindow(this.viewPager.WindowToken, HideSoftInputFlags.None);
         }
         // завершение теста

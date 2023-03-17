@@ -19,6 +19,8 @@ namespace PsychoTestAndroid.Result
 
         }
 
+        public string Result { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         public Task<int> SetScalesAsync(string id)
         {
             return Task.FromResult(0);
