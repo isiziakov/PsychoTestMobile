@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace PsychoTestAndroid.ResultsCalculator
 {
-    static class ResultsCalculator
+    public static class ResultsCalculator
     {
         public static async Task<int> SetScalesAsync(string id)
         {

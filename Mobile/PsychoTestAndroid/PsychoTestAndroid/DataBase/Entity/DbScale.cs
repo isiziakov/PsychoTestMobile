@@ -13,7 +13,7 @@ using System.Text;
 
 namespace PsychoTestAndroid.DataBase.Entity
 {
-    [Table("TestsResults")]
+    [Table("Scales")]
     public class DbScale
     {
         [PrimaryKey, AutoIncrement, Column("_id")]

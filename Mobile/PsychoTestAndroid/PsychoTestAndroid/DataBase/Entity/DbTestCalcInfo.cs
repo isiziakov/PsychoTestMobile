@@ -13,7 +13,7 @@ using System.Text;
 
 namespace PsychoTestAndroid.DataBase.Entity
 {
-    [Table("Tests")]
+    [Table("TestCalcInfo")]
     public class DbTestCalcInfo
     {
         [PrimaryKey, AutoIncrement, Column("_id")]
@@ -30,8 +30,9 @@ namespace PsychoTestAndroid.DataBase.Entity
 
         }
 
-        public void SetTestInfo(JObject data)
+        public DbTestCalcInfo(JObject data, string id)
         {
+            TestId = id;
             Groups = data["Groups"].ToString();
             Questions = data["Questions"].ToString();
         }

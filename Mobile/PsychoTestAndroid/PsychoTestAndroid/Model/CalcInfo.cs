@@ -30,7 +30,10 @@ namespace PsychoTestAndroid.Model
         {
             Id = testCalcInfo.TestId;
             Groups = JObject.Parse(testCalcInfo.Groups);
-            Questions = JObject.Parse(testCalcInfo.Questions);
+            if (testCalcInfo.Questions != "")
+            {
+                Questions = JObject.Parse(testCalcInfo.Questions);
+            }
         }
     }
 }

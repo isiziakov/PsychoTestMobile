@@ -21,7 +21,7 @@ namespace PsychoTestAndroid.ResultsCalculator
             return EvaluateParenthesis(expression);
         }
 
-        private static double EvaluateParenthesis(string expression)
+        public static double EvaluateParenthesis(string expression)
         {
             string planarExpression = expression;
             while (planarExpression.Contains('('))
@@ -34,7 +34,7 @@ namespace PsychoTestAndroid.ResultsCalculator
             return Evaluate(planarExpression);
         }
 
-        private static int IndexOfRightParenthesis(string expression, int start)
+        public static int IndexOfRightParenthesis(string expression, int start) //
         {
             int c = 1;
             for (int i = start; i < expression.Length; i++)
@@ -72,7 +72,7 @@ namespace PsychoTestAndroid.ResultsCalculator
             return numbers[0];
         }
 
-        private static double Calc(double left, double right, char oper)
+        public static double Calc(double left, double right, char oper) //
         {
             switch (oper)
             {

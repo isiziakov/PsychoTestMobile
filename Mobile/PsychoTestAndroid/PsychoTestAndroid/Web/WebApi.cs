@@ -56,6 +56,7 @@ namespace PsychoTestAndroid.Web
             if (url == null)
             {
                 url = context.GetString(Resource.String.base_url);
+                url = "https://10.0.2.2:5001";
             }
             Token = PreferencesHelper.GetString("token", null);
         }
@@ -123,7 +124,7 @@ namespace PsychoTestAndroid.Web
             HttpResponseMessage result;
             try
             {
-                result = await client.GetAsync(url + "api/scales/" + id);
+                result = await client.GetAsync(url + "api/Tests/norm/" + id);
             }
             catch
             {

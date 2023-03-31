@@ -9,6 +9,7 @@ using AndroidX.RecyclerView.Widget;
 using AndroidX.SwipeRefreshLayout.Widget;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using PsychoTestAndroid.Activities;
 using PsychoTestAndroid.DataBase;
 using PsychoTestAndroid.DataBase.Entity;
 using PsychoTestAndroid.Helpers;
@@ -131,7 +132,16 @@ namespace PsychoTestAndroid
             {
                 if (tests[e].StatusNumber == 2 || tests[e].StatusNumber == 3)
                 {
-                    Toast.MakeText(this, "Тест уже пройден", ToastLength.Short).Show();
+                    if (!tests[e].ShowResult || tests[e].TestResult == "")
+                    {
+                        Toast.MakeText(this, "Тест уже пройден", ToastLength.Short).Show();
+                    }
+                    else
+                    {
+                        Intent intent = new Intent(this, typeof(ResultActivity));
+                        intent.PutExtra("Result", tests[e].TestResult);
+                        this.StartActivity(intent);
+                    }
                 }
                 else
                 {

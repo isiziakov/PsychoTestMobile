@@ -26,6 +26,8 @@ namespace PsychoTestAndroid.DataBase.Repository.SQLite
         {
             db = new SQLiteConnection(GetPath());
             db.CreateTable<DbTest>();
+            db.CreateTable<DbScale>();
+            db.CreateTable<DbTestCalcInfo>();
         }
 
         string GetPath()

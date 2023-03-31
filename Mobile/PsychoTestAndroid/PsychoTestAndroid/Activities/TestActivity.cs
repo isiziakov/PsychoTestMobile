@@ -309,6 +309,11 @@ namespace PsychoTestAndroid
                 dbTest.StatusNumber = 2;
                 Finish();
             }
+            if (test.ShowResult)
+            {
+                dbTest.TestResult = test.EndTest(result);
+                DbOperations.UpdateTest(dbTest);
+            }
         }
     }
 }

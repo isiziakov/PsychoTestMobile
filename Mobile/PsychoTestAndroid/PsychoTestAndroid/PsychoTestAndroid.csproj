@@ -70,8 +70,10 @@
   <ItemGroup>
     <Compile Include="Activities\AllTestActivity.cs" />
     <Compile Include="Activities\MainActivity.cs" />
+    <Compile Include="Activities\ResultActivity.cs" />
     <Compile Include="Activities\TestActivity.cs" />
     <Compile Include="DataBase\Entity\DbTestCalcInfo.cs" />
+    <Compile Include="DataBase\Operations\CalcInfoOperations.cs" />
     <Compile Include="DataBase\Operations\DbOperations.cs" />
     <Compile Include="DataBase\Entity\DbTest.cs" />
     <Compile Include="DataBase\Entity\DbScale.cs" />
@@ -208,6 +210,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\menu\menu.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\activity_result.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

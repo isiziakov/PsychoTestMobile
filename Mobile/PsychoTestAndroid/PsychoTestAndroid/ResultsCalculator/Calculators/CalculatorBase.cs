@@ -41,17 +41,18 @@ namespace PsychoTestAndroid.ResultsCalculator.Calculators
             Dictionary<string, double> scales = new Dictionary<string, double>();
             foreach (var answer in result.Answers)
             {
+                var id = int.Parse(answer.Id);
                 //Если вопрос с выбором одного из вариантов ответа
-                if (Int32.Parse(test.Questions["item"][answer.Id]["Question_Choice"].ToString()) == 1)
+                if (Int32.Parse(test.Questions["item"][id]["Question_Choice"].ToString()) == 1)
                 {
                     if (answer.Answer != "")
-                        if (test.Questions["item"][answer.Id]["Answers"]["item"][Int32.Parse(answer.Answer)]["Weights"] != null)
-                            if (test.Questions["item"][answer.Id]["Answers"]["item"][Int32.Parse(answer.Answer)]["Weights"].ToString() != "")
+                        if (test.Questions["item"][id]["Answers"]["item"][Int32.Parse(answer.Answer)]["Weights"] != null)
+                            if (test.Questions["item"][id]["Answers"]["item"][Int32.Parse(answer.Answer)]["Weights"].ToString() != "")
                             {
                                 //id шкалы
                                 string scale = "";
-                                if (test.Questions["item"][answer.Id]["Answers"]["item"][Int32.Parse(answer.Answer)]["Weights"]["item"] is JArray)
-                                    foreach (var s in test.Questions["item"][answer.Id]["Answers"]["item"][Int32.Parse(answer.Answer)]["Weights"]["item"])
+                                if (test.Questions["item"][id]["Answers"]["item"][Int32.Parse(answer.Answer)]["Weights"]["item"] is JArray)
+                                    foreach (var s in test.Questions["item"][id]["Answers"]["item"][Int32.Parse(answer.Answer)]["Weights"]["item"])
                                     {
                                         scale = s["ScID"].ToString();
                                         if (scales.ContainsKey(scale))
@@ -63,18 +64,18 @@ namespace PsychoTestAndroid.ResultsCalculator.Calculators
                                     }
                                 else
                                 {
-                                    scale = test.Questions["item"][answer.Id]["Answers"]["item"][Int32.Parse(answer.Answer)]["Weights"]["item"]["ScID"].ToString();
+                                    scale = test.Questions["item"][id]["Answers"]["item"][Int32.Parse(answer.Answer)]["Weights"]["item"]["ScID"].ToString();
                                     if (scales.ContainsKey(scale))
-                                        scales[scale] += double.Parse(test.Questions["item"][answer.Id]["Answers"]["item"][Int32.Parse(answer.Answer)]["Weights"]["item"]["Weights"].ToString(), System.Globalization.CultureInfo.InvariantCulture);
+                                        scales[scale] += double.Parse(test.Questions["item"][id]["Answers"]["item"][Int32.Parse(answer.Answer)]["Weights"]["item"]["Weights"].ToString(), System.Globalization.CultureInfo.InvariantCulture);
                                     else
                                     {
-                                        scales[scale] = double.Parse(test.Questions["item"][answer.Id]["Answers"]["item"][Int32.Parse(answer.Answer)]["Weights"]["item"]["Weights"].ToString(), System.Globalization.CultureInfo.InvariantCulture);
+                                        scales[scale] = double.Parse(test.Questions["item"][id]["Answers"]["item"][Int32.Parse(answer.Answer)]["Weights"]["item"]["Weights"].ToString(), System.Globalization.CultureInfo.InvariantCulture);
                                     }
                                 }
                             }
                 }
                 //Если вопрос с вводом своего ответа
-                else foreach (var ans in test.Questions["item"][answer.Id]["Answers"]["item"])
+                else foreach (var ans in test.Questions["item"][id]["Answers"]["item"])
                     {
                         if (answer.Answer == ans["Name"]["#text"].ToString())
                             if (ans["Weights"] != null)

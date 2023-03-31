@@ -10,12 +10,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace PsychoTestAndroid.DataBase.Interfaces
+namespace PsychoTestAndroid.DataBase.Operations
 {
-    public interface IDbRepos
+    public static class CalcInfoOperations
     {
-        IRepository<DbTest> Test { get; }
-        IRepository<DbScale> Scale { get; }
-        IRepository<DbTestCalcInfo> TestCalcInfo { get; }
+        public static DbTestCalcInfo GetCalcInfoForTest(string id)
+        {
+            return DbOperations.GetCalcInfo().Where(s => s.TestId == id).SingleOrDefault();
+        }
     }
 }

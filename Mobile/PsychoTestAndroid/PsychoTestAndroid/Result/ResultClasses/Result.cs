@@ -29,12 +29,9 @@ namespace PsychoTestAndroid.Result.ResultClasses
             {
                 if (ScaleOperations.GetScaleForTest(id) == null)
                 {
-                    if (ScaleOperations.GetScaleForTest(id) != null)
-                    {
-                        var jsonData = await Web.WebApi.GetScale(id);
-                        if (jsonData == null) return -1;
-                        DbOperations.CreateScale(new DataBase.Entity.DbScale(jsonData, id));
-                    }
+                    var jsonData = await Web.WebApi.GetScale(id);
+                    if (jsonData == null) return -1;
+                    DbOperations.CreateScale(new DataBase.Entity.DbScale(jsonData, id));
                 }
             }
             catch

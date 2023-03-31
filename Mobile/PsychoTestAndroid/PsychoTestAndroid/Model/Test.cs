@@ -71,8 +71,8 @@ namespace PsychoTestAndroid.Model
             answerOrder = test.AnswerOrder;
             questionOrder = test.QuestionOrder;
             ShowResult = test.ShowResult;
-            Result = test.TestResult;
             Type = test.Questions;
+            Result = test.TestResult;
             if (test.Questions != null)
             {
                 if (test.Questions == "Lusher")
@@ -187,6 +187,11 @@ namespace PsychoTestAndroid.Model
                 }
             }
             return true;
+        }
+
+        public string EndTest(TestResult result)
+        {
+            return ResultsCalculator.ResultsCalculator.ProcessingResults(result, this);
         }
     }
 }

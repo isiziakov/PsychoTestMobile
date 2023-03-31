@@ -24,7 +24,13 @@ namespace PsychoTestAndroid.ResultsCalculator.Model
             string result = "";
             foreach(var item in scales)
             {
-                result += item.interpretation + "\n";
+                result += item.name;
+                if (item.interpretation != null)
+                {
+                    result += " - ";
+                    result += item.interpretation;
+                }
+                result += "\n";
             }
             return result;
         }
