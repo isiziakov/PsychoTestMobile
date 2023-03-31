@@ -21,10 +21,10 @@ namespace PsychoTestAndroid.ResultsCalculator
             return EvaluateParenthesis(expression);
         }
 
-        public static double EvaluateParenthesis(string expression)
+        public static double EvaluateParenthesis(string expression) //
         {
             string planarExpression = expression;
-            while (planarExpression.Contains('('))
+            while (planarExpression.IndexOf('(') > -1)
             {
                 int clauseStart = planarExpression.IndexOf('(') + 1;
                 int clauseEnd = IndexOfRightParenthesis(planarExpression, clauseStart);
@@ -49,7 +49,7 @@ namespace PsychoTestAndroid.ResultsCalculator
             return -1;
         }
 
-        private static double Evaluate(string expression)
+        public static double Evaluate(string expression) //
         {
             string normalExpression = expression.Replace(" ", "").Replace(",", ".");
             List<char> operators = normalExpression.Split(numberChars.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(x => x[0]).ToList();

@@ -117,13 +117,114 @@ namespace PsychoTestAndroid.ResultsCalculator.Tests
         }
 
         [TestMethod()]
+        public void CalculateTest1()
+        {
+            string expression = "((1+2)*2+3)^2";
+
+            var res = Calculator.Calculate(expression);
+
+            Assert.AreEqual(81, res);
+        }
+
+        [TestMethod()]
         public void EvaluateParenthesisTest1()
         {
-            string expression = "((1+2)*2+3)";
+            string expression = "((1+2)*2+3)^2";
 
             var res = Calculator.EvaluateParenthesis(expression);
 
-            Assert.AreEqual(1, res);
+            Assert.AreEqual(81, res);
+        }
+
+        [TestMethod()]
+        [ExpectedException(typeof(FormatException))]
+        public void EvaluateParenthesisTest2()
+        {
+            string expression = "(1+2)*2+3)^2";
+
+            var res = Calculator.EvaluateParenthesis(expression);
+
+            Assert.AreEqual(81, res);
+        }
+
+        [TestMethod()]
+        [ExpectedException(typeof(FormatException))]
+        public void EvaluateParenthesisTest3()
+        {
+            string expression = "((1+2)*2+3)^2)";
+
+            var res = Calculator.EvaluateParenthesis(expression);
+
+            Assert.AreEqual(81, res);
+        }
+
+        [TestMethod()]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void EvaluateParenthesisTest4()
+        {
+            string expression = "";
+
+            var res = Calculator.EvaluateParenthesis(expression);
+
+            Assert.AreEqual(81, res);
+        }
+
+        [TestMethod()]
+        public void EvaluateTest1()
+        {
+            string expression = "1+2*2";
+
+            var res = Calculator.Evaluate(expression);
+
+            Assert.AreEqual(5, res);
+        }
+
+        [TestMethod()]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void EvaluateTest2()
+        {
+            string expression = "";
+
+            var res = Calculator.Evaluate(expression);
+        }
+
+        [TestMethod()]
+        [ExpectedException(typeof(FormatException))]
+        public void EvaluateTest3()
+        {
+            string expression = "(1+2)*3";
+
+            var res = Calculator.Evaluate(expression);
+        }
+
+        [TestMethod()]
+        public void EvaluateTest4()
+        {
+            string expression = "1+2/2";
+
+            var res = Calculator.Evaluate(expression);
+
+            Assert.AreEqual(2, res);
+        }
+
+        [TestMethod()]
+        public void EvaluateTest5()
+        {
+            string expression = "1+2^2";
+
+            var res = Calculator.Evaluate(expression);
+
+            Assert.AreEqual(5, res);
+        }
+
+        [TestMethod()]
+        public void EvaluateTest6()
+        {
+            string expression = "1-2";
+
+            var res = Calculator.Evaluate(expression);
+
+            Assert.AreEqual(-1, res);
         }
     }
 }
