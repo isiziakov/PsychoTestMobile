@@ -1,15 +1,6 @@
-﻿using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
-using PsychoTestAndroid.DataBase.Entity;
+﻿using PsychoTestAndroid.DataBase.Entity;
 using PsychoTestAndroid.DataBase.Repository.SQLite;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace PsychoTestAndroid.DataBase
 {
@@ -76,12 +67,12 @@ namespace PsychoTestAndroid.DataBase
             db.TestCalcInfo.Create(calcInfo);
         }
 
-        public static void UpdateTest(DbScale scale)
+        public static void UpdateScale(DbScale scale)
         {
             db.Scale.Update(scale);
         }
 
-        public static void DeleteTest(DbScale scale)
+        public static void DeleteScale(DbScale scale)
         {
             db.Scale.Delete(scale);
         }

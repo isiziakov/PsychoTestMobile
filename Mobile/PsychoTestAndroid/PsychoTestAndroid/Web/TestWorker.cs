@@ -1,12 +1,6 @@
-﻿using Android.App;
-using Android.Content;
-using Android.OS;
+﻿using Android.Content;
 using Android.Runtime;
-using Android.Views;
-using Android.Widget;
-using AndroidX.Core.App;
 using AndroidX.Work;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PsychoTestAndroid.DataBase;
 using PsychoTestAndroid.DataBase.Entity;
@@ -14,9 +8,7 @@ using PsychoTestAndroid.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using static Android.App.ActivityManager;
 
 namespace PsychoTestAndroid.Web
 {

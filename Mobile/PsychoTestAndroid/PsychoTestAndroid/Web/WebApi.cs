@@ -1,24 +1,13 @@
 ﻿using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
-using PsychoTestAndroid.Model;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Android.Graphics;
 using System.Net;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
-using Android.Preferences;
 using Xamarin.Android.Net;
 using System.Threading;
 using PsychoTestAndroid.DataBase.Entity;
@@ -26,10 +15,10 @@ using PsychoTestAndroid.Helpers;
 
 namespace PsychoTestAndroid.Web
 {
-    // класс для работы с апи
+    // Класс для работы с апи.
     public static class WebApi
     {
-        // ссылка на апи сервер
+        // Ссылка на апи сервер.
         static string url; 
         private static AndroidClientHandler _socketsHttpHandler;
         private static AndroidClientHandler SocketsHttpHandler
@@ -137,7 +126,7 @@ namespace PsychoTestAndroid.Web
             return null;
         }
 
-        // получить список доступных тестов
+        // Получить список доступных тестов.
         public static async Task<List<DbTest>> GetTests()
         {
             HttpClientHandler clientHandler = new HttpClientHandler();

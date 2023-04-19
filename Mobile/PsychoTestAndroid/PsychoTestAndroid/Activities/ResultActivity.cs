@@ -1,13 +1,8 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.OS;
-using Android.Runtime;
-using Android.Views;
 using Android.Widget;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace PsychoTestAndroid.Activities
 {
@@ -20,11 +15,19 @@ namespace PsychoTestAndroid.Activities
 
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.activity_result);
-            // считать тест
+            // Считать тест.
             string result = Intent.GetStringExtra("Result") == null ? "" : Intent.GetStringExtra("Result");
 
             TextView text = FindViewById<TextView>(Resource.Id.result_text);
             text.Text = result;
+
+            ImageButton exit = FindViewById<ImageButton>(Resource.Id.resultExit);
+            exit.Click += Exit;
+        }
+
+        protected void Exit(object sender, EventArgs e)
+        {
+            Finish();
         }
     }
 }

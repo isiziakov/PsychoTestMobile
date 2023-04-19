@@ -1,16 +1,9 @@
-﻿using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
+﻿using Android.Views;
 using Android.Widget;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PsychoTestAndroid.Model.Answers;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace PsychoTestAndroid.Model.Questions
 {
@@ -64,7 +57,7 @@ namespace PsychoTestAndroid.Model.Questions
             for (int i = 0; i < 8; i++)
             {
                 Answers.Add(new AnswerLusher(i.ToString()));
-                Answers.Last().owner = this;
+                Answers.Last().Owner = this;
             }
         }
 

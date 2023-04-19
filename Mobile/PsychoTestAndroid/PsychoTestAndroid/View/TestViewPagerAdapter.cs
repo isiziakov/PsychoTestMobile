@@ -14,13 +14,13 @@ using System.Text;
 
 namespace PsychoTestAndroid
 {
-    // отображение списка вопросов
+    // Отображение списка вопросов.
     public class TestViewPagerAdapter : PagerAdapter
     {
-        // список вопросов с ответами
+        // Список вопросов с ответами.
         RecyclerView endRecyclerView;
         Test test;
-        // последняя страница - список из всех вопросов с выбранными ответами
+        // Последняя страница - список из всех вопросов с выбранными ответами.
         public override int Count
         {
             get { return test.Questions.Count() + 1; }
@@ -64,7 +64,7 @@ namespace PsychoTestAndroid
                 return view;
             }
         }
-        // установка title
+        // Установка title.
         public override Java.Lang.ICharSequence GetPageTitleFormatted(int position)
         {
             string title;
@@ -85,7 +85,7 @@ namespace PsychoTestAndroid
             var viewPager = container.JavaCast<ViewPager>();
             viewPager.RemoveView(view as View);
         }
-        // перерисовка страницы с результатами
+        // Перерисовка страницы с результатами.
         public void ReDrawEnd()
         {
             var adapter = new EndTestAdapter(test);

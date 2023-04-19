@@ -1,21 +1,11 @@
-﻿using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Newtonsoft.Json.Linq;
 
 namespace PsychoTestAndroid.Model.Answers
 {
-    // вспомогательный класс для декораторов
+    // Вспомогательный класс для декораторов.
     public static class DecoratorHelper
     {
-        // получить декоратор по типу
+        // Получить декоратор по типу.
         public static AnswersDecorator GetDecorator(string type, JObject data)
         {
             switch (type)

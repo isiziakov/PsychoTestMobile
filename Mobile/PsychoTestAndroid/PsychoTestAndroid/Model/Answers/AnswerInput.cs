@@ -1,22 +1,15 @@
-﻿using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
+﻿using Android.Views;
 using Android.Widget;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace PsychoTestAndroid.Model.Answers
 {
-    // ответ с вводом текста
+    // Ответ с вводом текста.
     public class AnswerInput : Answer
     {
-        // поле ввода
+        // Поле ввода.
         [JsonIgnore]
         protected EditText editText;
 
@@ -24,7 +17,7 @@ namespace PsychoTestAndroid.Model.Answers
         {
 
         }
-        // отобразить ответ
+        // Отобразить ответ.
         public override LinearLayout Show(LinearLayout layout)
         {
             layout.Orientation = Orientation.Horizontal;
@@ -34,34 +27,34 @@ namespace PsychoTestAndroid.Model.Answers
             layout.AddView(editText);
             editText.LayoutParameters.Width = ViewGroup.LayoutParams.MatchParent;
             editText.LayoutParameters.Height = ViewGroup.LayoutParams.WrapContent;
-            if (owner != null && owner.InputeNumber?.ToLower() == "true")
+            if (Owner != null && Owner.InputeNumber?.ToLower() == "true")
             {
                 editText.SetRawInputType(Android.Text.InputTypes.ClassNumber | Android.Text.InputTypes.NumberFlagDecimal);
             }
-            // обновить состояние поля ввода в зависимости от результата
-            UpdateResult(owner.Result);
-            // изменение текста
+            // Обновить состояние поля ввода в зависимости от результата.
+            UpdateResult(Owner.Result);
+            // Изменение текста.
             editText.TextChanged += Edit;
             return base.Show(layout);
         }
-        // обновление ответа в соответствии с результатом вопроса
+        // Обновление ответа в соответствии с результатом вопроса.
         public override void UpdateResult(string result)
         {
             if (editText != null)
             {
-                // если текст поля ввода не соответствует результату
+                // Если текст поля ввода не соответствует результатуЮ
                 if (editText.Text != result)
                 {
-                    // устанавливаем результат в поле ввода
+                    // Устанавливаем результат в поле вводаЮ
                     editText.Text = result;
                 }
             }
         }
-        // изменение текста
+        // Изменение текста.
         protected void Edit(object sender, EventArgs e)
         {
-            // устанавливаем измененный текст в результат
-            owner.SetResult(editText.Text);
+            // Устанавливаем измененный текст в результат.
+            Owner.SetResult(editText.Text);
         }
     }
 }

@@ -1,17 +1,7 @@
-﻿using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
-using PsychoTestAndroid.DataBase;
+﻿using PsychoTestAndroid.DataBase;
 using PsychoTestAndroid.DataBase.Operations;
 using PsychoTestAndroid.Model;
 using PsychoTestAndroid.ResultsCalculator.Calculators;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PsychoTestAndroid.ResultsCalculator
@@ -38,24 +28,24 @@ namespace PsychoTestAndroid.ResultsCalculator
 
         public static string ProcessingResults(TestResult result, Test test)
         {
-            var calcInfo = new CalcInfo(TestCalcInfoOperations.GetCalcInfoForTest(test.Id));
+            var calcInfo = new CalcInfo(CalcInfoOperations.GetCalcInfoForTest(test.Id));
             var norm = new Norm(ScaleOperations.GetScaleForTest(test.Id));
 
-            //обработка результатов
+            // Обработка результатов.
 
-            //обработка люшера
+            // Обработка люшера.
 
             if (test.Type == "Lusher")
             {
                 CalculatorLusher processingResults = new CalculatorLusher(calcInfo, result, norm);
-                return processingResults.patientResult.String();
+                return processingResults.PatientResult.String();
             }
 
-            //обработка стандартных опросников
+            // Обработка стандартных опросников.
             else
             {
                 CalculatorBase processingResults = new CalculatorBase(calcInfo, result, norm);
-                return processingResults.patientResult.String();
+                return processingResults.PatientResult.String();
             }
         }
     }

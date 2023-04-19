@@ -1,20 +1,13 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
 using AndroidX.Core.App;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace PsychoTestAndroid.Helpers
 {
     public static class NotifyHelper
     {
-        public static NotificationChannel channel { get; private set; }
+        static NotificationChannel channel { get; set; }
         static string id;
 
         static NotifyHelper()

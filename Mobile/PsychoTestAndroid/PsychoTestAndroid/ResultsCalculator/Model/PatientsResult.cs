@@ -1,34 +1,25 @@
-﻿using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace PsychoTestAndroid.ResultsCalculator.Model
 {
     public class PatientsResult
     {
-        public List<Scale> scales { get; set; }
+        public List<Scale> Scales { get; set; }
         public PatientsResult()
         {
-            scales = new List<Scale>();
+            Scales = new List<Scale>();
         }
 
         public string String()
         {
             string result = "";
-            foreach(var item in scales)
+            foreach(var item in Scales)
             {
-                result += item.name;
-                if (item.interpretation != null)
+                result += item.Name;
+                if (item.Interpretation != null)
                 {
                     result += " - ";
-                    result += item.interpretation;
+                    result += item.Interpretation;
                 }
                 result += "\n";
             }

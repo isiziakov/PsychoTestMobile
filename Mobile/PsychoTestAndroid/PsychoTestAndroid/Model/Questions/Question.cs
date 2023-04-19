@@ -1,36 +1,30 @@
-﻿using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
+﻿using Android.Views;
 using Android.Widget;
 using AndroidX.RecyclerView.Widget;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PsychoTestAndroid.Model.Answers;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace PsychoTestAndroid.Model.Questions
 {
-    // базовый класс для вопроса теста
+    // Базовый класс для вопроса теста.
     public abstract class Question
     {
-        // выбранный ответ на вопрос
+        // Выбранный ответ на вопрос.
         [JsonIgnore]
         public string Result = "";
-        // тип пояснения к вопросу
+        // Тип пояснения к вопросу.
         [JsonProperty("type")]
         public string Type;
         // id вопроса
         [JsonProperty("question_id")]
         public string Id;
-        // тип ответов вопроса (одиночный выбор варианта, ввод ответа...)
+        // Тип ответов вопроса (одиночный выбор варианта, ввод ответа...).
         [JsonProperty("answers_type")]
         public string AnswersType;
-        // лист ответов
+        // Лист ответов.
         [JsonIgnore]
         public List<Answer> Answers = new List<Answer>();
         [JsonProperty("AnsString_Num")]
@@ -46,10 +40,10 @@ namespace PsychoTestAndroid.Model.Questions
             AnswersType = data["Question_Choice"].ToString();
             InputeNumber = data["AnsString_Num"]?.ToString();
         }
-        // отрисовать вопрос
+        // Отрисовать вопрос.
         public virtual View Show(View view)
         {
-            // отрисовывает список ответов как RecyclerView
+            // Отрисовывает список ответов как RecyclerView.
             LinearLayout answers = view.FindViewById<LinearLayout>(Resource.Id.answers_view);
             RecyclerView recycler = new RecyclerView(answers.Context);
             answers.AddView(recycler);
@@ -59,50 +53,50 @@ namespace PsychoTestAndroid.Model.Questions
             recycler.SetAdapter(adapter);
             return view;
         }
-        // получить layout для вопроса
+        // Получить layout для вопроса.
         public virtual int GetLayout()
         {
             return Resource.Layout.question_layout;
         }
-        // установить ответ для вопроса
+        // Установить ответ для вопроса.
         public virtual void SetResult(string result)
         {
             this.Result = result;
-            // обновить ответы
+            // Обновить ответы.
             UpdateResult();
         }
-        // обновить ответы при изменении ответа
+        // Обновить ответы при изменении ответа.
         public void UpdateResult()
         {
-            // для каждого ответа установить результат
+            // Для каждого ответа установить результат.
             foreach (Answer answer in Answers)
             {
                 answer.UpdateResult(Result);
             }
         }
-        // установить ответы
+        // Установить ответы.
         public virtual void SetAnswers(JObject data)
         {
-            // массив ответов
+            // Массив ответов.
             JArray answers = JArray.Parse(data["Answers"]["item"].ToString());
-            // при вводе текста в ответах лежат все правильные комбинации, в этом случае вариант ответа с вводом 1
+            // При вводе текста в ответах лежат все правильные комбинации, в этом случае вариант ответа с вводом 1.
             if (AnswersType == "0")
             {
-                // добавляем новый ответ
+                // Добавляем новый ответ.
                 Answers.Add(new AnswerInput(answers.First() as JObject));
-                // устанавливаем владельца для ответа
-                Answers.Last().owner = this;
+                // Устанавливаем владельца для ответа.
+                Answers.Last().Owner = this;
             }
             else
             {
-                // добавляем все ответы
+                // Добавляем все ответы.
                 foreach (JObject answer in answers)
                 {
                     var newAnswer = AnswerHelper.GetAnswerForType(AnswersType, answer);
                     if (newAnswer != null)
                     {
                         Answers.Add(newAnswer);
-                        Answers.Last().owner = this;
+                        Answers.Last().Owner = this;
                     }
                 }
             }

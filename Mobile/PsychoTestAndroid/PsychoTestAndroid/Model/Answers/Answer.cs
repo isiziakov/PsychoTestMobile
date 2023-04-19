@@ -1,34 +1,24 @@
-﻿using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
-using AndroidX.AppCompat.App;
+﻿using Android.Widget;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PsychoTestAndroid.Model.Questions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace PsychoTestAndroid.Model.Answers
 {
-    // базовый класс для варианта ответа
+    // Базовый класс для варианта ответа.
     public abstract class Answer
     {
-        // владелец, необходим для установки результата, т.к. только сам вопрос знает как
-        // правильно записать свой результат, события не работают при наследовании
+        // Владелец, необходим для установки результата, т.к. только сам вопрос знает как
+        // Правильно записать свой результат, события не работают при наследовании.
         [JsonIgnore]
-        public Question owner { set; protected get; }
-        // номер ответа
+        public Question Owner { set; protected get; }
+        // Номер ответа.
         [JsonProperty("answer_id")]
         public string Id;
-        // тип декоратора ответа
+        // Тип декоратора ответа.
         [JsonProperty("answer_type")]
         public string Type;
-        // декоратор
+        // Декоратор.
         [JsonIgnore]
         protected AnswersDecorator decorator;
 
@@ -43,10 +33,10 @@ namespace PsychoTestAndroid.Model.Answers
             decorator = DecoratorHelper.GetDecorator(Type, data);
         }
 
-        // отрисовка ответа внутри LinearLayout
+        // Отрисовка ответа внутри LinearLayout.
         public virtual LinearLayout Show(LinearLayout layout)
         {
-            // отрисовка декоратора, если он есть
+            // Отрисовка декоратора, если он есть.
             if (decorator != null)
             {
                 LinearLayout decoratorLayout = decorator.Show(new LinearLayout(layout.Context));
@@ -55,7 +45,7 @@ namespace PsychoTestAndroid.Model.Answers
             }
             return layout;
         }
-        // обработка изменения ответа на вопрос
+        // Обработка изменения ответа на вопрос.
         public abstract void UpdateResult(string result);
     }
 }

@@ -143,8 +143,6 @@ namespace PsychoTestAndroid.ResultsCalculator.Tests
             string expression = "(1+2)*2+3)^2";
 
             var res = Calculator.EvaluateParenthesis(expression);
-
-            Assert.AreEqual(81, res);
         }
 
         [TestMethod()]
@@ -154,8 +152,6 @@ namespace PsychoTestAndroid.ResultsCalculator.Tests
             string expression = "((1+2)*2+3)^2)";
 
             var res = Calculator.EvaluateParenthesis(expression);
-
-            Assert.AreEqual(81, res);
         }
 
         [TestMethod()]
@@ -165,8 +161,6 @@ namespace PsychoTestAndroid.ResultsCalculator.Tests
             string expression = "";
 
             var res = Calculator.EvaluateParenthesis(expression);
-
-            Assert.AreEqual(81, res);
         }
 
         [TestMethod()]

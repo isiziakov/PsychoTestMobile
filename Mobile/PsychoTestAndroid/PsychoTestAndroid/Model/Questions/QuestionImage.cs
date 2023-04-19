@@ -1,34 +1,24 @@
-﻿using Android.App;
-using Android.Content;
-using Android.Graphics;
-using Android.OS;
-using Android.Runtime;
+﻿using Android.Graphics;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PsychoTestAndroid.Helpers;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PsychoTestAndroid.Model.Questions
 {
-    // пока без картинок :)
-    // вопрос с пояснением в виде картинки и текста
+    // Пока без картинок :)
+    // Вопрос с пояснением в виде картинки и текста.
     public class QuestionImage : Question
     {
-        // путь к картинке
+        // Путь к картинке.
         [JsonProperty("image")]
         string imageSrc;
-        // текст с пояснением к картинке
+        // Текст с пояснением к картинке.
         [JsonProperty("text")]
         string text;
-        // bitmap с картинкой
+        // Bitmap с картинкой.
         [JsonIgnore]
         Bitmap image;
         public QuestionImage()
@@ -43,7 +33,7 @@ namespace PsychoTestAndroid.Model.Questions
             image = BitmapFactory.DecodeByteArray(imageData, 0, imageData.Length);
             text = data["Text"]["#text"].ToString();
         }
-        // отрисовка вопроса
+        // Отрисовка вопроса.
         public override View Show(View layout)
         {
             layout = base.Show(layout);

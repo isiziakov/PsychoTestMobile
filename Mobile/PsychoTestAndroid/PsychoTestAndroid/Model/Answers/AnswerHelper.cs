@@ -1,22 +1,11 @@
-﻿using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Newtonsoft.Json.Linq;
 
 namespace PsychoTestAndroid.Model.Answers
 {
-    // вспомогательный класс для ответов
+    // Вспомогательный класс для ответов.
     public static class AnswerHelper
     {
-        // создаем новый ответ в соответствии с типом
+        // Создаем новый ответ в соответствии с типом.
         public static Answer GetAnswerForType(string type, JObject data)
         {
             switch (type)

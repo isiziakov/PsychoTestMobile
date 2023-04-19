@@ -1,14 +1,5 @@
-﻿using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
-using PsychoTestAndroid.ResultsCalculator.Model;
-using System;
+﻿using PsychoTestAndroid.ResultsCalculator.Model;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace PsychoTestAndroid.ResultsCalculator
 {
@@ -31,9 +22,9 @@ namespace PsychoTestAndroid.ResultsCalculator
 
                     int value = 0;
                     foreach (var r in results)
-                        if (r.idTestScale == idTestScale)
+                        if (r.IdTestScale == idTestScale)
                         {
-                            value = (int)r.gradationNumber;
+                            value = (int)r.GradationNumber;
                             break;
                         }
                     formula = formula.Remove(firstIndex, lastIndex - firstIndex + 1);
@@ -55,9 +46,9 @@ namespace PsychoTestAndroid.ResultsCalculator
 
                     int value = 0;
                     foreach (var r in results)
-                        if (r.idTestScale == idTestScale)
+                        if (r.IdTestScale == idTestScale)
                         {
-                            value = (int)r.scores;
+                            value = (int)r.Scores;
                             break;
                         }
                     formula = formula.Remove(firstIndex, lastIndex - firstIndex + 1);
@@ -79,9 +70,9 @@ namespace PsychoTestAndroid.ResultsCalculator
 
                     int value = 0;
                     foreach (var r in results)
-                        if (r.idTestScale == idTestScale)
+                        if (r.IdTestScale == idTestScale)
                         {
-                            value = (int)r.scores;
+                            value = (int)r.Scores;
                             break;
                         }
                     formula = formula.Remove(firstIndex, lastIndex - firstIndex + 1);

@@ -1,17 +1,10 @@
-﻿using Android.App;
-using Android.Content;
-using Android.Graphics;
-using Android.OS;
-using Android.Runtime;
+﻿using Android.Graphics;
 using Android.Views;
 using Android.Widget;
 using AndroidX.RecyclerView.Widget;
 using PsychoTestAndroid.DataBase.Entity;
-using PsychoTestAndroid.Model;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace PsychoTestAndroid
 {
@@ -32,7 +25,7 @@ namespace PsychoTestAndroid
             itemview.Click += (sender, e) => listener(Position);
         }
     }
-    // адаптер для отображения списка тестов
+    // Адаптер для отображения списка тестов.
     public class AllTestsAdapter : RecyclerView.Adapter
     {
         public event EventHandler<int> ItemClick;

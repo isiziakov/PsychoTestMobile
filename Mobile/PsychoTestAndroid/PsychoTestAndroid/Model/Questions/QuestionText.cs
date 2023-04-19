@@ -1,23 +1,14 @@
-﻿using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
+﻿using Android.Views;
 using Android.Widget;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using PsychoTestAndroid.Model.Answers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace PsychoTestAndroid.Model.Questions
 {
-    // вопрос с текстом
+    // Вопрос с текстом.
     public class QuestionText : Question
     {
-        // текст вопроса
+        // Текст вопроса.
         [JsonProperty("text")]
         protected string text;
 
@@ -35,7 +26,7 @@ namespace PsychoTestAndroid.Model.Questions
             text = data["Text"]["#text"].ToString();
             text = text.Replace("   ", " ");
         }
-        // отобразить вопрос
+        // Отобразить вопрос.
         public override View Show(View layout)
         {
             layout = base.Show(layout);

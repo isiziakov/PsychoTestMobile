@@ -1,23 +1,15 @@
-﻿using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
+﻿using Android.Views;
 using Android.Widget;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using PsychoTestAndroid.Model.Questions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace PsychoTestAndroid.Model.Answers
 {
-    // ответ с выбором одного ответа
+    // Ответ с выбором одного ответа.
     public class AnswerSingle : Answer
     {
-        // radioButton
+        // RadioButton.
         [JsonIgnore]
         protected RadioButton radio;
 
@@ -25,7 +17,7 @@ namespace PsychoTestAndroid.Model.Answers
         {
 
         }
-        // отображение ответа
+        // Отображение ответа.
         public override LinearLayout Show(LinearLayout layout)
         {
             layout.Orientation = Orientation.Horizontal;
@@ -36,24 +28,24 @@ namespace PsychoTestAndroid.Model.Answers
             layout.AddView(radio);
             radio.LayoutParameters.Width = ViewGroup.LayoutParams.WrapContent;
             radio.LayoutParameters.Height = ViewGroup.LayoutParams.MatchParent;
-            UpdateResult(owner.Result);
+            UpdateResult(Owner.Result);
             return base.Show(layout);
         }
-        // обновление результата
+        // Обновление результата.
         public override void UpdateResult(string result)
         {
             if (radio != null)
             {
-                // выделение, если 
+                // Выделение, если. 
                 radio.Checked = result == Id;
             }
         }
-        // выбор radioButton
+        // Выбор radioButton.
         protected void Select(object sender, EventArgs e)
         {
             radio.Checked = true;
-            // установка нового результата
-            owner.SetResult(Id);
+            // Установка нового результата.
+            Owner.SetResult(Id);
         }
     }
 }

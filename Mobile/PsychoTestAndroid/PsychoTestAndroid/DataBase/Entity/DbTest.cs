@@ -1,18 +1,7 @@
-﻿using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PsychoTestAndroid.DataBase.Operations;
-using PsychoTestAndroid.Result.ResultClasses;
 using SQLite;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace PsychoTestAndroid.DataBase.Entity
 {
@@ -45,7 +34,7 @@ namespace PsychoTestAndroid.DataBase.Entity
         public int StatusNumber { get; set; } = 0;
         public string EndDate { get; set; }
 
-        // results
+        // results.
 
         public string TestResult { get; set; } = "";
         public bool ShowResult { get; set; } = true;

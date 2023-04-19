@@ -1,38 +1,33 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.OS;
-using Android.Runtime;
-using Android.Views;
 using Android.Views.InputMethods;
 using Android.Widget;
 using AndroidX.ViewPager.Widget;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System;
+using System.Timers;
+
 using PsychoTestAndroid.DataBase;
 using PsychoTestAndroid.DataBase.Entity;
+
 using PsychoTestAndroid.Helpers;
 using PsychoTestAndroid.Model;
-using PsychoTestAndroid.Model.Questions;
 using PsychoTestAndroid.Web;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Timers;
 
 namespace PsychoTestAndroid
 {
-    // активити прохождения теста
+    // Активити прохождения теста.
     [Activity(Label = "TestActivity")]
     public class TestActivity : Activity
     {
         Timer timer;
-        // viewPager для отображения вопросов теста
+        // ViewPager для отображения вопросов теста.
         ViewPager viewPager;
-        // тест
+        // Тест.
         Test test;
         DbTest dbTest;
-        // таймер для теста
+        // Таймер для теста.
         TextView testTimer;
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -40,18 +35,18 @@ namespace PsychoTestAndroid
 
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.instruction);
-            // считать тест
+            // Считать тест.
             int id = Intent.GetIntExtra("Test", 0);
             dbTest = DbOperations.GetTest(id);
             test = new Test(dbTest);
-            // тест пуст
+            // Тест пуст.
             if (test == null)
             {
-                // показать предупреждение
+                // Показать предупреждение.
                 AlertDialog.Builder alert = new AlertDialog.Builder(this);
                 alert.SetTitle("Ошибка");
                 alert.SetMessage("Тест не был загружен.");
-                // закрыть страницу
+                // Закрыть страницу.
                 alert.SetPositiveButton("Ок", (senderAlert, args) => {
                     Finish();
                 });
@@ -73,17 +68,17 @@ namespace PsychoTestAndroid
             PreferencesHelper.PutString("AllTestStatus", "false");
             base.OnStop();
         }
-        // инициализация визуальных элементов отображения инструкции
+        // Инициализация визуальных элементов отображения инструкции.
         private void InitializeInstructionComponents()
         {
-            // кнопка назад
+            // Кнопка назад.
             ImageButton backHeaderButton = FindViewById<ImageButton>(Resource.Id.headerBack_backButton);
             backHeaderButton.Click += InstructionBackButtonClick;
             TextView name = FindViewById<TextView>(Resource.Id.test_name);
             TextView instruction = FindViewById<TextView>(Resource.Id.test_instruction);
             name.Text = test.Name;
             instruction.Text = test.Instruction;
-            // кнопка начать тест
+            // Кнопка начать тест.
             Button startButton = FindViewById<Button>(Resource.Id.start_test);
             startButton.Click += async (sender, args) =>
             {
@@ -109,14 +104,14 @@ namespace PsychoTestAndroid
                 }
             };
         }
-        // инициализация визуальных элементов теста
+        // Инициализация визуальных элементов теста.
         private void InitializeTestContent()
         {
             SetContentView(Resource.Layout.test_viewPager);
-            // кнопка назад
+            // Кнопка назад.
             ImageButton backHeaderButton = FindViewById<ImageButton>(Resource.Id.headerTest_backButton);
             backHeaderButton.Click += TestBackButtonClick;
-            // кнопка перехода к результатам теста
+            // Кнопка перехода к результатам теста.
             ImageButton endHeaderButton = FindViewById<ImageButton>(Resource.Id.headerTest_endButton);
             endHeaderButton.Click += EndHeaderButtonClick;
             
@@ -125,32 +120,32 @@ namespace PsychoTestAndroid
             adapter.EndAnswerItemClick += EndAnswerItemClick;
             adapter.EndTestItemClick += EndTestButtonClick;
             viewPager.Adapter = adapter;
-            // смена страницы
+            // Смена страницы.
             viewPager.PageSelected += TestPageSelected;
 
             StartTest();
         }
-        // запуск теста
+        // Запуск теста.
         private void StartTest()
         {
             test.StartTest();
-            // таймер
+            // Таймер.
             testTimer = FindViewById<TextView>(Resource.Id.test_timer);
-            // оставшееся время
+            // Оставшееся время.
             var duration = test.StartTimer();
-            // если время задано
+            // Если время задано.
             if (duration != "")
             {
-                // отображаем время
+                // Отображаем время.
                 testTimer.Text = duration;
-                // создаем таймер
+                // Создаем таймер.
                 timer = new Timer();
-                // событие таймера каждую секунду
+                // Событие таймера каждую секунду.
                 timer.Interval = 1000;
                 timer.Enabled = true;
                 timer.Elapsed += (sender, e) =>
                 {
-                    // получаем новое время
+                    // Получаем новое время.
                     string newTime = test.TimerTick();
                     if (newTime != "")
                     {
@@ -158,17 +153,17 @@ namespace PsychoTestAndroid
                     }
                     else
                     {
-                        // время закончилось останавливаем таймер
+                        // Время закончилось останавливаем таймер.
                         timer.Stop();
                         timer.Dispose();
                     }
                 };
                 timer.Disposed += (sender, e) =>
                 {
-                    // таймер блокирует поток Ui
+                    // Таймер блокирует поток Ui.
                     RunOnUiThread(() =>
                     {
-                        // завершаем тест
+                        // Завершаем тест.
                         ShowTimerEnd();
                     }
                     );
@@ -188,18 +183,18 @@ namespace PsychoTestAndroid
             dialog.Show();
         }
 
-        // выбор вопроса из списка результатов
+        // Выбор вопроса из списка результатов.
         private void EndAnswerItemClick(object sender, int e)
         {
-            // переходим к выбранному вопросу
+            // Переходим к выбранному вопросу.
             viewPager.SetCurrentItem(e, false);
         }
-        // кнопка назад для инструкци
+        // Кнопка назад для инструкции.
         private void InstructionBackButtonClick(object sender, EventArgs e)
         {
             Finish();
         }
-        // кнопка назад для теста
+        // Кнопка назад для теста.
         private void TestBackButtonClick(object sender, EventArgs e)
         {
             if (timer != null)
@@ -220,10 +215,10 @@ namespace PsychoTestAndroid
             });
             alert.Show();
         }
-        // переход к результатам теста
+        // Переход к результатам теста.
         private void EndHeaderButtonClick(object sender, EventArgs e)
         {
-            // переход на последнюю страницу
+            // Переход на последнюю страницу.
             viewPager.SetCurrentItem(test.Questions.Count, false);
         }
 
@@ -270,25 +265,25 @@ namespace PsychoTestAndroid
                 dialog.Show();
             }
         }
-        // перерисовываем страницу с результатами, необходимо, т.к. при изменении ответа последнего вопроса страница результатов не перерисовывается
+        // Перерисовываем страницу с результатами, необходимо, т.к. при изменении ответа последнего вопроса страница результатов не перерисовывается.
         private void TestPageSelected(object sender, ViewPager.PageSelectedEventArgs e)
         {
-            // закрыть клавиатуру
+            // Закрыть клавиатуру.
             HideKeyboard();
-            // перерисовываем страницу с результатами
+            // Перерисовываем страницу с результатами.
             if (e.Position == test.Questions.Count)
             {
                 var adapter = viewPager.Adapter as TestViewPagerAdapter;
                 adapter.ReDrawEnd();
             }
         }
-        // скрыть клавиатуру
+        // Скрыть клавиатуру.
         private void HideKeyboard()
         {
             InputMethodManager inputMethodManager = (InputMethodManager)this.GetSystemService(InputMethodService);
             inputMethodManager.HideSoftInputFromWindow(this.viewPager.WindowToken, HideSoftInputFlags.None);
         }
-        // завершение теста
+        // Завершение теста.
         private async void EndTest()
         {
             TestResult result = new TestResult(test);

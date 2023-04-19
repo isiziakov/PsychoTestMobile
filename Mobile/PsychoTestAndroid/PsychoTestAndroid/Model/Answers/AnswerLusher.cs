@@ -1,15 +1,7 @@
-﻿using Android.App;
-using Android.Content;
-using Android.Graphics;
-using Android.OS;
-using Android.Runtime;
+﻿using Android.Graphics;
 using Android.Views;
 using Android.Widget;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace PsychoTestAndroid.Model.Answers
 {
@@ -37,26 +29,26 @@ namespace PsychoTestAndroid.Model.Answers
             image.LayoutParameters.Height = ViewGroup.LayoutParams.MatchParent;
             (image.LayoutParameters as LinearLayout.LayoutParams).Weight = 1f;
             (image.LayoutParameters as LinearLayout.LayoutParams).SetMargins(8, 8, 8, 8);
-            UpdateResult(owner.Result);
+            UpdateResult(Owner.Result);
             image.Click += (sender, e) =>
             {
                 image.Clickable = false;
                 image.Visibility = ViewStates.Invisible;
-                if (owner.Result == null || owner.Result.Length == 0)
+                if (Owner.Result == null || Owner.Result.Length == 0)
                 {
-                    owner.Result = Id;
+                    Owner.Result = Id;
                 }
                 else
                 {
-                    owner.Result += " " + Id;
+                    Owner.Result += " " + Id;
                 }
             };
             return base.Show(layout);
         }
-        // обновление ответа в соответствии с результатом вопроса
+        // Обновление ответа в соответствии с результатом вопроса.
         public override void UpdateResult(string result)
         {
-            if (owner.Result.IndexOf(Id) > -1)
+            if (Owner.Result.IndexOf(Id) > -1)
             {
                 image.Visibility = ViewStates.Invisible;
                 image.Clickable = false;

@@ -15,7 +15,7 @@ using System.Text;
 
 namespace PsychoTestAndroid
 {
-    // список вопросов с выбранными ответами
+    // Список вопросов с выбранными ответами.
     public class EndTestViewHolder : RecyclerView.ViewHolder
     {
         public LinearLayout Layout { get; set; }
@@ -32,12 +32,12 @@ namespace PsychoTestAndroid
     {
         class questionWithNumber
         {
-            public int number { get; }
-            public Question question { get; }
+            public int Number { get; }
+            public Question Question { get; }
             public questionWithNumber(int number, Question question)
             {
-                this.number = number;
-                this.question = question;
+                Number = number;
+                Question = question;
             }
         }
         public event EventHandler<int> ItemClick;
@@ -70,7 +70,7 @@ namespace PsychoTestAndroid
             tx.SetMaxHeight(tx.LayoutParameters.Height);
             if (questions.Count > 0)
             {
-                tx.Text = "Вопрос " + questions[position].number + " - нет ответа";
+                tx.Text = "Вопрос " + questions[position].Number + " - нет ответа";
             }
             else
             {
@@ -100,7 +100,7 @@ namespace PsychoTestAndroid
         private void OnClick(int obj)
         {
             if (ItemClick != null)
-                ItemClick(this, questions[obj].number - 1);
+                ItemClick(this, questions[obj].Number - 1);
         }
 
         public override long GetItemId(int position)

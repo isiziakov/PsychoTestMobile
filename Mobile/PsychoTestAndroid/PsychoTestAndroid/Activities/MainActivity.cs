@@ -3,26 +3,22 @@ using Android.Content;
 using Android.Net;
 using Android.OS;
 using Android.Runtime;
-using Android.Views;
 using Android.Widget;
 using AndroidX.AppCompat.App;
 using AndroidX.Work;
 using Java.Util.Concurrent;
-using Newtonsoft.Json;
-using PsychoTestAndroid.Helpers;
-using PsychoTestAndroid.Model;
-using PsychoTestAndroid.Web;
 using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+
+using PsychoTestAndroid.Helpers;
+using PsychoTestAndroid.Web;
 
 namespace PsychoTestAndroid
 {
-    // стартовая активность
+    // Стартовая активность.
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
     public class MainActivity : AppCompatActivity
     {
-        // код для входа
+        // Код для входа.
         EditText code;
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -35,11 +31,11 @@ namespace PsychoTestAndroid
             SetContentView(Resource.Layout.activity_main);
             InitializeComponents();
         }
-        // инициализацмя визуальных элементов
+        // Инициализацмя визуальных элементов.
         void InitializeComponents()
         {
             code = FindViewById<EditText>(Resource.Id.main_code);
-            // кнопка войти
+            // Кнопка войти.
             Button enterButton = FindViewById<Button>(Resource.Id.main_enter_button);
             if (enterButton != null)
             {
@@ -58,7 +54,7 @@ namespace PsychoTestAndroid
                     {
                         if (result == System.Net.HttpStatusCode.OK)
                         {
-                            // переход на активность с тестами
+                            // Переход на активность с тестами.
                             GoToTests();
                         }
                         else
@@ -88,7 +84,7 @@ namespace PsychoTestAndroid
                 Toast.MakeText(this, "Отсутствует подклбючение к интернету, вход невозможен", ToastLength.Short).Show();
             }
         }
-        // переход на активность с тестами
+        // Переход на активность с тестами.
         private void GoToTests()
         {
             var tag = GetString(Resource.String.notification_channel_id);

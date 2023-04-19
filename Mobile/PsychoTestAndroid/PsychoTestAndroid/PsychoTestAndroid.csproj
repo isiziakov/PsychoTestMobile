@@ -80,7 +80,6 @@
     <Compile Include="DataBase\Interfaces\IDbRepos.cs" />
     <Compile Include="DataBase\Interfaces\IRepository.cs" />
     <Compile Include="DataBase\Operations\ScaleOperations.cs" />
-    <Compile Include="DataBase\Operations\TestCalcInfoOperations.cs" />
     <Compile Include="DataBase\Repository\SQLite\DBRepos.cs" />
     <Compile Include="DataBase\Repository\SQLite\ScaleRepos.cs" />
     <Compile Include="DataBase\Repository\SQLite\TestCalcInfoRepos.cs" />

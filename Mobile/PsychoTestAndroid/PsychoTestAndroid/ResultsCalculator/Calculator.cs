@@ -1,13 +1,6 @@
-﻿using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace PsychoTestAndroid.ResultsCalculator
 {
@@ -16,12 +9,28 @@ namespace PsychoTestAndroid.ResultsCalculator
         private const string numberChars = "01234567890.";
         private const string operatorChars = "^*/+-";
 
-        public static double Calculate(string expression)
+        public static ICalc CalcTest = new CalcForTest();
+
+        public interface ICalc
         {
-            return EvaluateParenthesis(expression);
+            public double CalculateTest(string expression);
         }
 
-        public static double EvaluateParenthesis(string expression) //
+        class CalcForTest : ICalc
+        {
+            public double CalculateTest(string expression)
+            {
+                return EvaluateParenthesis(expression);
+            }
+        }
+
+
+        public static double Calculate(string expression)
+        {
+            return CalcTest.CalculateTest(expression);
+        }
+
+        public static double EvaluateParenthesis(string expression)
         {
             string planarExpression = expression;
             while (planarExpression.IndexOf('(') > -1)
@@ -34,7 +43,7 @@ namespace PsychoTestAndroid.ResultsCalculator
             return Evaluate(planarExpression);
         }
 
-        public static int IndexOfRightParenthesis(string expression, int start) //
+        public static int IndexOfRightParenthesis(string expression, int start)
         {
             int c = 1;
             for (int i = start; i < expression.Length; i++)
@@ -49,7 +58,7 @@ namespace PsychoTestAndroid.ResultsCalculator
             return -1;
         }
 
-        public static double Evaluate(string expression) //
+        public static double Evaluate(string expression)
         {
             string normalExpression = expression.Replace(" ", "").Replace(",", ".");
             List<char> operators = normalExpression.Split(numberChars.ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Select(x => x[0]).ToList();
@@ -72,7 +81,7 @@ namespace PsychoTestAndroid.ResultsCalculator
             return numbers[0];
         }
 
-        public static double Calc(double left, double right, char oper) //
+        public static double Calc(double left, double right, char oper)
         {
             switch (oper)
             {

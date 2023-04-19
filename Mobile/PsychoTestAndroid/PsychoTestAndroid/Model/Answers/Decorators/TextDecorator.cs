@@ -1,21 +1,13 @@
-﻿using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
+﻿using Android.Views;
 using Android.Widget;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace PsychoTestAndroid.Model.Answers
 {
-    // декоратор с текстом
+    // Декоратор с текстом.
     public class TextDecorator : AnswersDecorator
     {
-        // текст
+        // Текст.
         string text;
         public TextDecorator()
         {
@@ -26,7 +18,7 @@ namespace PsychoTestAndroid.Model.Answers
         {
             text = data["Name"]["#text"].ToString();
         }
-        // отображение декоратора
+        // Отображение декоратора.
         public override LinearLayout Show(LinearLayout layout)
         {
             TextView textView = new TextView(layout.Context);

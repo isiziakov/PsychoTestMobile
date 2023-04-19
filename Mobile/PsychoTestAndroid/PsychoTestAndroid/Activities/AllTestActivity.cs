@@ -2,34 +2,31 @@
 using Android.Content;
 using Android.Net;
 using Android.OS;
-using Android.Runtime;
-using Android.Views;
 using Android.Widget;
 using AndroidX.RecyclerView.Widget;
 using AndroidX.SwipeRefreshLayout.Widget;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using PsychoTestAndroid.Activities;
-using PsychoTestAndroid.DataBase;
-using PsychoTestAndroid.DataBase.Entity;
-using PsychoTestAndroid.Helpers;
-using PsychoTestAndroid.Model;
-using PsychoTestAndroid.Web;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+
+using PsychoTestAndroid.Activities;
+
+using PsychoTestAndroid.DataBase;
+using PsychoTestAndroid.DataBase.Entity;
+
+using PsychoTestAndroid.Helpers;
+using PsychoTestAndroid.Web;
 
 namespace PsychoTestAndroid
 {
-    // активность отображения всех тестов
+    // Активность отображения всех тестов.
     [Activity(Label = "AllTestActivity")]
     public class AllTestActivity : Activity
     {
-        // лист тестов
+        // Лист тестов.
         List<DbTest> tests = new List<DbTest>();
         List<DbTest> newTests = new List<DbTest>();
-        // recycleView для отображения тестов
+        // RecycleView для отображения тестов.
         RecyclerView recycleView;
         AllTestsAdapter adapter;
         protected override void OnCreate(Bundle savedInstanceState)
@@ -48,7 +45,7 @@ namespace PsychoTestAndroid
         {
             base.OnResume();
             PreferencesHelper.PutString("AllTestStatus", "true");
-            // получить массив тестов
+            // Получить массив тестов.
             GetTests();
         }
        
@@ -57,7 +54,7 @@ namespace PsychoTestAndroid
             PreferencesHelper.PutString("AllTestStatus", "false");
             base.OnStop();
         }
-        // инициализировать визуальные элементы
+        // Инициализировать визуальные элементы.
         private void InitializeComponents()
         {
             ImageButton exitButton = FindViewById<ImageButton>(Resource.Id.allTest_Exit);
@@ -68,7 +65,7 @@ namespace PsychoTestAndroid
                 GetTests();
                 refresh.Refreshing = false;
             };
-            // установить размер кнопки назад в header
+            // Установить размер кнопки назад в header.
             exitButton.Click += (sender, e) =>
             {
                 AlertDialog.Builder alert = new AlertDialog.Builder(this);
@@ -121,7 +118,7 @@ namespace PsychoTestAndroid
                 menu.Show();
             };
         }
-        // обработка нажатия на элемент из списка тестов
+        // Обработка нажатия на элемент из списка тестов.
         private void MAdapter_ItemClick(object sender, int e)
         {
             if (tests[e].StatusNumber == 0)
@@ -145,7 +142,7 @@ namespace PsychoTestAndroid
                 }
                 else
                 {
-                    // открыть выбранный тест
+                    // Открыть выбранный тест.
                     Intent intent = new Intent(this, typeof(TestActivity));
                     intent.PutExtra("Test", tests[e]._id);
                     this.StartActivity(intent);

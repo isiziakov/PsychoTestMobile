@@ -1,52 +1,44 @@
-﻿using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PsychoTestAndroid.DataBase.Entity;
 using PsychoTestAndroid.Model.Questions;
-using PsychoTestAndroid.Result;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace PsychoTestAndroid.Model
 {
     public class Test
     {
-        // оставшееся время
+        // Оставшееся время.
         int currentDuration;
-        // порядок ответов (фиксирован / случаен)
+        // Порядок ответов (фиксирован / случаен).
         [JsonProperty("answer_order")]
         string answerOrder;
-        // порядок вопросов (фиксирован / случаен)
+        // Порядок вопросов (фиксирован / случаен).
         [JsonProperty("questions_order")]
         string questionOrder;
-        // id теста
+        // id теста.
         [JsonProperty("id")]
         public string Id;
-        // название теста
+        // Название теста.
         [JsonProperty("name")]
         public string Name;
         [JsonProperty("title")]
         public string Title;
-        // инструкция к тесту
+        // Инструкция к тесту.
         [JsonProperty("instruction")]
         public string Instruction;
-        // продолжительность теста
+        // Продолжительность теста.
         [JsonProperty("max_duration")]
         public string Duration;
-        // список вопросов
+        // Список вопросов.
         [JsonIgnore]
         public List<Question> Questions = new List<Question>();
         [JsonIgnore]
-        public bool WithoutAnswers = true; // скорее всего можно взять из теста
+        public bool WithoutAnswers = true;
 
-        // result
+        // result.
         [JsonIgnore]
         public string Result = "";
 
@@ -89,29 +81,29 @@ namespace PsychoTestAndroid.Model
             }
         }
 
-        // запустить таймер
+        // Запустить таймер.
         public string StartTimer()
         {
-            // время задано
+            // Время задано.
             if (Duration != "" && Duration != "0")
             {
-                // получаем оставшееся время в секундах
+                // Получаем оставшееся время в секундах.
                 currentDuration = Int32.Parse(Duration);
-                // преобразуем оставшееся время к формату [м][м]м:сс
+                // Преобразуем оставшееся время к формату [м][м]м:сс.
                 return GetDuration();
             }
-            // возвращаем время
+            // Возвращаем время.
             return "";
         }
 
-        // обработка тика таймера (1 секунда)
+        // Обработка тика таймера (1 секунда).
         public string TimerTick()
         {
-            // время не закончилось
+            // Время не закончилось.
             if (currentDuration > 0)
             {
                 currentDuration--;
-                // получение нового времени
+                // Получение нового времени.
                 return GetDuration();
             }
             else
@@ -120,21 +112,21 @@ namespace PsychoTestAndroid.Model
             }
         }
 
-        // преобразование времени в секундах к формату [м][м]м:сс
+        // Преобразование времени в секундах к формату [м][м]м:сс.
         public string GetDuration()
         {
-            // определение числа секунд
+            // Определение числа секунд.
             var seconds = (currentDuration % 60).ToString();
-            // добавление 0 перед числом секунд для 0-9 секунд
+            // Добавление 0 перед числом секунд для 0-9 секунд.
             seconds = seconds.Length == 1 ? "0" + seconds : seconds;
-            // возвращаем время
+            // Возвращаем время.
             return "" + currentDuration / 60 + ":" + seconds;
         }
 
-        // заполнить вопросы из json объекта теста
+        // Заполнить вопросы из json объекта теста.
         public void SetQuestions(JArray questions)
         {
-            // записываем каждый вопрос
+            // Записываем каждый вопрос.
             foreach (JObject question in questions)
             {
                 string type = question["Question_Type"].ToString();
@@ -147,15 +139,15 @@ namespace PsychoTestAndroid.Model
             }
         }
         
-        // подготовка теста к запуску
+        // Подготовка теста к запуску.
         public void StartTest()
         {
-            // перемешиваем вопросы
+            // Перемешиваем вопросы.
             if (questionOrder == "1")
             {
                 Mix(Questions);
             }
-            // перемешиваем ответы
+            // Перемешиваем ответы.
             if (answerOrder == "1")
             {
                 foreach(Question question in Questions)
@@ -164,7 +156,7 @@ namespace PsychoTestAndroid.Model
                 }
             }
         }
-        // перемешать элементы листа
+        // Перемешать элементы листа.
         public void Mix<T>(List<T> list)
         {
             var random = new Random();
